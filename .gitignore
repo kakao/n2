@@ -1,0 +1,13 @@
+n2/python/n2.cpp
+n2/python/.ropeproject/*
+n2/objdir/
+n2/release/
+.ropeproject/
+build/
+*.model
+*.swp
+*.pyc
+*.o
+dist/
+.eggs/
+n2.egg-info/
