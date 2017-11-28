@@ -1,7 +1,4 @@
-n2/python/n2.cpp
-n2/python/.ropeproject/*
-n2/objdir/
-n2/release/
+bindings/python/n2.cpp
 .ropeproject/
 build/
 *.model
