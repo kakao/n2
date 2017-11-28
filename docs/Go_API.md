@@ -38,9 +38,9 @@ func main() {
   - `metric` (string): an optional parameter for choosing a metric of distance. ('L2'|'angular')
 - `index.AddData(v)`: adds vector `v`
   - `v` (list of float): a vector with dimension `dim`
-- `index.Build(M, M0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging)`: builds a hnsw graph with given configurations.
+- `index.Build(M, Max_M0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging)`: builds a hnsw graph with given configurations.
   - `M` (int): max number of edges for nodes at level>0 (default=12)
-  - `M0` (int): max number of edges for nodes at level==0 (default=24)
+  - `Max_M0` (int): max number of edges for nodes at level==0 (default=24)
   - `ef_construction` (int): efConstruction (see HNSW paper...) (default=100)
   - `n_threads` (int): number of threads for building index
   - `mult` (float): level multiplier (recommend: use default value) (default=1/log(1.0*M))
