@@ -1,5 +1,7 @@
 ## AUTHORS
-- Dong-hee Na, denny.na@kakaocorp.com
-- Kwangsub Kim, lucas.kim@kakaocorp.com
-- Hyunjong Kim, peter.hyunjong@kakaocorp.com
-- Sungjin Kim, nick.kim@kakaocorp.com
+- Dong-hee Na <denny.na@kakaocorp.com>
+- Kwangseob Kim <lucas.kim@kakaocorp.com>
+- Hyunjong Lee <peter.hyunjong@kakaocorp.com>
+- Jisang Yoon <jason.yoon@kakaocorp.com>
+- Seongjin Kim <nick.kim@kakaocorp.com>
+- Tackhee Lee <leeth92@naver.com>
