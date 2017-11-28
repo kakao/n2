@@ -18,10 +18,10 @@ import os
 import platform
 import subprocess
 
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 NAME = 'n2'
-VERSION = '0.1.0'
+VERSION = '0.1.2'
 
 try:
     from Cython.Build import cythonize
@@ -107,7 +107,11 @@ setup(
     version=VERSION,
     description='Approximate Nearest Neighbor library',
     author='Kakao.corp',
+    author_email='recotech.kakao@gmail.com',
     license='Apache License 2.0',
+    install_requires=[
+        "cython",
+    ],
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
