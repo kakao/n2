@@ -44,6 +44,7 @@ Generally N2 is faster than the nmslib to build index file. Compared to the anno
 
 |                 Library                 |      Search time      | Accuracy |
 |:---------------------------------------:|:---------------------:|:--------:|
+|     Linear search (numpy based)         |   0.358749273825 sec  | 1.0      |
 |     N2 (efCon = 100, efSearch = 10)     | 2.98758983612e-05 sec | 0.054243 |
 |     N2 (efCon = 100, efSearch = 100)    | 0.000128486037254 sec |  0.48313 |
 |    N2 (efCon = 100, efSearch = 1000)    | 0.000824773144722 sec | 0.840634 |
@@ -58,7 +59,7 @@ Generally N2 is faster than the nmslib to build index file. Compared to the anno
 |     Annoy(n_trees=10, search_k=3000)    |  0.00096510682106 sec | 0.481099 |
 |    Annoy(n_trees=10, search_k=50000)    |  0.0144059297085 sec  | 0.835895 |
 |    Annoy(n_trees=10, search_k=200000)   |   0.053891249156 sec  | 0.918569 |
-|    Annoy(n_trees=10, search_k=500000)   |     0.108285815144    | 0.940851 |
+|    Annoy(n_trees=10, search_k=500000)   |   0.108285815144 sec  | 0.940851 |
 
 Overall, we can see that N2 has a much higher accuracy than the annoy, and N2 has better performance than the other two libraries at high precision points.
 
