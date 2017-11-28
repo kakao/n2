@@ -5,6 +5,11 @@ import subprocess
 import sys
 import tarfile
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 from n2 import HnswIndex
 
 n2_logger = logging.getLogger("n2_benchmark")
@@ -297,10 +302,10 @@ if __name__ == '__main__':
 
     if not os.path.exists(queries_fn):
         queries = get_queries(args)
-        with open(queries_fn, 'w') as f:
+        with open(queries_fn, 'wb') as f:
             pickle.dump(queries, f)
     else:
-        queries = pickle.load(open(queries_fn))
+        queries = pickle.load(open(queries_fn, 'rb'))
 
     logging.info('got {0} queries'.format(len(queries)))
 
