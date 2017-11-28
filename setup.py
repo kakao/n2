@@ -25,20 +25,16 @@ from Cython.Build import cythonize
 NAME = 'n2'
 VERSION = '0.1.3'
 
-use_openmp = True
 
-
-def define_extensions():
-    global use_openmp
+def define_extensions(**kwargs):
     libraries = []
     extra_link_args = []
     extra_compile_args = ['-std=c++11', '-O3', '-fPIC', '-march=native']
-    if use_openmp:
-        extra_link_args.append('-fopenmp')
-        extra_compile_args.append('-fopenmp')
+    extra_link_args.append('-fopenmp')
+    extra_compile_args.append('-fopenmp')
 
-    sources = ['./src/base.cc', './src/distance.cc', './src/heuristic.cc',  
-        './src/hnsw.cc', './src/hnsw_node.cc',  './src/mmap.cc', 
+    sources = ['./src/base.cc', './src/distance.cc', './src/heuristic.cc',
+        './src/hnsw.cc', './src/hnsw_node.cc',  './src/mmap.cc',
         './bindings/python/n2.pyx']
 
     client_ext = Extension(name='n2',
@@ -50,39 +46,6 @@ def define_extensions():
                            language="c++",)
     return cythonize(client_ext)
 
-
-# set_gcc copied from glove-python project
-# https://github.com/maciejkula/glove-python
-
-def set_gcc():
-    """
-    Try to find and use GCC on OSX for OpenMP support.
-    """
-    # For macports and homebrew
-    patterns = ['/opt/local/bin/g++-mp-[0-9].[0-9]',
-                '/opt/local/bin/g++-mp-[0-9]',
-                '/usr/local/bin/g++-[0-9].[0-9]',
-                '/usr/local/bin/g++-[0-9]']
-
-    if 'darwin' in platform.platform().lower():
-        gcc_binaries = []
-        for pattern in patterns:
-            gcc_binaries += glob.glob(pattern)
-        gcc_binaries.sort()
-
-        if gcc_binaries:
-            _, gcc = os.path.split(gcc_binaries[-1])
-            os.environ["CC"] = gcc
-            os.environ["CXX"] = gcc
-
-        else:
-            global use_openmp
-            use_openmp = False
-            logging.warning('No GCC available. Install gcc from Homebrew '
-                            'using brew install gcc.')
-
-
-set_gcc()
 
 setup(
     name=NAME,
