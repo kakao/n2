@@ -20,53 +20,35 @@ import subprocess
 
 from setuptools import setup, Extension
 
-NAME = 'n2'
-VERSION = '0.1.2'
+from Cython.Build import cythonize
 
-try:
-    from Cython.Build import cythonize
-    use_cython = True
-except ImportError:
-    use_cython = False
+NAME = 'n2'
+VERSION = '0.1.3'
 
 use_openmp = True
 
 
-def define_extensions(use_cython=False):
+def define_extensions():
     global use_openmp
-    libraries = ['n2']
-    library_dirs = ['./build/lib/static/']
+    libraries = []
     extra_link_args = []
     extra_compile_args = ['-std=c++11', '-O3', '-fPIC', '-march=native']
     if use_openmp:
         extra_link_args.append('-fopenmp')
         extra_compile_args.append('-fopenmp')
 
-    subprocess.call(['make', 'static_lib'])
+    sources = ['./src/base.cc', './src/distance.cc', './src/heuristic.cc',  
+        './src/hnsw.cc', './src/hnsw_node.cc',  './src/mmap.cc', 
+        './bindings/python/n2.pyx']
 
-    sources = []
-    if use_cython:
-        sources.append('./bindings/python/n2.pyx')
-        client_ext = Extension(name='n2',
-                               sources=sources,
-                               extra_compile_args=extra_compile_args,
-                               libraries=libraries,
-                               library_dirs=library_dirs,
-                               extra_link_args=extra_link_args,
-                               include_dirs=['./include/', './third_party/spdlog/include/'],
-                               language="c++",)
-        return cythonize(client_ext)
-    else:
-        sources.append('./bindings/python/n2.cpp')
-        client_ext = Extension(name='n2',
-                               sources=sources,
-                               libraries=libraries,
-                               library_dirs=library_dirs,
-                               extra_compile_args=extra_compile_args,
-                               extra_link_args=extra_link_args,
-                               include_dirs=['./include/', './third_party/spdlog/include/'],
-                               language="c++",)
-        return [client_ext]
+    client_ext = Extension(name='n2',
+                           sources=sources,
+                           extra_compile_args=extra_compile_args,
+                           libraries=libraries,
+                           extra_link_args=extra_link_args,
+                           include_dirs=['./include/', './third_party/spdlog/include/'],
+                           language="c++",)
+    return cythonize(client_ext)
 
 
 # set_gcc copied from glove-python project
@@ -120,5 +102,5 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'],
 
     keywords='Approximate Nearest Neighbor',
-    ext_modules=define_extensions(use_cython),
+    ext_modules=define_extensions(),
 )
