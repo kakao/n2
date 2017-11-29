@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import glob
+import io
 import logging
 import os
 import platform
@@ -25,6 +26,10 @@ from Cython.Build import cythonize
 NAME = 'n2'
 VERSION = '0.1.3'
 
+def long_description():
+    with io.open('README.rst', 'r', encoding='utf-8') as f:
+        readme = f.read()
+    return readme
 
 def define_extensions(**kwargs):
     libraries = []
@@ -50,6 +55,7 @@ setup(
     name=NAME,
     version=VERSION,
     description='Approximate Nearest Neighbor library',
+    long_description=long_description(),
     author='Kakao.corp',
     author_email='recotech.kakao@gmail.com',
     license='Apache License 2.0',
