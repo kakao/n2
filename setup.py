@@ -46,7 +46,6 @@ def define_extensions(**kwargs):
                            language="c++",)
     return cythonize(client_ext)
 
-
 setup(
     name=NAME,
     version=VERSION,

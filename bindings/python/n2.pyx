@@ -93,11 +93,12 @@ cdef class _HnswIndex:
 
     def print_degree_dist(self):
         with nogil:
-             self.obj.PrintDegreeDist()
+            self.obj.PrintDegreeDist()
 
     def print_configs(self):
         with nogil:
-             self.obj.PrintConfigs()
+            self.obj.PrintConfigs()
+
 
 class HnswIndex(object):
     def __init__(self, dimension, metric='angular'):
@@ -123,7 +124,7 @@ class HnswIndex(object):
         """
         return self.model.save(fname)
 
-    def load(self, fname, use_mmap = True):
+    def load(self, fname, use_mmap=True):
         """
         Load the index from dixk
 
@@ -137,15 +138,15 @@ class HnswIndex(object):
     def unload(self):
         self.model.unload()
 
-    def build(self, M=None, Max_M0=None, ef_construction=None, n_threads=None, mult=None, neighbor_selecting=None, graph_merging=None):
+    def build(self, m=None, max_m0=None, ef_construction=None, n_threads=None, mult=None, neighbor_selecting=None, graph_merging=None):
         """
         Builds a hnsw graph with given configurations
         """
         configs = []
-        if M is not None:
-            configs.append(['M'.encode('ascii'), str(M).encode('ascii')])
-        if Max_M0 is not None:
-            configs.append(['MaxM0'.encode('ascii'), str(Max_M0).encode('ascii')])
+        if m is not None:
+            configs.append(['M'.encode('ascii'), str(m).encode('ascii')])
+        if max_m0 is not None:
+            configs.append(['MaxM0'.encode('ascii'), str(max_m0).encode('ascii')])
         if ef_construction is not None:
             configs.append(['efConstruction'.encode('ascii'), str(ef_construction).encode('ascii')])
         if n_threads is not None:
