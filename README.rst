@@ -21,20 +21,11 @@ N2 - approximate **N**\ earest **N**\ eighbor
 Install
 -------
 
-::
-
-    # For MacOS users,
-    # Please set $CXX and $CC to your gcc/g++ path.
-    # e.g 
-    # export CXX=/usr/local/bin/g++-7
-    # export CC=/usr/local/bin/g++-7
-    pip install n2
-
-Requirements
-------------
-
--  gcc
--  openmp
+To install:
+```
+sudo pip install n2
+```
+For more detail, see `the installation`_ for instruction on how to build N2 from source.
 
 Introduce
 ---------
@@ -88,8 +79,6 @@ Memory usage
 
 Install
 -------
-
-See `the installation`_ for instruction on how to build N2 from source.
 
 Bindings
 --------
