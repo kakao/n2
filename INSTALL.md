@@ -1,7 +1,7 @@
 # Installation
 
 `master` brunch is always lastest release version of N2. Let's start clone it.
-`$> git clone https://some.where.over.the.rainbow/n2.git`
+`$> git clone https://github.com/kakao/n2.git`
 Then, update sub modules `git submodule update --init`.
 
 ## Python
