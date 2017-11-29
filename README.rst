@@ -22,9 +22,11 @@ Install
 -------
 
 To install:
-```
-sudo pip install n2
-```
+
+.. code:: bash
+
+    sudo pip install n2
+
 For more detail, see `the installation`_ for instruction on how to build N2 from source.
 
 Introduce
