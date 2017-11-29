@@ -39,7 +39,7 @@ class AngularTest(TestCase):
         i.add_data([0, 0, 1])
         i.add_data([0, 1, 0])
         i.add_data([1, 0, 0])
-        i.build(Max_M0=10, M=5)
+        i.build(max_m0=10, m=5)
 
         self.assertEqual(i.search_by_vector([3, 2, 1], 3), [0, 1, 2])
         self.assertEqual(i.search_by_vector([1, 2, 3], 3), [0, 1, 2])
@@ -51,7 +51,7 @@ class AngularTest(TestCase):
         i.add_data([2, 1, 0])
         i.add_data([1, 2, 0])
         i.add_data([0, 0, 1])
-        i.build(Max_M0=10)
+        i.build(max_m0=10)
 
         self.assertEqual(i.search_by_id(0, 3), [0, 1, 2])
         self.assertEqual(i.search_by_id(1, 3), [1, 0, 2])

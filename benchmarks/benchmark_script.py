@@ -1,14 +1,30 @@
-import gzip, numpy, time, os, multiprocessing, argparse, pickle, resource, random, math
+import gzip
+import numpy
+import time
+import os
+import multiprocessing
+import argparse
+import pickle
+import resource
+import random
+import math
 import logging
 import shutil
 import subprocess
 import sys
 import tarfile
 
+from contextlib import closing
+
 try:
     xrange
 except NameError:
     xrange = range
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
 from n2 import HnswIndex
 
@@ -69,14 +85,14 @@ class BruteForceBLAS(BaseANN):
         return sorted(indices, key=lambda index: dists[index])  # sort `n` closest into correct order
 
 class N2(BaseANN):
-    def __init__(self, M, ef_construction, n_threads, ef_search, metric):
-        self._M = M
-        self._M0 = M * 2
+    def __init__(self, m, ef_construction, n_threads, ef_search, metric):
+        self._m = m
+        self._m0 = m * 2
         self._ef_construction = ef_construction
         self._n_threads = n_threads
         self._ef_search = ef_search
-        self._index_name = os.path.join(INDEX_DIR, "n2_%s_M%d_efCon%d_n_thread%s" % (args.dataset, M, ef_construction, n_threads))
-        self.name = "N2_M%d_efCon%d_n_thread%s_efSearch%d" % (M, ef_construction, n_threads, ef_search)
+        self._index_name = os.path.join(INDEX_DIR, "n2_%s_M%d_efCon%d_n_thread%s" % (args.dataset, m, ef_construction, n_threads))
+        self.name = "N2_M%d_efCon%d_n_thread%s_efSearch%d" % (m, ef_construction, n_threads, ef_search)
         self._metric = metric
 
         d = os.path.dirname(self._index_name)
@@ -97,7 +113,7 @@ class N2(BaseANN):
 
             for i, x in enumerate(X):
                 self._n2.add_data(x.tolist())
-            self._n2.build(M = self._M, Max_M0 = self._M0, ef_construction = self._ef_construction, n_threads=self._n_threads)
+            self._n2.build(m=self._m, max_m0=self._m0, ef_construction=self._ef_construction, n_threads=self._n_threads)
             self._n2.save(self._index_name)
 
     def query(self, v, n):
@@ -233,26 +249,24 @@ def get_fn(base, args):
     return fn
 
 def download_file(url, dst):
-    import urllib2
     file_name = url.split('/')[-1]
-    u = urllib2.urlopen(url)
-    meta = u.info()
-    with open(dst+"/"+file_name, 'wb') as f:
-        file_size = int(meta.getheaders("Content-Length")[0])
-        sys.stdout.write("Downloading datasets %s\r" % (file_name))
+    with closing(urlopen(url)) as res:
+        with open(dst+"/"+file_name, 'wb') as f:
+            file_size = int(res.headers["Content-Length"])
+            sys.stdout.write("Downloading datasets %s\r" % (file_name))
 
-        file_size_dl = 0
-        block_sz = 10240
-        while True:
-            buffer = u.read(block_sz)
-            if not buffer:
-                break
+            file_size_dl = 0
+            block_sz = 10240
+            while True:
+                buffer = res.read(block_sz)
+                if not buffer:
+                    break
 
-            file_size_dl += len(buffer)
-            f.write(buffer)
-            sys.stdout.write("Downloading datasets %s: %d / %d bytes\r" % (file_name, file_size_dl, file_size))
+                file_size_dl += len(buffer)
+                f.write(buffer)
+                sys.stdout.write("Downloading datasets %s: %d / %d bytes\r" % (file_name, file_size_dl, file_size))
 
-    sys.stdout.write('\n')
+        sys.stdout.write('\n')
 
 if __name__ == '__main__':
     global GT_SIZE
@@ -290,7 +304,6 @@ if __name__ == '__main__':
         download_file("ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz", "datasets")
         with tarfile.open("datasets/sift.tar.gz") as t:
             t.extractall(path="datasets")
-        download_file("https://raw.githubusercontent.com/searchivarius/nmslib/v1.5/data/data_conv/convert_texmex_fvec.py", "datasets")
         subprocess.call("python datasets/convert_texmex_fvec.py datasets/sift/sift_base.fvecs >> datasets/sift.txt", shell=True)
 
     if args.dataset == 'youtube' and not os.path.exists(YOUTUBE_DIR):

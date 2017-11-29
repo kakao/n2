@@ -10,7 +10,7 @@ for i in xrange(1000):
     v = [random.gauss(0, 1) for z in xrange(f)]
     t.add_data(v)
 
-t.build(M=5, Max_M0=10, n_threads=4)
+t.build(m=5, max_m0=10, n_threads=4)
 t.save('test.hnsw')
 
 u = HnswIndex(f)
@@ -28,8 +28,8 @@ print(u.search_by_id(0, 1000))
 - `index.add_data(v)`: adds vector `v`
   - `v` (list of float): a vector with dimension `dim`
 - `index.build(M, M0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging)`: builds a hnsw graph with given configurations.
-  - `M` (int): max number of edges for nodes at level>0 (default=12)
-  - `Max_M0` (int): max number of edges for nodes at level==0 (default=24)
+  - `m` (int): max number of edges for nodes at level>0 (default=12)
+  - `max_m0` (int): max number of edges for nodes at level==0 (default=24)
   - `ef_construction` (int): efConstruction (see HNSW paper...) (default=150)
   - `n_threads` (int): number of threads for building index
   - `mult` (float): level multiplier (recommend: use default value) (default=1/log(1.0*M))

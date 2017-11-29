@@ -7,7 +7,7 @@ for i in xrange(1000):
     v = [random.gauss(0, 1) for z in xrange(f)]
     t.add_data(v)
 
-t.build(M=5, Max_M0=10, n_threads=4)
+t.build(m=5, max_m0=10, n_threads=4)
 t.save('test.n2')
 
 u = HnswIndex(f, "angular")
