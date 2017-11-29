@@ -79,9 +79,6 @@ Memory usage
 
 .. install-1:
 
-Install
--------
-
 Bindings
 --------
 
