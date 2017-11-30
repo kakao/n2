@@ -13,6 +13,7 @@ before_install:
 
 script:
   - "pip install nose cython"
+  - "python setup.py install"
   - "make test_all"
 
 notifications:
