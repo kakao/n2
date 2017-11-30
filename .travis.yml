@@ -1,0 +1,19 @@
+
+language: python
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+
+cache:
+  pip: true
+
+before_install:
+  - git submodule update --init --recursive
+
+script:
+  - "pip install nose cython"
+  - "make test_all"
+
+notifications:
+  email: false
