@@ -17,7 +17,7 @@ go:
 	@cp -r include/* ${GOPATH}/src/n2
 	@cp src/* ${GOPATH}/src/n2
 	@cp tests/golang_test/* ${GOPATH}/src/n2
-	@cp third_party -r ${GOPATH}/src/n2/
+	@cp -r third_party ${GOPATH}/src/n2/
 	@cd ${GOPATH}/src/n2 && ${GO_BIN} get -t -v ...
 	@cd ${GOPATH}/src/n2 && ${GO_BIN} build
 	@cd ${GOPATH}/src/n2 && ${GO_BIN} test
