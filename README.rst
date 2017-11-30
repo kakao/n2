@@ -49,8 +49,7 @@ finally, we release N2 to the world.
 Features
 --------
 
--  Efficient implementations. N2 run faster and lightweights, especially
-   for large dataset.
+-  Efficient implementations. N2 is a lightweight library which runs faster even with large datasets.
 -  Support multi-core CPUs for index building.
 -  Support a mmap feature by default for handling large index files
    efficiently.
