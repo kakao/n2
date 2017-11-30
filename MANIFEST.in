@@ -5,4 +5,5 @@ graft tests
 graft src
 graft include
 graft bindings
+graft docs
 exclude bindings/python/*.cpp
