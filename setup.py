@@ -24,7 +24,7 @@ from setuptools import setup, Extension
 from Cython.Build import cythonize
 
 NAME = 'n2'
-VERSION = '0.1.3'
+VERSION = '0.1.4'
 
 def long_description():
     with io.open('README.rst', 'r', encoding='utf-8') as f:
