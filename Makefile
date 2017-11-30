@@ -7,6 +7,7 @@ VERSION := $(MAJOR).$(MINOR).$(MICRO)
 PREFIX ?= /usr/local/
 PREFIX_INCLUDE := $(PREFIX)/include
 PREFIX := $(PREFIX)/lib64
+CXX ?= g++
 
 
 ### Bindings ### 
@@ -60,11 +61,11 @@ gtest: gtest-all.o gtest_main.o
 
 gtest-all.o:
 	@mkdir -p build/obj
-	@g++ -o build/obj/$@ -c -I./third_party/googletest/googletest/ -I./third_party/googletest/googletest/include/ ./third_party/googletest/googletest/src/gtest-all.cc
+	$(CXX) -o build/obj/$@ -c -I./third_party/googletest/googletest/ -I./third_party/googletest/googletest/include/ ./third_party/googletest/googletest/src/gtest-all.cc
 
 gtest_main.o:
 	@mkdir -p build/obj
-	@g++ -o build/obj/$@ -c -I./third_party/googletest/googletest/ -I./third_party/googletest/googletest/include/ ./third_party/googletest/googletest/src/gtest_main.cc
+	$(CXX) -o build/obj/$@ -c -I./third_party/googletest/googletest/ -I./third_party/googletest/googletest/include/ ./third_party/googletest/googletest/src/gtest_main.cc
 
 .PHONY: clean
 clean:
