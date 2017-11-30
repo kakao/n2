@@ -77,8 +77,5 @@ Overall, we can see that N2 has a much higher accuracy than the annoy, and N2 ha
 The three libraries do not show much difference in memory usage.
 
 ## Conclusion
-This is a summary of a benchmark.
-
-In terms of indexing performance, N2 will perform better than others on multi-core CPUs machine. The annoy is also good a choice especially for small datasets that can be handled well by a single thread. But as you can see the experimental results, N2 will be a better choice if the dataset is large and fast indexing speed is needed. In fact, indexing performance is not critical in most cases where the dataset is small.
-
-If you need high precision, the nmslib and N2, which use the hnsw algorithm, are the best choice. In the experiments, N2 shows almost 2x faster than the annoy.
+In short, on multi-core CPU, N2 performs best.  annoy is a good choice for small datasets that can be handled by a single thread. However, when dataset is large, where high indexing performance is critical, N2 is where to go. N2 runs almost 2x faster than annoy.
+When high precision is required, both nmslib and N2 are good.
