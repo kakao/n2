@@ -1,9 +1,9 @@
 # N2 Benchmark explanation
 
 ## Benchmark Focus
-First, as we wrote before, we are focusing on running an approximate nearest neighborhoods algorithm for the large dataset.
-Second, in real-world contents service, like news portal service, the dataset is frequently changed(e.g. create/update/delete), thus we need to re-build index frequently. So time required to build the index file is business-critical.
-So our benchmarks are focusing on these.
+First, the new approximate nearest neighborhoods algorithm should run faster for large datasets.
+Second, online content services like news portal, where dataset is frequently updated(e.g. create/update/delete), building the index file should be done in minimum time.
+Therefore, these are our main criteria:
 
 * How long does it take to build the index file?
 * How long does it take to get results from the large dataset?
