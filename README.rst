@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/kakao/n2.svg?branch=master
+    :target: https://travis-ci.org/kakao/n2
+    
 N2
 ==
 
