@@ -9,8 +9,15 @@ The easiest way is to use pip. Simply do `sudo pip install n2` to fetch the pack
 
 For MacOS users, please set $CXX and $CC to your gcc/g++ path. e.g:
 ```
-export CXX=/usr/local/bin/g++-7
-export CC=/usr/local/bin/g++-7
+$> export CXX=/usr/local/bin/g++-7
+$> export CC=/usr/local/bin/g++-7
+```
+If no gcc available, we recommend use [brew](https://brew.sh/index_ko.html) to install gcc. 
+```
+$> brew install gcc
+$> export CXX=/usr/local/bin/g++-7  # check g++ location on your system
+$> export CC=/usr/local/bin/g++-7
+$> sudo pip install n2
 ```
 
 You can also build from source by `python setup.py install`. You may want to run unit-test by issue the following command: `make test_python`.
@@ -31,3 +38,4 @@ You can also build from source by `python setup.py install`. You may want to run
 ## Requirements
 - gcc
 - openmp
+- spdlog
