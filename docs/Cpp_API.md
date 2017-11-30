@@ -47,6 +47,7 @@ int main() {
         - `GraphPostProcessing::SKIP` (default): do not merge (recommended for large scale of data(over 10M))
         - `GraphPostProcessing::MERGE_LEVEL0`: build an another graph in reverse order. then merge edges of level0 (recommended for under 10M scale data)
 - `void n2::HnswIndex.Fit()`: builds a hnsw graph with given configurations.
+- `void Build(int M = -1, int M0 = -1, int ef_construction = -1, int n_threads = -1, float mult = -1, NeighborSelectingPolicy neighbor_selecting = NeighborSelectingPolicy::HEURISTIC, GraphPostProcessing graph_merging = GraphPostProcessing::SKIP, bool ensure_k = false)`: builds a hnsw graph with given configurations. (see `Fit`, `SetConfigs`)
 - `bool n2::HnswIndex.SaveModel(const std::string& fname)`: saves the index to disk
     - `fname` (std::string) : A index file name.
 - `bool n2::HnswIndex.LoadModel(const std::string& fname, const bool use_mmap=true)`: loads an index from disk.
