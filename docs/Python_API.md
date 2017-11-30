@@ -27,7 +27,7 @@ print(u.search_by_id(0, 1000))
   - `metric` (string): an optional parameter for choosing a metric of distance. ('L2'|'angular')
 - `index.add_data(v)`: adds vector `v`
   - `v` (list of float): a vector with dimension `dim`
-- `index.build(M, M0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging)`: builds a hnsw graph with given configurations.
+- `index.build(m, max_m0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging)`: builds a hnsw graph with given configurations.
   - `m` (int): max number of edges for nodes at level>0 (default=12)
   - `max_m0` (int): max number of edges for nodes at level==0 (default=24)
   - `ef_construction` (int): efConstruction (see HNSW paper...) (default=150)
