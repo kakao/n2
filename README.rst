@@ -1,9 +1,12 @@
-.. image:: https://travis-ci.org/kakao/n2.svg?branch=master
-    :target: https://travis-ci.org/kakao/n2
-    
 N2
-==
+== 
 
+.. image:: https://travis-ci.org/kakao/n2.svg?branch=master
+   :target: https://travis-ci.org/kakao/n2
+
+.. image:: https://img.shields.io/pypi/v/n2.svg?style=flat
+   :target: https://pypi.python.org/pypi/n2
+   
 N2 - approximate **N**\ earest **N**\ eighbor
 
 .. code:: python
