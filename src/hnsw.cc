@@ -289,7 +289,7 @@ void Hnsw::Build(int M, int MaxM0, int ef_construction, int n_threads, float mul
     bool is_levelmult_set = false;
     if ( M > 0 ) MaxM_ = M_ = M;
     if ( MaxM0 > 0 ) MaxM0_ = MaxM0;
-    if ( efConstruction_ > 0 ) efConstruction_ = ef_construction;
+    if ( ef_construction > 0 ) efConstruction_ = ef_construction;
     if ( n_threads > 0 ) num_threads_ = n_threads;
     levelmult_ = mult > 0 ? mult : 1 / log(1.0*M_);
 
