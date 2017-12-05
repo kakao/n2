@@ -279,20 +279,16 @@ void Hnsw::SetConfigs(const vector<pair<string, string> >& configs) {
 }
 
 int Hnsw::DrawLevel(bool use_default_rng) {
-    if (use_default_rng) {
-        return (int)(-log(uniform_distribution_(*default_rng_)) * levelmult_);
-    } else {
-        double r = uniform_distribution_(rng_);
-        if (r < std::numeric_limits<double>::epsilon())
-            r = 1.0;
-        return (int)(-log(r) * levelmult_);
-    }
+    double r = use_default_rng ? uniform_distribution_(*default_rng_) : uniform_distribution_(rng_);
+    if (r < std::numeric_limits<double>::epsilon())
+        r = 1.0;
+    return (int)(-log(r) * levelmult_);
 }
 
 void Hnsw::Build(int M, int MaxM0, int ef_construction, int n_threads, float mult, NeighborSelectingPolicy neighbor_selecting, GraphPostProcessing graph_merging, bool ensure_k) {
     bool is_levelmult_set = false;
     if ( M > 0 ) MaxM_ = M_ = M;
-    if ( MaxM0 > 0 ) MaxM0_ = MaxM0; 
+    if ( MaxM0 > 0 ) MaxM0_ = MaxM0;
     if ( efConstruction_ > 0 ) efConstruction_ = ef_construction;
     if ( n_threads > 0 ) num_threads_ = n_threads;
     levelmult_ = mult > 0 ? mult : 1 / log(1.0*M_);
@@ -343,7 +339,7 @@ void Hnsw::Fit() {
     memory_per_link_level0_ = sizeof(int) * (1 + 1 + MaxM0_);  // "1" for offset pos, 1" for saving num_links
     memory_per_node_level0_ = memory_per_link_level0_ + memory_per_data_;
     long long level0_size = memory_per_node_level0_ * data_.size();
-    
+
     model_byte_size_ = model_config_size + level0_size + higher_level_size;
     model_ = new char[model_byte_size_];
     if (model_ == NULL) {
@@ -385,7 +381,7 @@ void Hnsw::BuildGraph(bool reverse) {
         #pragma omp parallel num_threads(num_threads_)
         {
             visited_list_ = new VisitedList(data_.size());
-            
+
             #pragma omp for schedule(dynamic,128)
             for (size_t i = data_.size() - 1; i >= 1; --i) {
                 level = DrawLevel(use_default_rng_);
@@ -639,7 +635,7 @@ void Hnsw::MergeEdgesOfTwoGraphs(const vector<HnswNode*>& another_nodes) {
         post_policy_cls_->Select(MaxM0_, temp_res, data_dim_, dist_cls_);
         vector<HnswNode*> merged_neighbors = vector<HnswNode*>();
         while (!temp_res.empty()) {
-            merged_neighbors.emplace_back(temp_res.top().GetNode());                        
+            merged_neighbors.emplace_back(temp_res.top().GetNode());
             temp_res.pop();
         }
         nodes_[i]->SetFriends(0, merged_neighbors);
@@ -662,7 +658,7 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
     typedef typename MinHeap<float, int>::Item  QueueItem;
     std::queue<QueueItem> q;
     search_list_->Reset();
-    
+
     unsigned int mark = search_list_->GetVisitMark();
     unsigned int* visited = search_list_->GetVisited();
     bool need_sort = false;
