@@ -279,21 +279,17 @@ void Hnsw::SetConfigs(const vector<pair<string, string> >& configs) {
 }
 
 int Hnsw::DrawLevel(bool use_default_rng) {
-    if (use_default_rng) {
-        return (int)(-log(uniform_distribution_(*default_rng_)) * levelmult_);
-    } else {
-        double r = uniform_distribution_(rng_);
-        if (r < std::numeric_limits<double>::epsilon())
-            r = 1.0;
-        return (int)(-log(r) * levelmult_);
-    }
+    double r = use_default_rng ? uniform_distribtuion_(*default_rng_) : uniform_distribution_(rng_);
+    if (r < std::numeric_limits<double>::epsilon())
+        r = 1.0;
+    return (int)(-log(r) * levelmult_);
 }
 
 void Hnsw::Build(int M, int MaxM0, int ef_construction, int n_threads, float mult, NeighborSelectingPolicy neighbor_selecting, GraphPostProcessing graph_merging, bool ensure_k) {
     bool is_levelmult_set = false;
     if ( M > 0 ) MaxM_ = M_ = M;
     if ( MaxM0 > 0 ) MaxM0_ = MaxM0; 
-    if ( efConstruction_ > 0 ) efConstruction_ = ef_construction;
+    if ( ef_construction > 0 ) efConstruction_ = ef_construction;
     if ( n_threads > 0 ) num_threads_ = n_threads;
     levelmult_ = mult > 0 ? mult : 1 / log(1.0*M_);
 
