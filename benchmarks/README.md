@@ -19,3 +19,22 @@ please follow the instructions below.
 * `--ef_search (ef_search metric)`: 'ef_search'
 * `--M (M value)`: 'M value'
 * `--n_threads (number of threads)`: 'Number of threads'
+
+# [Benchmark](/docs/benchmark.rst) Reproduce
+
+## Warning
+This benchmark is a script that reproduces all of the benchmark metrics we measure.
+It takes a considerable amount of time to run all the libraries.
+
+## How to run
+```
+$pip install n2 nmslib annoy
+$python youtube_reproduce.py
+```
+
+## Result
+`./results/youtube.txt`
+
+## Parameters
+* `--algo (n2 | annoy | nmslib)`: 'A name of library which t you want to run. If this parameter is not set, benchmark will run all libraries.'
+* `--n_threads (number of threads)`: 'Number of threads'
