@@ -39,8 +39,6 @@ using std::endl;
 using std::fstream;
 using std::max;
 using std::min;
-using std::fmax;
-using std::fmin;
 using std::mutex;
 using std::ofstream;
 using std::ifstream;
