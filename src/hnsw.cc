@@ -24,6 +24,7 @@
 #include <unordered_set>
 #include <vector>
 #include <thread>
+#include <xmmintrin.h>
 
 #include "n2/hnsw.h"
 #include "n2/hnsw_node.h"
