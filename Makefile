@@ -9,7 +9,7 @@ PREFIX_INCLUDE := $(PREFIX)/include
 PREFIX := $(PREFIX)/lib64
 CXX ?= g++
 
-
+all: static_lib shared_lib test_cpp
 ### Bindings ### 
 
 go:
