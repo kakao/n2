@@ -372,7 +372,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_threads', help='Number of threads', type=int,default=20)
     args = parser.parse_args()
     args.dataset = 'youtube'
-    args.distance = 'euclidean'
+    args.distance = 'angular'
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
