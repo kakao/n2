@@ -70,7 +70,7 @@ Hnsw::Hnsw(int dim, string metric) : data_dim_(dim) {
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
-    if(metric == "L2") {
+    if (metric == "L2" || metric =="euclidean") {
         metric_ = DistanceKind::L2;
         dist_cls_ = new L2Distance();
     } else if (metric == "angular") {
