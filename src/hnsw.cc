@@ -730,8 +730,8 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
         result.push_back(pair<int, float>(res_t[i].second, res_t[i].first));
     if (ensure_k_ && need_sort) {
         _mm_prefetch(&result[0], _MM_HINT_T0);
-        sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) {
-                return i.second<j.second; });
+        sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) -> bool {
+                return i.second < j.second; });
     }
 }
 

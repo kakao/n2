@@ -35,7 +35,7 @@ void HnswNode::CopyHigherLevelLinksToOptIndex(char* mem_offset, long long memory
 
 void HnswNode::CopyDataAndLevel0LinksToOptIndex(char* mem_offset, int higher_level_offset, int M0) const {
     char* mem_data = mem_offset;
-    *((int*)(mem_data)) = (int)higher_level_offset;
+    *((int*)(mem_data)) = higher_level_offset;
     mem_data += sizeof(int);
     CopyLinksToOptIndex(mem_data, 0);
     mem_data += (sizeof(int) + sizeof(int)*M0);

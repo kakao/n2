@@ -63,11 +63,11 @@ public:
     Hnsw(int dim, std::string metric = "angular");
     Hnsw(const Hnsw& other);
     Hnsw(Hnsw& other);
-    Hnsw(Hnsw&& other);
+    Hnsw(Hnsw&& other) noexcept;
     ~Hnsw();
 
     Hnsw& operator=(const Hnsw& other);
-    Hnsw& operator=(Hnsw&& other);
+    Hnsw& operator=(Hnsw&& other) noexcept;
     void SetConfigs(const std::vector<std::pair<std::string, std::string> >& configs);
 
     bool SaveModel(const std::string& fname) const;
