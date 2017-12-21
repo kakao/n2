@@ -115,7 +115,7 @@ Hnsw::Hnsw(Hnsw& other) {
     }
 }
 
-Hnsw::Hnsw(Hnsw&& other) {
+Hnsw::Hnsw(Hnsw&& other) noexcept {
     logger_= spdlog::get("n2");
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
@@ -163,7 +163,7 @@ Hnsw& Hnsw::operator=(const Hnsw& other) {
     return *this;
 }
 
-Hnsw& Hnsw::operator=(Hnsw&& other) {
+Hnsw& Hnsw::operator=(Hnsw&& other) noexcept {
     logger_= spdlog::get("n2");
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
