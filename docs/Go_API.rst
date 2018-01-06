@@ -41,7 +41,7 @@ default value when the metric has the default value.**
 
    -  ``dim`` (int): dimension of vectors
    -  ``metric`` (string): an optional parameter for choosing a metric
-      of distance. (‘L2’\|‘angular’)
+      of distance. (‘L2’\|'euclidean'\|‘angular’)
 
 -  ``index.AddData(v)``: adds vector ``v``
 
