@@ -64,7 +64,7 @@ size_t Mmap::QueryFileSize() const {
     if (fstat(file_handle_, &sbuf) == -1) {
         return 0;
     } else {
-        return sbuf.st_size;
+        return (size_t)sbuf.st_size;
     }
 }
 

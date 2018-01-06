@@ -7,7 +7,7 @@ Python code example
     import random
 
     f = 40
-    t = HnswIndex(f) # HnswIndex(f, "L2 or angular") 
+    t = HnswIndex(f) # HnswIndex(f, "L2, euclidean, or angular") 
     for i in xrange(1000):
         v = [random.gauss(0, 1) for z in xrange(f)]
         t.add_data(v)
@@ -29,7 +29,7 @@ default value when the metric has the default value.**
 
    -  ``dim`` (int): dimension of vectors
    -  ``metric`` (string): an optional parameter for choosing a metric
-      of distance. (‘L2’\|‘angular’)
+      of distance. (‘L2’\|'euclidean'\|‘angular’)
 
 -  ``index.add_data(v)``: adds vector ``v``
 

@@ -35,7 +35,7 @@ default value when the metric has the default value.**
 
    -  ``dim`` (int): dimension of vectors
    -  ``metric`` (std::string): an optional parameter for choosing a
-      metric of distance. (‘L2’\|‘angular’). A default metric is
+      metric of distance. (‘L2’\|'euclidean'\|‘angular’). A default metric is
       ‘angular’.
 
 -  ``void n2::HnswIndex.AddData(const std::vector<float>& data)``: adds

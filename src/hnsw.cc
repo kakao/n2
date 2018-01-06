@@ -70,7 +70,7 @@ Hnsw::Hnsw(int dim, string metric) : data_dim_(dim) {
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
-    if(metric == "L2") {
+    if (metric == "L2" || metric =="euclidean") {
         metric_ = DistanceKind::L2;
         dist_cls_ = new L2Distance();
     } else if (metric == "angular") {
@@ -115,7 +115,7 @@ Hnsw::Hnsw(Hnsw& other) {
     }
 }
 
-Hnsw::Hnsw(Hnsw&& other) {
+Hnsw::Hnsw(Hnsw&& other) noexcept {
     logger_= spdlog::get("n2");
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
@@ -163,7 +163,7 @@ Hnsw& Hnsw::operator=(const Hnsw& other) {
     return *this;
 }
 
-Hnsw& Hnsw::operator=(Hnsw&& other) {
+Hnsw& Hnsw::operator=(Hnsw&& other) noexcept {
     logger_= spdlog::get("n2");
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
@@ -730,8 +730,8 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
         result.push_back(pair<int, float>(res_t[i].second, res_t[i].first));
     if (ensure_k_ && need_sort) {
         _mm_prefetch(&result[0], _MM_HINT_T0);
-        sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) {
-                return i.second<j.second; });
+        sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) -> bool {
+                return i.second < j.second; });
     }
 }
 
