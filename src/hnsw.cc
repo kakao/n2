@@ -287,7 +287,6 @@ int Hnsw::DrawLevel(bool use_default_rng) {
 }
 
 void Hnsw::Build(int M, int MaxM0, int ef_construction, int n_threads, float mult, NeighborSelectingPolicy neighbor_selecting, GraphPostProcessing graph_merging, bool ensure_k) {
-    bool is_levelmult_set = false;
     if ( M > 0 ) MaxM_ = M_ = M;
     if ( MaxM0 > 0 ) MaxM0_ = MaxM0;
     if ( ef_construction > 0 ) efConstruction_ = ef_construction;
