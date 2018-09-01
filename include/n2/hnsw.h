@@ -133,7 +133,7 @@ private:
     bool is_naive_ = false;
     GraphPostProcessing post_ = GraphPostProcessing::SKIP;
 
-    BaseDistance* dist_cls_ = nullptr;
+    distance_function dist_func_ = nullptr;
     BaseNeighborSelectingPolicies* selecting_policy_cls_ = new HeuristicNeighborSelectingPolicies(false);
     BaseNeighborSelectingPolicies* post_policy_cls_ = new HeuristicNeighborSelectingPolicies(true);
     std::uniform_real_distribution<double> uniform_distribution_{0.0, 1.0};

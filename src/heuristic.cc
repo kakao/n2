@@ -21,16 +21,15 @@ namespace n2 {
 
 BaseNeighborSelectingPolicies::~BaseNeighborSelectingPolicies() {}
 
-void NaiveNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, const BaseDistance* dist_cls) {
+void NaiveNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) {
     while (result.size() > m) {
         result.pop();
     }
 }
 
-void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, const BaseDistance* dist_cls) {
+void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) {
     if (result.size() < m) return;
     
-    float PORTABLE_ALIGN32 TmpRes[8];
     std::vector<FurtherFirst> neighbors, picked;
     MinHeap<float, HnswNode*> skipped;
     while(!result.empty()) {
@@ -45,12 +44,13 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_qu
     for (int i = (int)neighbors.size() - 1; i >= 0; --i) {
         bool skip = false;
         float cur_dist = neighbors[i].GetDistance();
+        float* q = (float*)&neighbors[i].GetNode()->GetData()[0];
         for (size_t j = 0; j < picked.size(); ++j) {
             if (j < picked.size() - 1) {
                 _mm_prefetch((char*)&(picked[j+1].GetNode()->GetData()), _MM_HINT_T0);
             }
-            _mm_prefetch(&dist_cls, _MM_HINT_T1);
-            if (dist_cls->Evaluate((float*)&neighbors[i].GetNode()->GetData()[0], (float*)&picked[j].GetNode()->GetData()[0], dim, TmpRes) < cur_dist) {
+            _mm_prefetch(q, _MM_HINT_T1);
+            if (dist_func(q, (float*)&picked[j].GetNode()->GetData()[0], dim) < cur_dist) {
                 skip = true;
                 break;
             }

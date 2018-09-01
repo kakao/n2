@@ -47,7 +47,7 @@ def define_extensions(**kwargs):
                            extra_compile_args=extra_compile_args,
                            libraries=libraries,
                            extra_link_args=extra_link_args,
-                           include_dirs=['./include/', './third_party/spdlog/include/'],
+                           include_dirs=['./include/', './third_party/spdlog/include/', './thrid_party/eigen'],
                            language="c++",)
     return cythonize(client_ext)
 

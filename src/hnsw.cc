@@ -62,7 +62,7 @@ Hnsw::Hnsw() {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
     metric_ = DistanceKind::ANGULAR;
-    dist_cls_ = new AngularDistance();
+    dist_func_ = &angular_distance;
 }
 
 Hnsw::Hnsw(int dim, string metric) : data_dim_(dim) {
@@ -72,10 +72,10 @@ Hnsw::Hnsw(int dim, string metric) : data_dim_(dim) {
     }
     if (metric == "L2" || metric =="euclidean") {
         metric_ = DistanceKind::L2;
-        dist_cls_ = new L2Distance();
+        dist_func_ = &l2_distance;
     } else if (metric == "angular") {
         metric_ = DistanceKind::ANGULAR;
-        dist_cls_ = new AngularDistance();
+        dist_func_ = &angular_distance;
     } else {
         throw std::runtime_error("[Error] Invalid configuration value for DistanceMethod: " + metric);
     }
@@ -83,6 +83,7 @@ Hnsw::Hnsw(int dim, string metric) : data_dim_(dim) {
 
 Hnsw::Hnsw(const Hnsw& other) {
     logger_= spdlog::get("n2");
+    dist_func_ = &angular_distance;
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
@@ -92,14 +93,15 @@ Hnsw::Hnsw(const Hnsw& other) {
     SetValuesFromModel(model_);
     search_list_.reset(new VisitedList(num_nodes_));
     if(metric_ == DistanceKind::ANGULAR) {
-        dist_cls_ = new AngularDistance();
+        dist_func_ = &angular_distance;
     } else if (metric_ == DistanceKind::L2) {
-        dist_cls_ = new L2Distance();
+        dist_func_ = &l2_distance;
     }
 }
 
 Hnsw::Hnsw(Hnsw& other) {
     logger_= spdlog::get("n2");
+    dist_func_ = &angular_distance;
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
@@ -109,14 +111,15 @@ Hnsw::Hnsw(Hnsw& other) {
     SetValuesFromModel(model_);
     search_list_.reset(new VisitedList(num_nodes_));
     if(metric_ == DistanceKind::ANGULAR) {
-        dist_cls_ = new AngularDistance();
+        dist_func_ = &angular_distance;
     } else if (metric_ == DistanceKind::L2) {
-        dist_cls_ = new L2Distance();
+        dist_func_ = &l2_distance;
     }
 }
 
 Hnsw::Hnsw(Hnsw&& other) noexcept {
     logger_= spdlog::get("n2");
+    dist_func_ = &angular_distance;
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
@@ -128,14 +131,15 @@ Hnsw::Hnsw(Hnsw&& other) noexcept {
     SetValuesFromModel(model_);
     search_list_.reset(new VisitedList(num_nodes_));
     if(metric_ == DistanceKind::ANGULAR) {
-        dist_cls_ = new AngularDistance();
+        dist_func_ = &angular_distance;
     } else if (metric_ == DistanceKind::L2) {
-        dist_cls_ = new L2Distance();
+        dist_func_ = &l2_distance;
     }
 }
 
 Hnsw& Hnsw::operator=(const Hnsw& other) {
     logger_= spdlog::get("n2");
+    dist_func_ = &angular_distance;
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
     }
@@ -145,25 +149,21 @@ Hnsw& Hnsw::operator=(const Hnsw& other) {
         model_ = nullptr;
     }
 
-    if(dist_cls_) {
-       delete dist_cls_;
-       dist_cls_ = nullptr;
-    }
-
     model_byte_size_ = other.model_byte_size_;
     model_ = new char[model_byte_size_];
     std::copy(other.model_, other.model_ + model_byte_size_, model_);
     SetValuesFromModel(model_);
     search_list_.reset(new VisitedList(num_nodes_));
     if(metric_ == DistanceKind::ANGULAR) {
-        dist_cls_ = new AngularDistance();
+        dist_func_ = &angular_distance;
     } else if (metric_ == DistanceKind::L2) {
-        dist_cls_ = new L2Distance();
+        dist_func_ = &l2_distance;
     }
     return *this;
 }
 
 Hnsw& Hnsw::operator=(Hnsw&& other) noexcept {
+    dist_func_ = &angular_distance;
     logger_= spdlog::get("n2");
     if (logger_ == nullptr) {
         logger_ = spdlog::stdout_logger_mt("n2");
@@ -176,11 +176,6 @@ Hnsw& Hnsw::operator=(Hnsw&& other) noexcept {
         model_ = nullptr;
     }
 
-    if(dist_cls_) {
-       delete dist_cls_;
-       dist_cls_ = nullptr;
-    }
-
     model_byte_size_ = other.model_byte_size_;
     model_ = other.model_;
     other.model_ = nullptr;
@@ -189,9 +184,9 @@ Hnsw& Hnsw::operator=(Hnsw&& other) noexcept {
     SetValuesFromModel(model_);
     search_list_.reset(new VisitedList(num_nodes_));
     if(metric_ == DistanceKind::ANGULAR) {
-        dist_cls_ = new AngularDistance();
+        dist_func_ = &angular_distance;
     } else if (metric_ == DistanceKind::L2) {
-        dist_cls_ = new L2Distance();
+        dist_func_ = &l2_distance;
     }
     return *this;
 }
@@ -210,10 +205,6 @@ Hnsw::~Hnsw() {
 
     if (default_rng_) {
         delete default_rng_;
-    }
-
-    if (dist_cls_) {
-        delete dist_cls_;
     }
 
     if (selecting_policy_cls_) {
@@ -421,7 +412,6 @@ bool Hnsw::SaveModel(const string& fname) const {
     }
     return false;
 }
-
 bool Hnsw::LoadModel(const string& fname, const bool use_mmap) {
     if(!use_mmap) {
         ifstream in;
@@ -468,15 +458,12 @@ bool Hnsw::LoadModel(const string& fname, const bool use_mmap) {
     model_level0_ = model_ + model_config_size;
     model_higher_level_ = model_level0_ + level0_size;
     search_list_.reset(new VisitedList(num_nodes_));
-    if(dist_cls_) {
-        delete dist_cls_;
-    }
     switch (metric_) {
         case DistanceKind::ANGULAR:
-            dist_cls_ = new AngularDistance();
+            dist_func_ = &angular_distance;
             break;
         case DistanceKind::L2:
-            dist_cls_ = new L2Distance();
+            dist_func_ = &l2_distance;
             break;
         default:
             throw std::runtime_error("[Error] Unknown distance metric. ");
@@ -529,11 +516,10 @@ void Hnsw::Insert(HnswNode* qnode) {
     HnswNode* enterpoint = enterpoint_;
     const std::vector<float>& qvec = qnode->GetData();
     const float* qraw = &qvec[0];
-    float PORTABLE_ALIGN32 TmpRes[8];
     if (cur_level < maxlevel_copy) {
-        _mm_prefetch(&dist_cls_, _MM_HINT_T0);
+        _mm_prefetch(&dist_func_, _MM_HINT_T0);
         HnswNode* cur_node = enterpoint;
-        float d = dist_cls_->Evaluate(qraw, (float*)&cur_node->GetData()[0], data_dim_, TmpRes);
+        float d = dist_func_(qraw, (float*)&cur_node->GetData()[0], data_dim_);
         float cur_dist = d;
         for (int i = maxlevel_copy; i > cur_level; --i) {
             bool changed = true;
@@ -546,7 +532,7 @@ void Hnsw::Insert(HnswNode* qnode) {
                 }
 
                 for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter) {
-                    d = dist_cls_->Evaluate(qraw, &(*iter)->GetData()[0], data_dim_, TmpRes);
+                    d = dist_func_(qraw, &(*iter)->GetData()[0], data_dim_);
                     if (d < cur_dist) {
                         cur_dist = d;
                         cur_node = (*iter);
@@ -561,7 +547,7 @@ void Hnsw::Insert(HnswNode* qnode) {
     for (int i = std::min(maxlevel_copy, cur_level); i >= 0; --i) {
         priority_queue<FurtherFirst> temp_res;
         SearchAtLayer(qvec, enterpoint, i, efConstruction_, temp_res);
-        selecting_policy_cls_->Select(M_, temp_res, data_dim_, dist_cls_);
+        selecting_policy_cls_->Select(M_, temp_res, data_dim_, dist_func_);
         while (temp_res.size() > 0) {
             auto* top_node = temp_res.top().GetNode();
             temp_res.pop();
@@ -582,12 +568,11 @@ void Hnsw::Link(HnswNode* source, HnswNode* target, int level, bool is_naive, si
     neighbors.push_back(target);
     bool shrink = (level > 0 && neighbors.size() > source->maxsize_) || (level <= 0 && neighbors.size() > source->maxsize0_);
     if (!shrink) return;
-    float PORTABLE_ALIGN32 TmpRes[8];
     if (is_naive) {
-        float max = dist_cls_->Evaluate((float*)&source->GetData()[0], (float*)&neighbors[0]->GetData()[0], dim, TmpRes);
+        float max = dist_func_((float*)&source->GetData()[0], (float*)&neighbors[0]->GetData()[0], dim);
         int maxi = 0;
         for (size_t i = 1; i < neighbors.size(); ++i) {
-                float curd = dist_cls_->Evaluate((float*)&source->GetData()[0], (float*)&neighbors[i]->GetData()[0], dim, TmpRes);
+                float curd = dist_func_((float*)&source->GetData()[0], (float*)&neighbors[i]->GetData()[0], dim);
                 if (curd > max) {
                     max = curd;
                     maxi = i;
@@ -601,9 +586,9 @@ void Hnsw::Link(HnswNode* source, HnswNode* target, int level, bool is_naive, si
         }
 
         for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter) {
-            tempres.emplace((*iter), dist_cls_->Evaluate((float*)&source->data_->GetData()[0], (float*)&(*iter)->GetData()[0], dim, TmpRes));
+            tempres.emplace((*iter), dist_func_((float*)&source->data_->GetData()[0], (float*)&(*iter)->GetData()[0], dim));
         }
-        selecting_policy_cls_->Select(tempres.size() - 1, tempres, dim, dist_cls_);
+        selecting_policy_cls_->Select(tempres.size() - 1, tempres, dim, dist_func_);
         neighbors.clear();
         while (tempres.size()) {
             neighbors.emplace_back(tempres.top().GetNode());
@@ -626,13 +611,12 @@ void Hnsw::MergeEdgesOfTwoGraphs(const vector<HnswNode*>& another_nodes) {
         }
         priority_queue<FurtherFirst> temp_res;
         const std::vector<float>& ivec = data_[i].GetData();
-        float PORTABLE_ALIGN32 TmpRes[8];
         for (int cur : merged_neighbor_id_set) {
-            temp_res.emplace(nodes_[cur], dist_cls_->Evaluate((float*)&data_[cur].GetData()[0], (float*)&ivec[0], data_dim_, TmpRes));
+            temp_res.emplace(nodes_[cur], dist_func_((float*)&data_[cur].GetData()[0], (float*)&ivec[0], data_dim_));
         }
 
         // Post Heuristic
-        post_policy_cls_->Select(MaxM0_, temp_res, data_dim_, dist_cls_);
+        post_policy_cls_->Select(MaxM0_, temp_res, data_dim_, dist_func_);
         vector<HnswNode*> merged_neighbors = vector<HnswNode*>();
         while (!temp_res.empty()) {
             merged_neighbors.emplace_back(temp_res.top().GetNode());
@@ -650,12 +634,21 @@ void Hnsw::NormalizeVector(std::vector<float>& vec) {
    }
 }
 
-void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
-    MinHeap<float, int> dh;
-    dh.push(cur_dist, cur_node_id);
-    float PORTABLE_ALIGN32 TmpRes[8];
+//#define USE_MINHEAP2
 
+void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
+#ifdef USE_MINHEAP2
+    MinHeap2 dh(max(1, (int)ef_search >> 1));
+#else
+    MinHeap<float, int> dh;
+#endif
+    dh.push(cur_dist, cur_node_id);
+
+#ifdef USE_MINHEAP2
+    typedef typename MinHeap2::Item  QueueItem;
+#else
     typedef typename MinHeap<float, int>::Item  QueueItem;
+#endif
     std::queue<QueueItem> q;
     search_list_->Reset();
 
@@ -677,7 +670,7 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
     QueueItem e;
     float maxKey = cur_dist;
     size_t total_size = 1;
-    while (dh.size() > 0 && visited_nodes.size() < (ef_search >> 1)) {
+    while (dh.size() > 0 && visited_nodes.size() < (ef_search)) {
         e = dh.top();
         dh.pop();
         cur_node_id = e.data;
@@ -690,10 +683,10 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
         int size = *data;
         for (int j = 1; j <= size; ++j) {
             tnum = *(data + j);
-            _mm_prefetch(dist_cls_, _MM_HINT_T0);
             if (visited[tnum] != mark) {
+                _mm_prefetch(qraw, _MM_HINT_T0);
                 visited[tnum] = mark;
-                d = dist_cls_->Evaluate(qraw, (float*)(model_level0_ + tnum*memory_per_node_level0_ + memory_per_link_level0_), data_dim_, TmpRes);
+                d = dist_func_(qraw, (float*)(model_level0_ + tnum*memory_per_node_level0_ + memory_per_link_level0_), data_dim_);
                 if (d < topKey || total_size < ef_search) {
                     q.emplace(QueueItem(d, tnum));
                     ++total_size;
@@ -701,15 +694,17 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
             }
         }
         while(!q.empty()) {
-            dh.push(q.front().key, q.front().data);
-            if (q.front().key > maxKey) maxKey = q.front().key;
+            QueueItem& item = q.front();
+            dh.push(item.key, item.data);
+            if (item.key > maxKey) maxKey = item.key;
             q.pop();
         }
     }
 
     vector<pair<float, int> > res_t;
-    while(dh.size() && res_t.size() < k) {
-        res_t.emplace_back(dh.top().key, dh.top().data);
+    while (dh.size() && res_t.size() < k) {
+        QueueItem&& item = dh.top();
+        res_t.emplace_back(item.key, item.data);
         dh.pop();
     }
     while (visited_nodes.size() > k) visited_nodes.pop();
@@ -718,19 +713,20 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
         visited_nodes.pop();
     }
     _mm_prefetch(&res_t[0], _MM_HINT_T0);
-    std::sort(res_t.begin(), res_t.end());
     size_t sz;
     if (ensure_k_) {
         sz = min(k - result.size(), res_t.size());
     } else {
         sz = min(k, res_t.size());
     }
+    std::partial_sort(res_t.begin(), res_t.begin() + sz, res_t.end());
     for(size_t i = 0; i < sz; ++i)
         result.push_back(pair<int, float>(res_t[i].second, res_t[i].first));
     if (ensure_k_ && need_sort) {
         _mm_prefetch(&result[0], _MM_HINT_T0);
         sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) -> bool {
-                return i.second < j.second; });
+            return i.second < j.second; 
+        });
     }
 }
 
@@ -763,7 +759,6 @@ bool Hnsw::SetValuesFromModel(char* model) {
 }
 void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, vector<pair<int, float>>& result) {
     if (model_ == nullptr) throw std::runtime_error("[Error] Model has not loaded!");
-    float PORTABLE_ALIGN32 TmpRes[8];
     const float* qraw = nullptr;
 
     if (ef_search < 0) {
@@ -776,10 +771,10 @@ void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search,
     }
 
     qraw = &qvec_copy[0];
-    _mm_prefetch(&dist_cls_, _MM_HINT_T0);
+    _mm_prefetch(&dist_func_, _MM_HINT_T0);
     int maxlevel = maxlevel_;
     int cur_node_id = enterpoint_id_;
-    float cur_dist = dist_cls_->Evaluate(qraw, (float *)(model_level0_ + cur_node_id*memory_per_node_level0_ + memory_per_link_level0_), data_dim_, TmpRes);
+    float cur_dist = dist_func_(qraw, (float *)(model_level0_ + cur_node_id*memory_per_node_level0_ + memory_per_link_level0_), data_dim_);
     float d;
 
     vector<pair<int, float> > path;
@@ -798,7 +793,7 @@ void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search,
 
             for (int j = 1; j <= size; ++j) {
                 int tnum = *(data + j);
-                d = (dist_cls_->Evaluate(qraw, (float *)(model_level0_ + tnum*memory_per_node_level0_ + memory_per_link_level0_), data_dim_, TmpRes));
+                d = (dist_func_(qraw, (float *)(model_level0_ + tnum*memory_per_node_level0_ + memory_per_link_level0_), data_dim_));
                 if (d < cur_dist) {
                     cur_dist = d;
                     cur_node_id = tnum;
@@ -831,11 +826,10 @@ void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float
 
 void Hnsw::SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint, int level, size_t ef, priority_queue<FurtherFirst>& result) {
     // TODO: check Node 12bytes => 8bytes
-    _mm_prefetch(&dist_cls_, _MM_HINT_T0);
-    float PORTABLE_ALIGN32 TmpRes[8];
+    _mm_prefetch(&dist_func_, _MM_HINT_T0);
     const float* qraw = &qvec[0];
     priority_queue<CloserFirst> candidates;
-    float d = dist_cls_->Evaluate(qraw, (float*)&(enterpoint->GetData()[0]), data_dim_, TmpRes);
+    float d = dist_func_(qraw, (float*)&(enterpoint->GetData()[0]), data_dim_);
     result.emplace(enterpoint, d);
     candidates.emplace(enterpoint, d);
 
@@ -860,7 +854,7 @@ void Hnsw::SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint, i
             if (visited[fid] != mark) {
                 _mm_prefetch((char*)&(neighbors[j]->GetData()), _MM_HINT_T0);
                 visited[fid] = mark;
-                d = dist_cls_->Evaluate(qraw, (float*)&neighbors[j]->GetData()[0], data_dim_, TmpRes);
+                d = dist_func_(qraw, (float*)&neighbors[j]->GetData()[0], data_dim_);
                 if (result.size() < ef || result.top().GetDistance() > d) {
                     result.emplace(neighbors[j], d);
                     candidates.emplace(neighbors[j], d);

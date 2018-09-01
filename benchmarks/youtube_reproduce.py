@@ -16,7 +16,12 @@ import tarfile
 
 from contextlib import closing
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger('youtube_reproducer')
+logger.setLevel(logging.INFO)
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+logger.addHandler(sh)
+
 
 try:
     xrange
@@ -32,7 +37,7 @@ except ImportError:
 memory_limit = 12 * 2**30
 soft, hard = resource.getrlimit(resource.RLIMIT_DATA)
 if soft == resource.RLIM_INFINITY or soft >= memory_limit:
-    logging.debug('resetting memory limit from {0} to {1}. '.format(
+    logger.debug('resetting memory limit from {0} to {1}. '.format(
                   soft, memory_limit))
     resource.setrlimit(resource.RLIMIT_DATA, (memory_limit, hard))
 
@@ -116,13 +121,13 @@ class N2(BaseANN):
         else:
             self._n2 = HnswIndex(X.shape[1])
         if os.path.exists(self._index_name):
-            logging.debug("Loading index from file")
-            self._n2.load(self._index_name)
+            logger.info("Loading index from file")
+            self._n2.load(self._index_name, use_mmap=False)
         else:
-            logging.debug(
+            logger.info(
                 "Index file is not exist: {0}".format(
                     self._index_name))
-            logging.debug("Start fitting")
+            logger.info("Start fitting")
 
             for i, x in enumerate(X):
                 self._n2.add_data(x.tolist())
@@ -173,10 +178,10 @@ class NmslibReuseIndex(BaseANN):
             nmslib.addDataPoint(self._index, i, x.tolist())
 
         if os.path.exists(self._index_name):
-            logging.debug("Loading index from file")
+            logger.info("Loading index from file")
             nmslib.loadIndex(self._index, self._index_name)
         else:
-            logging.debug("Create Index")
+            logger.info("Create Index")
             nmslib.createIndex(self._index, self._index_param)
             if self._save_index:
                 nmslib.saveIndex(self._index, self._index_name)
@@ -210,10 +215,10 @@ class Annoy(BaseANN):
         import annoy
         self._annoy = annoy.AnnoyIndex(f=X.shape[1], metric=self._metric)
         if os.path.exists(self._index_name):
-            logging.debug("Loading index from file")
+            logger.debug("Loading index from file")
             self._annoy.load(self._index_name)
         else:
-            logging.debug("Index file not exist start fitting!!")
+            logger.debug("Index file not exist start fitting!!")
             for i, x in enumerate(X):
                 self._annoy.add_item(i, x.tolist())
             self._annoy.build(self._n_trees)
@@ -246,10 +251,11 @@ def run_algo(args, library, algo, results_fn):
     pool.close()
     pool.join()
 
+    logger.info('[algo: %s]' % algo.name)
     t0 = time.time()
     algo.fit(X_train)
     build_time = time.time() - t0
-    logging.debug('Built index in {0}'.format(build_time))
+    logger.info('Built index in {0}'.format(build_time))
     best_search_time = float('inf')
     best_precision = 0.0  # should be deterministic but paranoid
     try_count = 3
@@ -261,14 +267,11 @@ def run_algo(args, library, algo, results_fn):
         total_queries = len(queries)
         for j in range(total_queries):
             v, correct = queries[j]
-            sys.stdout.write(
-                "Querying: %d / %d \r" %
-                (current_query, total_queries))
             t0 = time.time()
             found = algo.query(v, GT_SIZE)
             search_time += (time.time() - t0)
             if len(found) < len(correct):
-                logging.debug(
+                logger.debug(
                     'found: {0}, correct: {1}'.format(
                         len(found), len(correct)))
             current_query += 1
@@ -279,16 +282,14 @@ def run_algo(args, library, algo, results_fn):
         precision = k / (len(queries) * GT_SIZE)
         best_search_time = min(best_search_time, search_time)
         best_precision = max(best_precision, precision)
-        sys.stdout.write(
-            '*[%d/%d][algo: %s] search time: %s, precision: %.5f \r' %
-            (i + 1, try_count, str(algo), str(search_time), precision))
-        sys.stdout.write('\n')
+        logger.info(
+            '*[%d/%d] search time: %s, precision: %.5f \r' %
+            (i + 1, try_count, str(search_time), precision))
     output = [library, algo.name, build_time, best_search_time, best_precision]
-    logging.debug(str(output))
     f = open(results_fn, 'a')
     f.write('\t'.join(map(str, output)) + '\n')
     f.close()
-    logging.debug('Summary: {0}'.format('\t'.join(map(str, output))))
+    logger.info('Summary: {0}'.format('\t'.join(map(str, output))))
 
 
 def get_dataset(which='glove', limit=-1, random_state=3, test_size=10000):
@@ -297,7 +298,7 @@ def get_dataset(which='glove', limit=-1, random_state=3, test_size=10000):
         v = numpy.load(cache)
         X_train = v['train']
         X_test = v['test']
-        logging.debug('{0} {1}'.format(X_train.shape, X_test.shape))
+        logger.debug('{0} {1}'.format(X_train.shape, X_test.shape))
         return X_train, X_test
     local_fn = os.path.join('datasets', which)
     if os.path.exists(local_fn + '.gz'):
@@ -327,7 +328,7 @@ def get_dataset(which='glove', limit=-1, random_state=3, test_size=10000):
 
 
 def get_queries(args):
-    logging.debug('computing queries with correct results...')
+    logger.debug('computing queries with correct results...')
 
     bf = BruteForceBLAS(args.distance)
     X_train, X_test = get_dataset(which=args.dataset, limit=args.limit)
@@ -339,11 +340,11 @@ def get_queries(args):
     for x in X_test:
         correct = bf.query(x, GT_SIZE)
         queries.append((x, correct))
-        sys.stdout.write(
+        logger.info(
             'computing queries %d/%d ...\r' %
             (len(queries), total_queries))
 
-    sys.stdout.write('\n')
+    logger.info('\n')
     return queries
 
 
@@ -370,6 +371,7 @@ if __name__ == '__main__':
     parser.add_argument('--algo', help='Algorithm', type=str)
     parser.add_argument('--limit', help='Limit', type=int, default=-1)
     parser.add_argument('--n_threads', help='Number of threads', type=int,default=20)
+    parser.add_argument('--n_queries', help='Number of queries', type=int,default=-1)
     args = parser.parse_args()
     args.dataset = 'youtube'
     args.distance = 'angular'
@@ -384,7 +386,7 @@ if __name__ == '__main__':
 
     results_fn = get_fn('results', args)
     queries_fn = get_fn('queries', args)
-    logging.debug(
+    logger.debug(
         'storing queries in {0} and results in {1}.'.format(
             queries_fn, results_fn))
 
@@ -394,18 +396,20 @@ if __name__ == '__main__':
             pickle.dump(queries, f)
     else:
         queries = pickle.load(open(queries_fn, 'rb'))
+    if args.n_queries != -1:
+        queries = queries[:args.n_queries]
 
-    logging.debug('got {0} queries'.format(len(queries)))
+    logger.info('got {0} queries'.format(len(queries)))
 
     algos = {
         'annoy': [ Annoy('angular', n_trees, search_k)
                   for n_trees in [10]
                   for search_k in [ 7, 3000, 50000, 200000, 500000]
-               ], 
-        'n2': [ N2(M, ef_con, args.n_threads, ef_search, 'angular') 
-               for M, ef_con in [ (12, 100)] 
+               ],
+        'n2': [ N2(M, ef_con, args.n_threads, ef_search, 'angular')
+               for M, ef_con in [ (12, 100)]
                for ef_search in [10, 100, 1000, 10000, 100000]
-            ], 
+            ],
         'nmslib': []}
 
     MsPostsEfs = [
@@ -436,10 +440,10 @@ if __name__ == '__main__':
             algos_flat.append((library, algo))
 
     random.shuffle(algos_flat)
-    logging.debug('order: %s' % str([a.name for l, a in algos_flat]))
+    logger.debug('order: %s' % str([a.name for l, a in algos_flat]))
 
     for library, algo in algos_flat:
-        logging.debug(algo.name)
+        logger.debug(algo.name)
         # Spawn a subprocess to force the memory to be reclaimed at the end
         p = multiprocessing.Process(
             target=run_algo, args=(

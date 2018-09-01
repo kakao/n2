@@ -156,16 +156,16 @@ def run_algo(args, library, algo, results_fn):
         search_time = 0.0
         current_query = 1
         total_queries = len(queries)
+        start_t = time.time()
         for j in range(total_queries):
             v, correct = queries[j]
             sys.stdout.write("Querying: %d / %d \r" % (current_query, total_queries))
-            t0 = time.time()
             found = algo.query(v, GT_SIZE)
-            search_time += (time.time() - t0)
-            if len(found) < len(correct):
-                n2_logger.info('found: {0}, correct: {1}'.format(len(found), len(correct)))
+            # if len(found) < len(correct):
+            #     n2_logger.info('found: {0}, correct: {1}'.format(len(found), len(correct)))
             current_query += 1
             results.append(len(set(found).intersection(correct)))
+        search_time += (time.time() - start_t)
 
         k = float(sum(results))
         search_time /= len(queries)
@@ -299,7 +299,7 @@ if __name__ == '__main__':
         with gzip.open('datasets/glove.twitter.27B.100d.txt.gz', 'rb') as f_in, open('datasets/glove.twitter.27B.100d.txt', 'w') as f_out:
             shutil.copyfileobj(f_in, f_out)
         subprocess.call("cut -d \" \" -f 2- datasets/glove.twitter.27B.100d.txt > datasets/glove.txt", shell=True)
- 
+
     if args.dataset == 'sift' and not os.path.exists(SIFT_DIR):
         download_file("ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz", "datasets")
         with tarfile.open("datasets/sift.tar.gz") as t:
@@ -333,4 +333,4 @@ if __name__ == '__main__':
         p = multiprocessing.Process(target=run_algo, args=(args, library, algo, results_fn))
         p.start()
         p.join()
-   
+
