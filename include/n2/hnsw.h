@@ -74,7 +74,7 @@ public:
     bool LoadModel(const std::string& fname, const bool use_mmap=true);
     void UnloadModel();
 
-    void AddData(const std::vector<float>& data);
+    void AddData(const std::vector<float>& data, const bool nrz);
 
     void Fit();
     void Build(int M = -1, int M0 = -1, int ef_construction = -1, int n_threads = -1, float mult = -1, NeighborSelectingPolicy neighbor_selecting = NeighborSelectingPolicy::HEURISTIC, GraphPostProcessing graph_merging = GraphPostProcessing::SKIP, bool ensure_k = false);

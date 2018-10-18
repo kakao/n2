@@ -502,7 +502,7 @@ void Hnsw::UnloadModel() {
     }
 }
 
-void Hnsw::AddData(const std::vector<float>& data) {
+void Hnsw::AddData(const std::vector<float>& data, const bool nrz) {
     if (model_ != nullptr) {
         throw std::runtime_error("[Error] This index already has a trained model. Adding an item is not allowed.");
     }
@@ -513,7 +513,7 @@ void Hnsw::AddData(const std::vector<float>& data) {
 
     if(metric_ == DistanceKind::ANGULAR) {
         vector<float> data_copy(data);
-        NormalizeVector(data_copy);
+        if (nrz) NormalizeVector(data_copy);
         data_.emplace_back(data_copy);
     } else {
         data_.emplace_back(data);

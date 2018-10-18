@@ -29,7 +29,7 @@ cdef extern from "n2/hnsw.h" namespace "n2":
         bool_t SaveModel(const string&) nogil except +
         bool_t LoadModel(const string&, const bool_t use_mmap) nogil except +
         void UnloadModel() nogil except +
-        void AddData(const vector[float]& data) nogil except +
+        void AddData(const vector[float]& data, const bool_t nrz) nogil except +
         void Fit() nogil except +
         void SearchByVector(const vector[float]& qvec, size_t, size_t, vector[pair[int, float]]& result) nogil except +
         void SearchById(int, size_t, size_t, vector[pair[int, float]]& result) nogil except +
@@ -47,10 +47,11 @@ cdef class _HnswIndex:
     def __dealloc__(self):
         del self.obj
 
-    def add_data(self, _v):
+    def add_data(self, _v, _nrz):
         cdef vector[float] v = _v
+        cdef bool_t nrz = _nrz
         with nogil:
-            self.obj.AddData(v)
+            self.obj.AddData(v, nrz)
 
     def save(self, _fname):
         cdef string fname = _fname.encode('ascii')
@@ -104,15 +105,16 @@ class HnswIndex(object):
     def __init__(self, dimension, metric='angular'):
         self.model = _HnswIndex(dimension, metric)
 
-    def add_data(self, v):
+    def add_data(self, v, nrz=True):
         """
         Adds vector v.
 
         :param v : a vector with dimension.
+        :param nrz : boolean whether normalize vector or not
         :return self.model.add_data(v): return boolean value whether
         adding is succeeded or not.
         """
-        return self.model.add_data(v)
+        return self.model.add_data(v, nrz)
 
     def save(self, fname):
         """

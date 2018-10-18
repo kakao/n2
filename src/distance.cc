@@ -110,7 +110,7 @@ float AngularDistance::Evaluate(const float* __restrict pVect1, const float*  __
 
     _mm_store_ps(TmpRes, sum_prod);
     float sum = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3];
-    return  1.0f -sum;
+    return  1.0f - sum;
     //return std::max(0.0f, 1 - std::max(float(-1), std::min(float(1), sum)));
 #else
     size_t qty16 = qty / 16;
