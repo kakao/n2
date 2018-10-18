@@ -73,7 +73,7 @@ public:
     bool SaveModel(const std::string& fname) const;
     bool LoadModel(const std::string& fname, const bool use_mmap=true);
     void UnloadModel();
-
+    void AddData(const std::vector<float>& data);
     void AddData(const std::vector<float>& data, const bool nrz);
 
     void Fit();

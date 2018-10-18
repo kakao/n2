@@ -502,7 +502,11 @@ void Hnsw::UnloadModel() {
     }
 }
 
-void Hnsw::AddData(const std::vector<float>& data, const bool nrz=true) {
+void Hnsw::AddData(const std::vector<float>& data) {
+    AddData(data, true); 
+}
+
+void Hnsw::AddData(const std::vector<float>& data, const bool nrz) {
     if (model_ != nullptr) {
         throw std::runtime_error("[Error] This index already has a trained model. Adding an item is not allowed.");
     }
