@@ -1,6 +1,6 @@
 CXX ?= g++
 CXXFLAGS += -O3 -march=native -std=c++11 -pthread -fPIC -fopenmp
-CXXFLAGS += -I../third_party/spdlog/include/ -I../include/ -I../third_party/eigen
+CXXFLAGS += -I../third_party/spdlog/include/ -I../include/ -I../third_party/eigen -I../third_party/boost/
 LDFLAGS += -lpthread
 
 all: shared_lib

@@ -28,7 +28,7 @@ void NaiveNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<
 }
 
 void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) {
-    if (result.size() < m) return;
+    if (result.size() <= m) return;
     
     std::vector<FurtherFirst> neighbors, picked;
     MinHeap<float, HnswNode*> skipped;
@@ -64,17 +64,17 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_qu
             
         if (picked.size() == m) break;
     }
-        
+
     for(size_t i = 0; i < picked.size(); ++i) {
         result.emplace(picked[i]);
     }
-        
+
     if (save_remains_) {
         while (result.size() < m && skipped.size()) {
             result.emplace(skipped.top().data, skipped.top().key);
             skipped.pop();
         }
-    }    
+    }   
 }
 
 } // namespace n2
