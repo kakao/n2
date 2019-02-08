@@ -634,21 +634,10 @@ void Hnsw::NormalizeVector(std::vector<float>& vec) {
    }
 }
 
-//#define USE_MINHEAP2
-
 void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
-#ifdef USE_MINHEAP2
-    MinHeap2 dh(max(1, (int)ef_search >> 1));
-#else
     MinHeap<float, int> dh;
-#endif
-    dh.push(cur_dist, cur_node_id);
 
-#ifdef USE_MINHEAP2
-    typedef typename MinHeap2::Item  QueueItem;
-#else
     typedef typename MinHeap<float, int>::Item  QueueItem;
-#endif
     std::queue<QueueItem> q;
     search_list_->Reset();
 
