@@ -31,8 +31,9 @@ cdef extern from "n2/hnsw.h" namespace "n2":
         void UnloadModel() nogil except +
         void AddData(const vector[float]& data, const bool_t nrz) nogil except +
         void Fit() nogil except +
-        void SearchByVector(const vector[float]& qvec, size_t, size_t, vector[pair[int, float]]& result) nogil except +
-        void SearchById(int, size_t, size_t, vector[pair[int, float]]& result) nogil except +
+        void SearchByVector(const vector[float]& qvec, size_t, size_t,
+                            vector[pair[int, float]]& result, bool_t thread_safe) nogil except +
+        void SearchById(int, size_t, size_t, vector[pair[int, float]]& result, bool_t thread_safe) nogil except +
         void PrintDegreeDist() nogil except +
         void PrintConfigs() nogil except +
 
@@ -80,7 +81,7 @@ cdef class _HnswIndex:
         cdef size_t ef_search = _ef_search
         cdef vector[pair[int, float]] ret
         with nogil:
-            self.obj.SearchByVector(v, k, ef_search, ret)
+            self.obj.SearchByVector(v, k, ef_search, ret, False)
         return ret
 
     def search_by_id(self, _item_id, _k, _ef_search):
@@ -89,7 +90,7 @@ cdef class _HnswIndex:
         cdef size_t ef_search = _ef_search
         cdef vector[pair[int, float]] ret
         with nogil:
-            self.obj.SearchById(item_id, k, ef_search, ret)
+            self.obj.SearchById(item_id, k, ef_search, ret, False)
         return ret
 
     def print_degree_dist(self):
