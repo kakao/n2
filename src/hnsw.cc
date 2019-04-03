@@ -654,17 +654,27 @@ void Hnsw::NormalizeVector(std::vector<float>& vec) {
    }
 }
 
-void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
+void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float> >& result, bool thread_safe) {
     MinHeap<float, int> dh;
     dh.push(cur_dist, cur_node_id);
     float PORTABLE_ALIGN32 TmpRes[8];
 
     typedef typename MinHeap<float, int>::Item  QueueItem;
     std::queue<QueueItem> q;
-    search_list_->Reset();
+    
+    unsigned int mark;
+    unsigned int* visited;
 
-    unsigned int mark = search_list_->GetVisitMark();
-    unsigned int* visited = search_list_->GetVisited();
+    if (thread_safe){
+        mark = 1;
+        visited = new unsigned int[num_nodes_];
+        memset(visited, 0, sizeof(unsigned int)*num_nodes_);
+    }else {
+        searh_list_ -> Reset();
+        mark = search_list_->GetVisitMark();
+        visited = search_list_->GetVisited();
+    }
+
     bool need_sort = false;
     if (ensure_k_) {
         if (!result.empty()) need_sort = true;
@@ -736,6 +746,8 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
         sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) -> bool {
                 return i.second < j.second; });
     }
+
+    if (thread_safe) delete [] visited;
 }
 
 bool Hnsw::SetValuesFromModel(char* model) {
@@ -765,7 +777,7 @@ bool Hnsw::SetValuesFromModel(char* model) {
     }
     return false;
 }
-void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, vector<pair<int, float>>& result) {
+void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, vector<pair<int, float>>& result, bool thread_safe) {
     if (model_ == nullptr) throw std::runtime_error("[Error] Model has not loaded!");
     float PORTABLE_ALIGN32 TmpRes[8];
     const float* qraw = nullptr;
@@ -819,18 +831,18 @@ void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search,
             cur_node_id = path.back().first;
             cur_dist = path.back().second;
             path.pop_back();
-            SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, result);
+            SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, result, thread_safe);
         }
     } else {
-        SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, result);
+        SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, result, thread_safe);
     }
 }
 
-void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
+void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float> >& result, bool thread_safe) {
     if (ef_search < 0) {
         ef_search = 50 * k;
     }
-    SearchById_(id, 0.0, (const float*)(model_level0_ + id * memory_per_node_level0_ + memory_per_link_level0_), k, ef_search, result);
+    SearchById_(id, 0.0, (const float*)(model_level0_ + id * memory_per_node_level0_ + memory_per_link_level0_), k, ef_search, result, thread_safe);
 }
 
 void Hnsw::SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint, int level, size_t ef, priority_queue<FurtherFirst>& result) {
