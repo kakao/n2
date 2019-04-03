@@ -70,7 +70,7 @@ namespace n2 {
         void SearchByVector(std::vector<float> vecs, int k, int ef_search,
                             std::vector<int>* ids) {
             std::vector<std::pair<int, float>> result_tmp;
-            ptr->SearchByVector(vecs, k, ef_search, result_tmp);
+            ptr->SearchByVector(vecs, k, ef_search, result_tmp, false);
             for(auto iter = result_tmp.begin(); iter != result_tmp.end(); iter++) {
                 ids->emplace_back(iter->first);
             }
@@ -79,7 +79,7 @@ namespace n2 {
         void SearchByVector(std::vector<float> vecs, int k, int ef_search,
                             std::vector<int>* ids, std::vector<float>* distances) {
             std::vector<std::pair<int, float>> result_tmp;
-            ptr->SearchByVector(vecs, k, ef_search, result_tmp);
+            ptr->SearchByVector(vecs, k, ef_search, result_tmp, false);
             for(auto iter = result_tmp.begin(); iter != result_tmp.end(); iter++) {
                 ids->emplace_back(iter->first);
                 distances->emplace_back(iter->second);
@@ -89,7 +89,7 @@ namespace n2 {
         void SearchById(int id, int k, int ef_search,
                         std::vector<int>* ids) {
             std::vector<std::pair<int, float>> result_tmp;
-            ptr->SearchById(id, k, ef_search, result_tmp);
+            ptr->SearchById(id, k, ef_search, result_tmp, false);
             for(auto iter = result_tmp.begin(); iter != result_tmp.end(); iter++) {
                 ids->emplace_back(iter->first);
             }
@@ -99,7 +99,7 @@ namespace n2 {
         void SearchById(int id, int k, int ef_search,
                           std::vector<int>* ids, std::vector<float>* distances) {
               std::vector<std::pair<int, float>> result_tmp;
-              ptr->SearchById(id, k, ef_search, result_tmp);
+              ptr->SearchById(id, k, ef_search, result_tmp, false);
               for(auto iter = result_tmp.begin(); iter != result_tmp.end(); iter++) {
                   ids->emplace_back(iter->first);
                   distances->emplace_back(iter->second);

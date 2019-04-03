@@ -670,7 +670,7 @@ void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_
         visited = new unsigned int[num_nodes_];
         memset(visited, 0, sizeof(unsigned int)*num_nodes_);
     }else {
-        searh_list_ -> Reset();
+        search_list_ -> Reset();
         mark = search_list_->GetVisitMark();
         visited = search_list_->GetVisited();
     }
