@@ -84,6 +84,12 @@ public:
 
     void SearchById(int id, size_t k, size_t ef_search,
                     std::vector<std::pair<int, float> >& result, bool thread_safe);
+    
+    void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search,
+                 std::vector<std::pair<int, float> >& result);
+
+    void SearchById(int id, size_t k, size_t ef_search,
+                    std::vector<std::pair<int, float> >& result);
 
     void PrintDegreeDist() const;
     void PrintConfigs() const;

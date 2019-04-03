@@ -777,7 +777,7 @@ bool Hnsw::SetValuesFromModel(char* model) {
     }
     return false;
 }
-void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, vector<pair<int, float>>& result, bool thread_safe) {
+void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, vector<pair<int, float>>& result, bool thread_safe=false) {
     if (model_ == nullptr) throw std::runtime_error("[Error] Model has not loaded!");
     float PORTABLE_ALIGN32 TmpRes[8];
     const float* qraw = nullptr;
@@ -838,11 +838,20 @@ void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search,
     }
 }
 
+void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, vector<pair<int, float>>& result) {
+    SearchByVector(qvec, k, ef_search, result, false);
+}
+
+
 void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float> >& result, bool thread_safe) {
     if (ef_search < 0) {
         ef_search = 50 * k;
     }
     SearchById_(id, 0.0, (const float*)(model_level0_ + id * memory_per_node_level0_ + memory_per_link_level0_), k, ef_search, result, thread_safe);
+}
+
+void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
+    SearchById(id, k, ef_search, result, false);
 }
 
 void Hnsw::SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint, int level, size_t ef, priority_queue<FurtherFirst>& result) {
