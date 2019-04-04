@@ -846,6 +846,7 @@ void Hnsw::mSearchByVectors(const vector<vector<float>>& qvecs, size_t k, size_t
         vector<vector<pair<int, float>>>& results, int num_threads) {
     int job_size = qvecs.size();
     omp_set_num_threads(num_threads);
+    results.resize(job_size); 
     #pragma omp parallel for schedule(dynamic, 4)
     for (int i=0; i < job_size; ++i)
         SearchByVector(qvecs[i], k, ef_search, results[i], true);
@@ -867,6 +868,7 @@ void Hnsw::mSearchByIds(vector<int> ids, size_t k, size_t ef_search,
         vector<vector<pair<int, float>>>& results, int num_threads) {
     int job_size = ids.size();
     omp_set_num_threads(num_threads);
+    results.resize(job_size);
     #pragma omp parallel for schedule(dynamic, 4)
     for (int i=0; i < job_size; ++i)
         SearchById(ids[i], k, ef_search, results[i], true);

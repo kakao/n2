@@ -20,6 +20,7 @@
 #include <queue>
 #include <random>
 #include <vector>
+#include "omp.h"
 
 #include "spdlog/spdlog.h"
 

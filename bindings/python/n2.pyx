@@ -103,8 +103,8 @@ cdef class _HnswIndex:
         cdef vector[vector[pair[int, float]]] rets
         cdef int num_threads = _num_threads
         with nogil:
-            self.obj.SearchByVectors(vs, k, ef_search, rets, num_threads)
-        return ret
+            self.obj.mSearchByVectors(vs, k, ef_search, rets, num_threads)
+        return rets
 
     def msearch_by_ids(self, _item_ids, _k, _ef_search, _num_threads):
         cdef vector[int] item_ids = _item_ids
@@ -113,8 +113,8 @@ cdef class _HnswIndex:
         cdef vector[vector[pair[int, float]]] rets
         cdef int num_threads = _num_threads
         with nogil:
-            self.obj.SearchByIds(item_ids, k, ef_search, rets, num_thrads)
-        return ret
+            self.obj.mSearchByIds(item_ids, k, ef_search, rets, num_threads)
+        return rets
 
     def print_degree_dist(self):
         with nogil:
@@ -230,7 +230,7 @@ class HnswIndex(object):
         """
         if ef_search == -1:
             ef_search = k * 10
-        rets = self.model.msearch_by_vector(vs, k, ef_search, num_threads)
+        rets = self.model.msearch_by_vectors(vs, k, ef_search, num_threads)
         if include_distances:
             return rets
         else:
@@ -241,9 +241,9 @@ class HnswIndex(object):
         """
         if ef_search == -1:
             ef_search = k * 10
-        rets = self.model.msearch_by_id(item_id, k, ef_search, num_threads)
+        rets = self.model.msearch_by_ids(item_ids, k, ef_search, num_threads)
         if include_distances:
-            return ret
+            return rets
         else:
             return [[k for k, _ in ret] for ret in rets]
 
