@@ -32,8 +32,11 @@ cdef extern from "n2/hnsw.h" namespace "n2":
         void AddData(const vector[float]& data, const bool_t nrz) nogil except +
         void Fit() nogil except +
         void SearchByVector(const vector[float]& qvec, size_t, size_t,
-                            vector[pair[int, float]]& result, bool_t thread_safe) nogil except +
-        void SearchById(int, size_t, size_t, vector[pair[int, float]]& result, bool_t thread_safe) nogil except +
+                            vector[pair[int, float]]& result) nogil except +
+        void SearchById(int, size_t, size_t, vector[pair[int, float]]& result) nogil except +
+        void mSearchByVectors(const vector[vector[float]]& qvecs, size_t, size_t,
+                            vector[vector[pair[int, float]]]& results, int) nogil except +
+        void mSearchByIds(vector[int] , size_t, size_t, vector[vector[pair[int, float]]]& result, int) nogil except +
         void PrintDegreeDist() nogil except +
         void PrintConfigs() nogil except +
 
@@ -81,7 +84,7 @@ cdef class _HnswIndex:
         cdef size_t ef_search = _ef_search
         cdef vector[pair[int, float]] ret
         with nogil:
-            self.obj.SearchByVector(v, k, ef_search, ret, False)
+            self.obj.SearchByVector(v, k, ef_search, ret)
         return ret
 
     def search_by_id(self, _item_id, _k, _ef_search):
@@ -90,7 +93,27 @@ cdef class _HnswIndex:
         cdef size_t ef_search = _ef_search
         cdef vector[pair[int, float]] ret
         with nogil:
-            self.obj.SearchById(item_id, k, ef_search, ret, False)
+            self.obj.SearchById(item_id, k, ef_search, ret)
+        return ret
+
+    def msearch_by_vectors(self, _vs, _k, _ef_search, _num_threads):
+        cdef vector[vector[float]] vs = _vs
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef vector[vector[pair[int, float]]] rets
+        cdef int num_threads = _num_threads
+        with nogil:
+            self.obj.SearchByVectors(vs, k, ef_search, rets, num_threads)
+        return ret
+
+    def msearch_by_ids(self, _item_ids, _k, _ef_search, _num_threads):
+        cdef vector[int] item_ids = _item_ids
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef vector[vector[pair[int, float]]] rets
+        cdef int num_threads = _num_threads
+        with nogil:
+            self.obj.SearchByIds(item_ids, k, ef_search, rets, num_thrads)
         return ret
 
     def print_degree_dist(self):
@@ -201,6 +224,28 @@ class HnswIndex(object):
             return ret
         else:
             return [k for k, _ in ret]
+
+    def msearch_by_vectors(self, vs, k, ef_search=-1, include_distances=False, num_threads=4):
+        """ multi-search by vectors with multi-threading
+        """
+        if ef_search == -1:
+            ef_search = k * 10
+        rets = self.model.msearch_by_vector(vs, k, ef_search, num_threads)
+        if include_distances:
+            return rets
+        else:
+            return [[k for k, _ in ret] for ret in rets]
+
+    def msearch_by_ids(self, item_ids, k, ef_search=-1, include_distances=False, num_threads=4):
+        """ multi-search by ids with multi-threading
+        """
+        if ef_search == -1:
+            ef_search = k * 10
+        rets = self.model.msearch_by_id(item_id, k, ef_search, num_threads)
+        if include_distances:
+            return ret
+        else:
+            return [[k for k, _ in ret] for ret in rets]
 
     def print_degree_dist(self):
         """

@@ -842,6 +842,15 @@ void Hnsw::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search,
     SearchByVector(qvec, k, ef_search, result, false);
 }
 
+void Hnsw::mSearchByVectors(const vector<vector<float>>& qvecs, size_t k, size_t ef_search, 
+        vector<vector<pair<int, float>>>& results, int num_threads) {
+    int job_size = qvecs.size();
+    omp_set_num_threads(num_threads);
+    #pragma omp parallel for schedule(dynamic, 4)
+    for (int i=0; i < job_size; ++i)
+        SearchByVector(qvecs[i], k, ef_search, results[i], true);
+}
+
 
 void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float> >& result, bool thread_safe) {
     if (ef_search < 0) {
@@ -853,6 +862,16 @@ void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float
 void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
     SearchById(id, k, ef_search, result, false);
 }
+
+void Hnsw::mSearchByIds(vector<int> ids, size_t k, size_t ef_search, 
+        vector<vector<pair<int, float>>>& results, int num_threads) {
+    int job_size = ids.size();
+    omp_set_num_threads(num_threads);
+    #pragma omp parallel for schedule(dynamic, 4)
+    for (int i=0; i < job_size; ++i)
+        SearchById(ids[i], k, ef_search, results[i], true);
+}
+
 
 void Hnsw::SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint, int level, size_t ef, priority_queue<FurtherFirst>& result) {
     // TODO: check Node 12bytes => 8bytes

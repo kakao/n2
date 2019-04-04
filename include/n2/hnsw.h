@@ -90,6 +90,12 @@ public:
 
     void SearchById(int id, size_t k, size_t ef_search,
                     std::vector<std::pair<int, float> >& result);
+    
+    void mSearchByVectors(const std::vector<std::vector<float>>& qvecs, size_t k, size_t ef_search,
+                 std::vector<std::vector<std::pair<int, float>>>& results, int num_threads);
+
+    void mSearchByIds(std::vector<int> ids, size_t k, size_t ef_search,
+                    std::vector<std::vector<std::pair<int, float>>>& results, int num_threads);
 
     void PrintDegreeDist() const;
     void PrintConfigs() const;
