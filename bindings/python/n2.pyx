@@ -226,7 +226,15 @@ class HnswIndex(object):
             return [k for k, _ in ret]
 
     def msearch_by_vectors(self, vs, k, ef_search=-1, include_distances=False, num_threads=4):
-        """ multi-search by vectors with multi-threading
+        """
+        Multi-search by vectors with multi-threading
+        :params vs: query vectors
+        :params k: k value
+        :param include_distances: If you set this argument to True,
+        it will return a list of list of tuples((item_id, distance)).
+        :param num_threads: number of threads that will be used for searching
+
+        :return ret: a list of list of k nearest items for each query in the same order.
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -237,7 +245,15 @@ class HnswIndex(object):
             return [[k for k, _ in ret] for ret in rets]
 
     def msearch_by_ids(self, item_ids, k, ef_search=-1, include_distances=False, num_threads=4):
-        """ multi-search by ids with multi-threading
+        """
+        Multi-search by ids with multi-threading
+        :params vs: query ids
+        :params k: k value
+        :param include_distances: If you set this argument to True,
+        it will return a list of list of tuples((item_id, distance)).
+        :param num_threads: number of threads that will be used for searching
+
+        :return ret: a list of list of k nearest items for each query in the same order.
         """
         if ef_search == -1:
             ef_search = k * 10
