@@ -150,7 +150,7 @@ float AngularDistance::Evaluate(const float* __restrict pVect1, const float*  __
     float sum = TmpRes[0] + TmpRes[1] + TmpRes[2] + TmpRes[3];
     // return std::fmax(0.0f, 1 - std::fmax(float(-1), std::fmin(float(1), sum)));
     
-    return 1 - sum
+    return 1 - sum;
 #endif
 }
 
