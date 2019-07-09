@@ -1,0 +1,25 @@
+# 조직명(최소단위)
+org: 추천팀
+# 프로젝트명
+proj: N2
+# 프로젝트 소개
+proj_desc: aKNN 라이브러리 (Mirror of N2 https://github.com/kakao/n2)
+# 담당자
+contact: @@recommendation
+# Github 주소 (포크 떠온 경우만 기입)
+src_github: N/A
+# 프로젝트 상태 (Release, Pre-release, Personal)
+status: Release
+# 서비스 도메인 네임 (real만)
+dns_name: 
+# 아지트 주소
+agit_url: 
+# 지라 주소
+jira_url: 
+# 위키 주소
+wiki_url: 
+# 스킬셋
+skills:
+  - C / C++
+  - python
+  - KNN
