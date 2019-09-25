@@ -44,7 +44,7 @@ public:
     HeuristicNeighborSelectingPolicies(): save_remains_(false) {}
     HeuristicNeighborSelectingPolicies(bool save_remain) : save_remains_(save_remain) {}
     ~HeuristicNeighborSelectingPolicies() override {}
-     void Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) override;
+    void Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) override;
 private:
     bool save_remains_;
 };

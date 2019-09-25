@@ -4,3 +4,9 @@
 [submodule "third_party/spdlog"]
 	path = third_party/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "third_party/eigen/eigen3"]
+	path = third_party/eigen/eigen3
+	url = https://github.com/eigenteam/eigen-git-mirror
+[submodule "third_party/boost"]
+	path = third_party/boost
+	url = https://github.com/boostorg/boost.git

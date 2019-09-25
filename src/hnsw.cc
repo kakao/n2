@@ -25,11 +25,13 @@
 #include <vector>
 #include <thread>
 #include <xmmintrin.h>
+#include <limits>
 
 #include "n2/hnsw.h"
 #include "n2/hnsw_node.h"
 #include "n2/distance.h"
 #include "n2/min_heap.h"
+#include "n2/max_heap.h"
 
 #define MERGE_BUFFER_ALGO_SWITCH_THRESHOLD 100
 
@@ -203,10 +205,6 @@ Hnsw::~Hnsw() {
         delete nodes_[i];
     }
 
-    if (default_rng_) {
-        delete default_rng_;
-    }
-
     if (selecting_policy_cls_) {
         delete selecting_policy_cls_;
     }
@@ -270,8 +268,11 @@ void Hnsw::SetConfigs(const vector<pair<string, string> >& configs) {
     }
 }
 
-int Hnsw::DrawLevel(bool use_default_rng) {
-    double r = use_default_rng ? uniform_distribution_(*default_rng_) : uniform_distribution_(rng_);
+int Hnsw::DrawLevel() {
+    static thread_local std::mt19937 rng(getRandomSeedPerThread());
+    static thread_local std::uniform_real_distribution<double> uniform_distribution(0.0, 1.0);
+    double r = uniform_distribution(rng);
+
     if (r < std::numeric_limits<double>::epsilon())
         r = 1.0;
     return (int)(-log(r) * levelmult_);
@@ -300,13 +301,12 @@ void Hnsw::Build(int M, int MaxM0, int ef_construction, int n_threads, float mul
     Fit();
 }
 
+
 void Hnsw::Fit() {
     if (data_.size() == 0) throw std::runtime_error("[Error] No data to fit. Load data first.");
-    if (default_rng_ == nullptr)
-        default_rng_ = new std::default_random_engine(100);
-    rng_.seed(rng_seed_);
     BuildGraph(false);
     if (post_ == GraphPostProcessing::MERGE_LEVEL0) {
+        logger_->info("graph post processing: merge_level0");
         vector<HnswNode*> nodes_backup;
         nodes_backup.swap(nodes_);
         BuildGraph(true);
@@ -321,6 +321,7 @@ void Hnsw::Fit() {
     for(size_t i = 0; i < nodes_.size(); ++i) {
         totalLevel += nodes_[i]->GetLevel();
     }
+
     enterpoint_id_ = enterpoint_->GetId();
     num_nodes_ = nodes_.size();
     long long model_config_size = GetModelConfigSize();
@@ -363,7 +364,7 @@ void Hnsw::Fit() {
 
 void Hnsw::BuildGraph(bool reverse) {
     nodes_.resize(data_.size());
-    int level = DrawLevel(use_default_rng_);
+    int level = DrawLevel();
     HnswNode* first = new HnswNode(0, &(data_[0]), level, MaxM_, MaxM0_);
     nodes_[0] = first;
     maxlevel_ = level;
@@ -375,7 +376,7 @@ void Hnsw::BuildGraph(bool reverse) {
 
             #pragma omp for schedule(dynamic,128)
             for (size_t i = data_.size() - 1; i >= 1; --i) {
-                level = DrawLevel(use_default_rng_);
+                int level = DrawLevel();
                 HnswNode* qnode = new HnswNode(i, &data_[i], level, MaxM_, MaxM0_);
                 nodes_[i] = qnode;
                 Insert(qnode);
@@ -389,7 +390,7 @@ void Hnsw::BuildGraph(bool reverse) {
             visited_list_ = new VisitedList(data_.size());
             #pragma omp for schedule(dynamic,128)
             for (size_t i = 1; i < data_.size(); ++i) {
-                level = DrawLevel(use_default_rng_);
+                int level = DrawLevel();
                 HnswNode* qnode = new HnswNode(i, &data_[i], level, MaxM_, MaxM0_);
                 nodes_[i] = qnode;
                 Insert(qnode);
@@ -514,6 +515,7 @@ void Hnsw::Insert(HnswNode* qnode) {
 
     int maxlevel_copy = maxlevel_;
     HnswNode* enterpoint = enterpoint_;
+
     const std::vector<float>& qvec = qnode->GetData();
     const float* qraw = &qvec[0];
     if (cur_level < maxlevel_copy) {
@@ -551,6 +553,7 @@ void Hnsw::Insert(HnswNode* qnode) {
         while (temp_res.size() > 0) {
             auto* top_node = temp_res.top().GetNode();
             temp_res.pop();
+           
             Link(top_node, qnode, i, is_naive_, data_dim_);
             Link(qnode, top_node, i, is_naive_, data_dim_);
         }
@@ -634,89 +637,83 @@ void Hnsw::NormalizeVector(std::vector<float>& vec) {
    }
 }
 
-void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float> >& result) {
-    MinHeap<float, int> dh;
+void Hnsw::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search, vector<pair<int, float>>& result) {
+    IdDistancePairMinHeap candidates;
+    IdDistancePairMinHeap visited_nodes;
 
-    typedef typename MinHeap<float, int>::Item  QueueItem;
-    std::queue<QueueItem> q;
+    candidates.emplace(cur_node_id, cur_dist);
+
     search_list_->Reset();
-
-    unsigned int mark = search_list_->GetVisitMark();
+    unsigned int visited_mark = search_list_->GetVisitMark();
     unsigned int* visited = search_list_->GetVisited();
-    bool need_sort = false;
-    if (ensure_k_) {
-        if (!result.empty()) need_sort = true;
-        for (size_t i = 0; i < result.size(); ++i)
-            visited[result[i].first] = mark;
-        if (visited[cur_node_id] == mark) return;
+    size_t already_visited_for_ensure_k = 0;
+    if (ensure_k_ && !result.empty()) {
+        already_visited_for_ensure_k = result.size();
+        for (size_t i = 0; i < result.size(); ++i) {
+            if (result[i].first == cur_node_id) {
+                return ;
+            }
+            visited[result[i].first] = visited_mark;
+
+            visited_nodes.emplace(std::move(result[i]));
+        }
+        result.clear();
     }
-    visited[cur_node_id] = mark;
+    visited[cur_node_id] = visited_mark;
 
-    std::priority_queue<pair<float, int> > visited_nodes;
-
-    int tnum;
-    float d;
-    QueueItem e;
-    float maxKey = cur_dist;
+    float farthest_distance = cur_dist;
     size_t total_size = 1;
-    while (dh.size() > 0 && visited_nodes.size() < (ef_search)) {
-        e = dh.top();
-        dh.pop();
-        cur_node_id = e.data;
+    while (!candidates.empty() && visited_nodes.size() < ef_search+already_visited_for_ensure_k) {
+        const IdDistancePair& c = candidates.top();
+        cur_node_id = c.first;
+        visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));        // maybe valid move...?
+        candidates.pop();
 
-        visited_nodes.emplace(e.key, e.data);
-
-        float topKey = maxKey;
-
+        float minimum_distance = farthest_distance;
         int *data = (int*)(model_level0_ + cur_node_id*memory_per_node_level0_ + sizeof(int));
         int size = *data;
         for (int j = 1; j <= size; ++j) {
-            tnum = *(data + j);
-            if (visited[tnum] != mark) {
+            int node_id = *(data + j);
+            if (visited[node_id] != visited_mark) {
                 _mm_prefetch(qraw, _MM_HINT_T0);
-                visited[tnum] = mark;
-                d = dist_func_(qraw, (float*)(model_level0_ + tnum*memory_per_node_level0_ + memory_per_link_level0_), data_dim_);
-                if (d < topKey || total_size < ef_search) {
-                    q.emplace(QueueItem(d, tnum));
+                visited[node_id] = visited_mark;
+                float d = dist_func_(qraw, (float*)(model_level0_ + node_id*memory_per_node_level0_ + memory_per_link_level0_), data_dim_);
+
+                if (d < minimum_distance || total_size < ef_search) {
+                    candidates.emplace(node_id, d);
+                    if ( d > farthest_distance ) {
+                        farthest_distance = d;
+                    }
                     ++total_size;
                 }
             }
         }
-        while(!q.empty()) {
-            QueueItem& item = q.front();
-            dh.push(item.key, item.data);
-            if (item.key > maxKey) maxKey = item.key;
-            q.pop();
+    }
+
+    while (result.size() < k) {
+        if (!candidates.empty() && !visited_nodes.empty()) {
+            const IdDistancePair& c = candidates.top();
+            const IdDistancePair& v = visited_nodes.top();
+            if (c.second < v.second) {
+                result.emplace_back(std::move(const_cast<IdDistancePair&>(c)));         // maybe valid move...?
+                candidates.pop();
+            } else {
+                result.emplace_back(std::move(const_cast<IdDistancePair&>(v)));
+                visited_nodes.pop();
+            }
+        } else if (!candidates.empty()) {
+            const IdDistancePair& c = candidates.top();
+            result.emplace_back(std::move(const_cast<IdDistancePair&>(c)));
+            candidates.pop();
+        } else if (!visited_nodes.empty()) {
+            const IdDistancePair& v = visited_nodes.top();
+            result.emplace_back(std::move(const_cast<IdDistancePair&>(v)));
+            visited_nodes.pop();
+        } else {
+            break;
         }
     }
 
-    vector<pair<float, int> > res_t;
-    while (dh.size() && res_t.size() < k) {
-        QueueItem&& item = dh.top();
-        res_t.emplace_back(item.key, item.data);
-        dh.pop();
-    }
-    while (visited_nodes.size() > k) visited_nodes.pop();
-    while (!visited_nodes.empty()) {
-        res_t.emplace_back(visited_nodes.top());
-        visited_nodes.pop();
-    }
-    _mm_prefetch(&res_t[0], _MM_HINT_T0);
-    size_t sz;
-    if (ensure_k_) {
-        sz = min(k - result.size(), res_t.size());
-    } else {
-        sz = min(k, res_t.size());
-    }
-    std::partial_sort(res_t.begin(), res_t.begin() + sz, res_t.end());
-    for(size_t i = 0; i < sz; ++i)
-        result.push_back(pair<int, float>(res_t[i].second, res_t[i].first));
-    if (ensure_k_ && need_sort) {
-        _mm_prefetch(&result[0], _MM_HINT_T0);
-        sort(result.begin(), result.end(), [](const pair<int, float>& i, const pair<int, float>& j) -> bool {
-            return i.second < j.second; 
-        });
-    }
 }
 
 bool Hnsw::SetValuesFromModel(char* model) {
@@ -821,10 +818,11 @@ void Hnsw::SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint, i
     float d = dist_func_(qraw, (float*)&(enterpoint->GetData()[0]), data_dim_);
     result.emplace(enterpoint, d);
     candidates.emplace(enterpoint, d);
-
+    
     visited_list_->Reset();
     unsigned int mark = visited_list_->GetVisitMark();
     unsigned int* visited = visited_list_->GetVisited();
+   
     visited[enterpoint->GetId()] = mark;
 
     while(!candidates.empty()) {
