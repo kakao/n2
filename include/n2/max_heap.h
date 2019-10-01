@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <eigen3/Eigen/Dense>
+#pragma once
 
-#include "n2/distance.h"
+#include <boost/heap/d_ary_heap.hpp>
 
 namespace n2 {
 
-float l2_distance(const float* v1, const float* v2, size_t qty)
-{
-    Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
-    return (p - q).squaredNorm();
-}
-
-float angular_distance(const float* v1, const float* v2, size_t qty)
-{
-    Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
-    return 1.0 - p.dot(q);
-}
+typedef typename std::pair<int, float> IdDistancePair;
+struct IdDistancePairMaxHeapComparer {
+	bool operator()(const IdDistancePair& p1, const IdDistancePair& p2) const {
+        return p1.second < p2.second;
+    }
+};
+typedef typename boost::heap::d_ary_heap<float, boost::heap::arity<4>> DistanceMaxHeap;
 
 } // namespace n2

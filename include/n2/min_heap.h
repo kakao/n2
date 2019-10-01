@@ -16,6 +16,10 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <string.h>
+#include <boost/heap/d_ary_heap.hpp>
+
+#include <utility>
 
 namespace n2 {
 
@@ -33,10 +37,10 @@ public:
             return key > i2.key;
         }
     };
-    
+   
     MinHeap() {
     }
-    
+
     const KeyType top_key() {
         if (v_.size() <= 0) return 0.0;
         return v_[0].key;
@@ -61,8 +65,16 @@ public:
         return v_.size();
     }
 
-protected:
+public:
     std::vector<Item> v_;
 };
+
+typedef typename std::pair<int, float> IdDistancePair;
+struct IdDistancePairMinHeapComparer {
+	bool operator()(const IdDistancePair& p1, const IdDistancePair& p2) const {
+        return p1.second > p2.second;
+    }
+};
+typedef typename boost::heap::d_ary_heap<IdDistancePair, boost::heap::arity<4>, boost::heap::compare<IdDistancePairMinHeapComparer>> IdDistancePairMinHeap;
 
 } // namespace n2

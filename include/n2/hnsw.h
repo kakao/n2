@@ -20,6 +20,7 @@
 #include <queue>
 #include <random>
 #include <vector>
+#include <omp.h>
 
 #include "spdlog/spdlog.h"
 
@@ -89,7 +90,7 @@ public:
     void PrintConfigs() const;
 
 private:
-    int DrawLevel(bool use_default_rng=false);
+    int DrawLevel();
 
     void BuildGraph(bool reverse);
     void Insert(HnswNode* qnode);
@@ -118,6 +119,14 @@ private:
         return ptr + sizeof(T);
     }
 
+    inline int getRandomSeedPerThread() {
+        int tid = omp_get_thread_num();
+        int g_seed = 17;
+        for (int i=0 ; i<=tid ; ++i)
+            g_seed = (214013*g_seed+2531011);
+        return (g_seed>>16)&0x7FFF;
+    }
+
 private:
     std::shared_ptr<spdlog::logger> logger_;
     std::unique_ptr<VisitedList> search_list_;
@@ -133,12 +142,9 @@ private:
     bool is_naive_ = false;
     GraphPostProcessing post_ = GraphPostProcessing::SKIP;
 
-    BaseDistance* dist_cls_ = nullptr;
+    distance_function dist_func_ = nullptr;
     BaseNeighborSelectingPolicies* selecting_policy_cls_ = new HeuristicNeighborSelectingPolicies(false);
     BaseNeighborSelectingPolicies* post_policy_cls_ = new HeuristicNeighborSelectingPolicies(true);
-    std::uniform_real_distribution<double> uniform_distribution_{0.0, 1.0};
-    std::default_random_engine* default_rng_ = nullptr;
-    std::mt19937 rng_;
 
     int maxlevel_ = 0;
     HnswNode* enterpoint_ = nullptr;
@@ -164,10 +170,6 @@ private:
 
     mutable std::mutex node_list_guard_;
     mutable std::mutex max_level_guard_;
-
-    // configurations
-    int rng_seed_ = 17;
-    bool use_default_rng_ = false;
 };
 
 } // namespace n2
