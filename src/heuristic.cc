@@ -12,25 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "n2/heuristic.h"
+
 #include <xmmintrin.h>
 
-#include "n2/base.h"
-#include "n2/heuristic.h"
+#include <vector>
 
 namespace n2 {
 
+using std::priority_queue
+using std::vector;
+
 BaseNeighborSelectingPolicies::~BaseNeighborSelectingPolicies() {}
 
-void NaiveNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) {
+void NaiveNeighborSelectingPolicies::Select(const size_t m, size_t dim, distance_function dist_func,
+                                            priority_queue<FurtherFirst>& result) {
     while (result.size() > m) {
         result.pop();
     }
 }
 
-void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_queue<FurtherFirst>& result, size_t dim, distance_function dist_func) {
+void HeuristicNeighborSelectingPolicies::Select(const size_t m, size_t dim, distance_function dist_func,
+                                                priority_queue<FurtherFirst>& result) {
     if (result.size() <= m) return;
-    
-    std::vector<FurtherFirst> neighbors, picked;
+   
+    vector<FurtherFirst> neighbors, picked;
+    // TODO(gony): minheap / priority_queue 를 사용하고 있는 부분 하나의 자료 구조를 사용할지 테스트
     MinHeap<float, HnswNode*> skipped;
     while(!result.empty()) {
         neighbors.push_back(result.top());
@@ -38,19 +45,19 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_qu
     }
 
     for (size_t i = 0; i < neighbors.size(); ++i) {
-        _mm_prefetch((char*)&(neighbors[i].GetNode()->GetData()), _MM_HINT_T0);
+        _mm_prefetch(neighbors[i].GetNode()->GetDataAsCharArray(), _MM_HINT_T0);
     }
 
-    for (int i = (int)neighbors.size() - 1; i >= 0; --i) {
+    for (size_t i = neighbors.size() - 1; i >= 0; --i) {
         bool skip = false;
         float cur_dist = neighbors[i].GetDistance();
-        float* q = (float*)&neighbors[i].GetNode()->GetData()[0];
+        const float* q = neighbors[i].GetNode()->GetDataAsFloatArray();
         for (size_t j = 0; j < picked.size(); ++j) {
             if (j < picked.size() - 1) {
-                _mm_prefetch((char*)&(picked[j+1].GetNode()->GetData()), _MM_HINT_T0);
+                _mm_prefetch(picked[j+1].GetNode()->GetDataAsCharArray(), _MM_HINT_T0);
             }
             _mm_prefetch(q, _MM_HINT_T1);
-            if (dist_func(q, (float*)&picked[j].GetNode()->GetData()[0], dim) < cur_dist) {
+            if (dist_func(q, picked[j].GetNode()->GetDataAsFloatArray(), dim) < cur_dist) {
                 skip = true;
                 break;
             }
@@ -62,10 +69,11 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, std::priority_qu
             skipped.push(cur_dist, neighbors[i].GetNode());
         }
             
-        if (picked.size() == m) break;
+        if (picked.size() == m) 
+            break;
     }
 
-    for(size_t i = 0; i < picked.size(); ++i) {
+    for (size_t i = 0; i < picked.size(); ++i) {
         result.emplace(picked[i]);
     }
 

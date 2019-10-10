@@ -14,54 +14,31 @@
 
 #pragma once
 
+#include <omp.h>
+
 #include <iostream>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <random>
 #include <vector>
-#include <omp.h>
 
 #include "spdlog/spdlog.h"
 
-#include "base.h"
-#include "mmap.h"
+#include "common.h"
+#include "data.h"
 #include "distance.h"
-#include "sort.h"
 #include "heuristic.h"
+#include "mmap.h"
+#include "sort.h"
+#include "visited_list.h"
 
 namespace n2 {
 
-class VisitedList {
-public:
-    VisitedList(int size)
-    : size_(size), mark_(1) {
-        visited_ = new unsigned int[size_];
-        memset(visited_, 0, sizeof(unsigned int)*size_);
-    }
-
-    inline unsigned int GetVisitMark() const { return mark_; }
-    inline unsigned int* GetVisited() const { return visited_; }
-    void Reset() {
-        if (++mark_ == 0) {
-            mark_ = 1;
-            memset(visited_, 0, sizeof(unsigned int)*size_);
-        }
-    }
-    ~VisitedList() {
-        delete [] visited_;
-    }
-
-public:
-    unsigned int* visited_;
-    unsigned int size_;
-    unsigned int mark_;
-};
-
-class Hnsw{
+class Hnsw {
 public:
     Hnsw();
-    Hnsw(int dim, std::string metric = "angular");
+    Hnsw(int dim, std::string metric="angular");
     Hnsw(const Hnsw& other);
     Hnsw(Hnsw& other);
     Hnsw(Hnsw&& other) noexcept;
@@ -81,10 +58,10 @@ public:
     void Build(int M = -1, int M0 = -1, int ef_construction = -1, int n_threads = -1, float mult = -1, NeighborSelectingPolicy neighbor_selecting = NeighborSelectingPolicy::HEURISTIC, GraphPostProcessing graph_merging = GraphPostProcessing::SKIP, bool ensure_k = false);
 
     void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search,
-                        std::vector<std::pair<int, float> >& result);
+            std::vector<std::pair<int, float> >& result);
 
     void SearchById(int id, size_t k, size_t ef_search,
-                    std::vector<std::pair<int, float> >& result);
+            std::vector<std::pair<int, float> >& result);
 
     void PrintDegreeDist() const;
     void PrintConfigs() const;
@@ -96,12 +73,12 @@ private:
     void Insert(HnswNode* qnode);
     void Link(HnswNode* source, HnswNode* target, int level, bool is_naive, size_t dim);
     void SearchAtLayer(const std::vector<float>& qvec, HnswNode* enterpoint,
-                       int level, size_t ef,
-                       std::priority_queue<FurtherFirst>& result);
+            int level, size_t ef,
+            std::priority_queue<FurtherFirst>& result);
 
     void SearchById_(int cur_node_id, float cur_dist, const float* query_vec,
-                     size_t k, size_t ef_search,
-                     std::vector<std::pair<int, float> >& result);
+            size_t k, size_t ef_search,
+            std::vector<std::pair<int, float> >& result);
 
     bool SetValuesFromModel(char* model);
     void NormalizeVector(std::vector<float>& vec);
@@ -109,15 +86,15 @@ private:
     size_t GetModelConfigSize() const;
     void SaveModelConfig(char* model);
     template <typename T>
-    char* SetValueAndIncPtr(char* ptr, const T& val) {
-        *((T*)(ptr)) = val;
-        return ptr + sizeof(T);
-    }
+        char* SetValueAndIncPtr(char* ptr, const T& val) {
+            *((T*)(ptr)) = val;
+            return ptr + sizeof(T);
+        }
     template <typename T>
-    char* GetValueAndIncPtr(char* ptr, T& val) {
-        val = *((T*)(ptr));
-        return ptr + sizeof(T);
-    }
+        char* GetValueAndIncPtr(char* ptr, T& val) {
+            val = *((T*)(ptr));
+            return ptr + sizeof(T);
+        }
 
     inline int getRandomSeedPerThread() {
         int tid = omp_get_thread_num();
@@ -149,7 +126,7 @@ private:
     int maxlevel_ = 0;
     HnswNode* enterpoint_ = nullptr;
     int enterpoint_id_ = 0;
-    std::vector<Data> data_;
+    std::vector<Data> data_list_;
     std::vector<HnswNode*> nodes_;
     int num_nodes_ = 0;
     DistanceKind metric_;

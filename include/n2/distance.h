@@ -14,8 +14,38 @@
 
 #pragma once
 
+#include <eigen3/Eigen/Dense>
+
 namespace n2 
 {
+/*
+template <typename F>
+class Distance {
+    public:
+        Distance(F functor) : functor_(functor) {}
+        inline float operator()(const float* v1, const float* v2, size_t qty) const {
+            return functor_(v1, v2, qty);
+        }
+    private:
+        F functor_;
+};
+
+class L2Distance {
+    public:
+        inline float operator()(const float* v1, const float* v2, size_t qty) const {
+            Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
+            return (p - q).squaredNorm();
+        }
+};
+
+class AngularDistance {
+    public:
+        inline float operator()(const float* v1, const float* v2, size_t qty) const {
+            Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
+            return 1.0 - p.dot(q);
+        }
+};
+*/
 
 typedef float (*distance_function)(const float*, const float*, size_t);
 float l2_distance(const float* v1, const float* v2, size_t qty);

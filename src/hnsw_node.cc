@@ -16,13 +16,13 @@
 
 namespace n2 {
 
-HnswNode::HnswNode(int id, const Data* data, int level, int maxsize, int maxsize0)
-: id_(id), data_(data), level_(level), maxsize_(maxsize), maxsize0_(maxsize0) {
+HnswNode::HnswNode(int id, const Data* data, int level, int max_m, int max_m0)
+        : id_(id), data_(data), level_(level), max_m_(max_m), max_m0_(max_m0) {
     friends_at_layer_.resize(level+1);
     for (int i = 1; i <= level; ++i) {
-        friends_at_layer_[i].reserve(maxsize_ + 1);
+        friends_at_layer_[i].reserve(max_m_ + 1);
     }
-    friends_at_layer_[0].reserve(maxsize0_ + 1);
+    friends_at_layer_[0].reserve(max_m0_ + 1);
 }
 
 void HnswNode::CopyHigherLevelLinksToOptIndex(char* mem_offset, long long memory_per_node_higher_level) const {

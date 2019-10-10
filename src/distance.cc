@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <eigen3/Eigen/Dense>
-
 #include "n2/distance.h"
+
+#include <eigen3/Eigen/Dense>
 
 namespace n2 {
 
