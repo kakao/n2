@@ -1,24 +1,24 @@
-import gzip
-import numpy
-import time
 import os
-import multiprocessing
-import argparse
+import sys
+import gzip
+import time
 import pickle
-import resource
 import random
 import logging
-import sys
+import argparse
+import resource
+import multiprocessing
 
+import numpy
+import nmslib
+
+from n2 import HnswIndex
 
 try:
     xrange
 except NameError:
     xrange = range
 
-
-from n2 import HnswIndex
-import nmslib
 
 logging.basicConfig(format='%(message)s')
 n2_logger = logging.getLogger("n2_benchmark")
@@ -35,9 +35,10 @@ if soft == resource.RLIM_INFINITY or soft >= memory_limit:
 
 INDEX_DIR = './indices/'
 DATA_DIR = './datasets/'
-GLOVE_DIR = DATA_DIR + 'glove.txt'
-SIFT_DIR = DATA_DIR + 'sift.txt'
-YOUTUBE_DIR = DATA_DIR + 'youtube.txt'
+DATA_FILES = {
+    'glove': DATA_DIR + 'glove.txt',
+    'sift': DATA_DIR + 'sift.txt',
+    'youtube': DATA_DIR + 'youtube.txt'}
 
 
 class BaseANN(object):
@@ -91,7 +92,8 @@ class N2(BaseANN):
         self._ef_construction = ef_construction
         self._n_threads = n_threads
         self._ef_search = ef_search
-        self._index_name = os.path.join(INDEX_DIR, "n2_%s_M%d_efCon%d_n_thread%s_data_size%d" % (args.dataset, m, ef_construction, n_threads, args.data_size))
+        self._index_name = os.path.join(INDEX_DIR, "n2_%s_M%d_efCon%d_n_thread%s_data_size%d" %
+                                        (args.dataset, m, ef_construction, n_threads, args.data_size))
         self._metric = metric
 
     def fit(self, X):
@@ -126,7 +128,8 @@ class NmslibHNSW(BaseANN):
             'efConstruction=%d' % ef_construction,
             'post=0', 'delaunay_type=2']
         self._query_param = ['efSearch=%d' % ef_search]
-        self._index_name = os.path.join(INDEX_DIR, "nmslib_%s_M%d_efCon%d_n_thread%s_data_size%d" % (args.dataset, m, ef_construction, n_threads, args.data_size))
+        self._index_name = os.path.join(INDEX_DIR, "nmslib_%s_M%d_efCon%d_n_thread%s_data_size%d" %
+                                        (args.dataset, m, ef_construction, n_threads, args.data_size))
         self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2'}[metric]
 
     def fit(self, X):
@@ -154,7 +157,8 @@ class NmslibHNSW(BaseANN):
 
 def run_algo(args, library, algo, results_fn):
     pool = multiprocessing.Pool()
-    X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size, test_size=args.test_size, random_state=args.random_state)
+    X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size,
+                                  test_size=args.test_size, random_state=args.random_state)
     pool.close()
     pool.join()
 
@@ -171,7 +175,8 @@ def run_algo(args, library, algo, results_fn):
         search_time = 0.0
         total_queries = len(queries)
         for j in range(total_queries):
-            sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r" % (i+1, try_count, str(algo), j+1, total_queries))
+            sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r" %
+                             (i+1, try_count, str(algo), j+1, total_queries))
             v, correct = queries[j]
             t0 = time.time()
             found = algo.query(v, GT_SIZE)
@@ -186,7 +191,8 @@ def run_algo(args, library, algo, results_fn):
         precision = k / (len(queries) * GT_SIZE)
         best_search_time = min(best_search_time, search_time)
         best_precision = max(best_precision, precision)
-        n2_logger.debug('[%d/%d][algo: %s] search time: %s, precision: %.5f' % (i+1, try_count, str(algo), str(search_time), precision))
+        n2_logger.debug('[%d/%d][algo: %s] search time: %s, precision: %.5f' %
+                        (i+1, try_count, str(algo), str(search_time), precision))
 
     output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_precision]))
     with open(results_fn, 'a') as f:
@@ -233,7 +239,8 @@ def get_dataset(which='glove', data_size=0, test_size=10000, random_state=3):
 def get_queries(args):
     n2_logger.debug('computing queries with correct results...')
 
-    X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size, test_size=args.test_size, random_state=args.random_state)
+    X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size,
+                                  test_size=args.test_size, random_state=args.random_state)
 
     bf = BruteForceBLAS(args.distance)
     bf.fit(X_train)
@@ -269,13 +276,7 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', '--v', help='print verbose log', type=bool, default=False)
     args = parser.parse_args()
 
-    if args.dataset == 'glove' and not os.path.exists(GLOVE_DIR):
-        raise IOError('Please download the dataset')
-
-    if args.dataset == 'sift' and not os.path.exists(SIFT_DIR):
-        raise IOError('Please download the dataset')
-
-    if args.dataset == 'youtube' and not os.path.exists(YOUTUBE_DIR):
+    if not os.path.exists(DATA_FILES[args.dataset]):
         raise IOError('Please download the dataset')
 
     if args.verbose:
@@ -307,8 +308,12 @@ if __name__ == '__main__':
     query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000]
 
     algos = {
-        'n2': [N2(M, ef_con, args.n_threads, ef_search, 'angular') for M, ef_con in index_params for ef_search in query_params],
-        'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, 'angular') for M, ef_con in index_params for ef_search in query_params],
+        'n2': [N2(M, ef_con, args.n_threads, ef_search, 'angular')
+               for M, ef_con in index_params
+               for ef_search in query_params],
+        'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, 'angular')
+                   for M, ef_con in index_params
+                   for ef_search in query_params],
         }
 
     if args.algo:
