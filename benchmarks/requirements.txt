@@ -2,3 +2,4 @@ scipy
 sklearn
 numpy
 nmslib
+h5py

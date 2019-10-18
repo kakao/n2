@@ -1,18 +1,18 @@
 import os
 import sys
-import gzip
+import abc
 import time
-import pickle
 import random
 import logging
 import argparse
 import resource
 import multiprocessing
 
+import h5py
 import numpy
 import nmslib
 
-from config import INDEX_DIR, DATA_FILES
+from config import CACHE_DIR, RESULT_DIR, DATA_FILES
 from n2 import HnswIndex
 
 try:
@@ -35,13 +35,17 @@ if soft == resource.RLIM_INFINITY or soft >= memory_limit:
 
 
 class BaseANN(object):
-    name = None
+    @abc.abstractmethod
+    def fit(self, X):
+        pass
 
-    def use_threads(self):
-        return True
+    @abc.abstractmethod
+    def query(self, v, n):
+        pass
 
+    @abc.abstractmethod
     def __str__(self):
-        return self.name
+        pass
 
 
 class BruteForceBLAS(BaseANN):
@@ -49,7 +53,6 @@ class BruteForceBLAS(BaseANN):
     def __init__(self, metric, precision=numpy.float32):
         self._metric = metric
         self._precision = precision
-        self.name = 'BruteForceBLAS()'
 
     def fit(self, X):
         """Initialize the search index."""
@@ -75,17 +78,19 @@ class BruteForceBLAS(BaseANN):
         indices = numpy.argpartition(dists, n)[:n]  # partition-sort by distance, get `n` closest
         return sorted(indices, key=lambda index: dists[index])  # sort `n` closest into correct order
 
+    def __str__(self):
+        return 'BruteForceBLAS'
+
 
 class N2(BaseANN):
     def __init__(self, m, ef_construction, n_threads, ef_search, metric):
         self.name = "N2_M%d_efCon%d_n_thread%s_efSearch%d" % (m, ef_construction, n_threads, ef_search)
-
         self._m = m
         self._m0 = m * 2
         self._ef_construction = ef_construction
         self._n_threads = n_threads
         self._ef_search = ef_search
-        self._index_name = os.path.join(INDEX_DIR, "n2_%s_M%d_efCon%d_n_thread%s_data_size%d"
+        self._index_name = os.path.join(CACHE_DIR, "index_n2_%s_M%d_efCon%d_n_thread%s_data_size%d"
                                         % (args.dataset, m, ef_construction, n_threads, args.data_size))
         self._metric = metric
 
@@ -98,30 +103,31 @@ class N2(BaseANN):
         if os.path.exists(self._index_name):
             n2_logger.info("Loading index from file")
             self._n2.load(self._index_name)
-        else:
-            n2_logger.debug("Index file is not exist: {0}".format(self._index_name))
-            n2_logger.info("Start fitting")
+            return
 
-            for i, x in enumerate(X):
-                self._n2.add_data(x.tolist())
-            self._n2.build(m=self._m, max_m0=self._m0, ef_construction=self._ef_construction, n_threads=self._n_threads)
-            self._n2.save(self._index_name)
+        n2_logger.debug("Create Index")
+        for i, x in enumerate(X):
+            self._n2.add_data(x)
+        self._n2.build(m=self._m, max_m0=self._m0, ef_construction=self._ef_construction, n_threads=self._n_threads)
+        self._n2.save(self._index_name)
 
     def query(self, v, n):
-        return self._n2.search_by_vector(v.tolist(), n, self._ef_search)
+        return self._n2.search_by_vector(v, n, self._ef_search)
+
+    def __str__(self):
+        return self.name
 
 
 class NmslibHNSW(BaseANN):
     def __init__(self, m, ef_construction, n_threads, ef_search, metric):
         self.name = "nmslib_M%d_efCon%d_n_thread%s_efSearch%d" % (m, ef_construction, n_threads, ef_search)
-
         self._index_param = [
             'M=%d' % m,
             'indexThreadQty=%d' % n_threads,
             'efConstruction=%d' % ef_construction,
             'post=0', 'delaunay_type=2']
         self._query_param = ['efSearch=%d' % ef_search]
-        self._index_name = os.path.join(INDEX_DIR, "nmslib_%s_M%d_efCon%d_n_thread%s_data_size%d"
+        self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s_data_size%d"
                                         % (args.dataset, m, ef_construction, n_threads, args.data_size))
         self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2'}[metric]
 
@@ -134,7 +140,7 @@ class NmslibHNSW(BaseANN):
         else:
             logging.debug("Create Index")
             for i, x in enumerate(X):
-                self._index.addDataPoint(i, x.tolist())
+                self._index.addDataPoint(i, x)
 
             nmslib.createIndex(self._index, self._index_param)
             nmslib.saveIndex(self._index, self._index_name)
@@ -142,16 +148,18 @@ class NmslibHNSW(BaseANN):
         nmslib.setQueryTimeParams(self._index, self._query_param)
 
     def query(self, v, n):
-        return nmslib.knnQuery(self._index, n, v.tolist())
+        return nmslib.knnQuery(self._index, n, v)
 
-    def freeIndex(self):
+    def free_index(self):
         nmslib.freeIndex(self._index)
 
+    def __str__(self):
+        return self.name
 
-def run_algo(args, library, algo, results_fn, queries):
+
+def run_algo(args, library, algo, results_fn):
     pool = multiprocessing.Pool()
-    X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size,
-                                  test_size=args.test_size, random_state=args.random_state)
+    X_train, X_test, corrects = get_dataset(args)
     pool.close()
     pool.join()
 
@@ -166,22 +174,23 @@ def run_algo(args, library, algo, results_fn, queries):
     for i in xrange(try_count):  # Do multiple times to warm up page cache, use fastest
         results = []
         search_time = 0.0
-        total_queries = len(queries)
-        for j in range(total_queries):
+        for j, v in enumerate(X_test):
             sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r"
-                             % (i+1, try_count, str(algo), j+1, total_queries))
-            v, correct = queries[j]
+                             % (i+1, try_count, str(algo), j+1, len(X_test)))
             t0 = time.time()
             found = algo.query(v, GT_SIZE)
             search_time += (time.time() - t0)
-            if len(found) < len(correct):
-                n2_logger.debug('found: {0}, correct: {1}'.format(len(found), len(correct)))
-            results.append(len(set(found).intersection(correct)))
+
+            results.append(len(set(found).intersection(corrects[j])))
+
+            if len(found) < len(corrects[j]):
+                n2_logger.debug('found: {0}, correct: {1}'.format(len(found), len(corrects[j])))
+
         sys.stderr.write("\n")
 
         k = float(sum(results))
-        search_time /= len(queries)
-        precision = k / (len(queries) * GT_SIZE)
+        search_time /= len(X_test)
+        precision = k / (len(X_test) * GT_SIZE)
         best_search_time = min(best_search_time, search_time)
         best_precision = max(best_precision, precision)
         n2_logger.debug('[%d/%d][algo: %s] search time: %s, precision: %.5f'
@@ -190,85 +199,61 @@ def run_algo(args, library, algo, results_fn, queries):
     output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_precision]))
     with open(results_fn, 'a') as f:
         f.write(output + '\n')
+
     n2_logger.info('Summary: {0}'.format(output))
 
 
-def get_dataset(which='glove', data_size=0, test_size=10000, random_state=3):
-    cache = 'queries/%s-%d-%d-%d.npz' % (which, data_size, test_size, random_state)
-    if os.path.exists(cache):
-        v = numpy.load(cache)
-        X_train = v['train']
-        X_test = v['test']
-        n2_logger.debug('{0} {1}'.format(X_train.shape, X_test.shape))
-        return X_train, X_test
+def get_dataset(args):
+    cache_fn = get_fn('dataset', args) + '.hdf5'
+    if not os.path.exists(cache_fn):
+        local_fn = DATA_FILES[args.dataset]
+        X = []
+        for line in open(local_fn):
+            v = [float(x) for x in line.strip().split()]
+            X.append(numpy.array(v))
+            if len(X) == args.data_size:
+                break
 
-    local_fn = os.path.join('datasets', which)
-    if os.path.exists(local_fn + '.gz'):
-        f = gzip.open(local_fn + '.gz')
-    else:
-        f = open(local_fn + '.txt')
+        from sklearn.model_selection import train_test_split
+        X_train, X_test = train_test_split(X, test_size=args.test_size, random_state=args.random_state)
+        write_output(numpy.array(X_train), numpy.array(X_test), cache_fn, args.distance, count=GT_SIZE)
 
-    X = []
-    for line in f:
-        v = [float(x) for x in line.strip().split()]
-        X.append(v)
-        if len(X) == data_size:
-            break
-
-    X = numpy.vstack(X)
-    import sklearn.model_selection
-
-    # Here Erik is most welcome to use any other random_state
-    # However, it is best to use a new random seed for each major re-evaluation,
-    # so that we test on a trully bind data.
-    X_train, X_test = sklearn.model_selection.train_test_split(X, test_size=test_size, random_state=random_state)
-    X_train = X_train.astype(numpy.float)
-    X_test = X_test.astype(numpy.float)
-    n2_logger.debug('{0} {1}'.format(X_train.shape, X_test.shape))
-    numpy.savez(cache, train=X_train, test=X_test)
-    return X_train, X_test
+    return load_dataset(cache_fn)
 
 
-def get_queries(args):
-    queries_fn = get_fn('queries', args)
-    if os.path.exists(queries_fn):
-        return pickle.load(open(queries_fn, 'rb'))
+def load_dataset(fn):
+    f = h5py.File(fn)
+    X_train = numpy.array(f['train'])
+    X_test = numpy.array(f['test'])
+    corrects = f['neighbors']
+    return X_train, X_test, corrects
 
-    n2_logger.debug('computing queries with correct results...')
 
-    X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size,
-                                  test_size=args.test_size, random_state=args.random_state)
+def write_output(train, test, fn, distance, point_type='float', count=100):
+    f = h5py.File(fn, 'w')
+    f.attrs['distance'] = distance
+    f.attrs['point_type'] = point_type
+    f.create_dataset('train', (len(train), len(train[0])), dtype=train.dtype)[:] = train
+    f.create_dataset('test', (len(test), len(test[0])), dtype=test.dtype)[:] = test
+    neighbors = f.create_dataset('neighbors', (len(test), count), dtype='i')
+    bf = BruteForceBLAS(distance, precision=train.dtype)
+    bf.fit(train)
+    for i, x in enumerate(test):
+        sys.stderr.write('computing queries %d/%d ...\r' % (i+1, len(test)))
+        neighbors[i] = bf.query(x, count)
 
-    bf = BruteForceBLAS(args.distance)
-    bf.fit(X_train)
-
-    queries = []
-    total_queries = len(X_test)
-    for x in X_test:
-        correct = bf.query(x, GT_SIZE)
-        queries.append((x, correct))
-        sys.stderr.write('computing queries %d/%d ...\r' % (len(queries), total_queries))
     sys.stderr.write('\n')
-
-    with open(queries_fn, 'wb') as f:
-        pickle.dump(queries, f)
-
-    logging.info('storing queries in {0}.'.format(queries_fn))
-
-    return queries
+    f.close()
 
 
-def get_fn(base, args):
-    fn = '%s-%d-%d-%d.txt' % (os.path.join(base, args.dataset), args.data_size, args.test_size, args.random_state)
-    d = os.path.dirname(fn)
-    if not os.path.exists(d):
-        os.makedirs(d)
+def get_fn(file_type, args, base=CACHE_DIR):
+    fn = '%s-%s-%s-%d-%d-%d' % (os.path.join(base, file_type), args.dataset, args.distance,
+                                args.data_size, args.test_size, args.random_state)
     return fn
 
 
 def run(args):
-    queries = get_queries(args)
-    results_fn = get_fn('results', args)
+    results_fn = get_fn('result', args, base=RESULT_DIR) + '.txt'
 
     index_params = [(12, 100)]
     query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000]
@@ -280,7 +265,7 @@ def run(args):
         'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, 'angular')
                    for M, ef_con in index_params
                    for ef_search in query_params],
-        }
+    }
 
     if args.algo:
         algos = {args.algo: algos[args.algo]}
@@ -291,7 +276,7 @@ def run(args):
 
     for library, algo in algos_flat:
         # Spawn a subprocess to force the memory to be reclaimed at the end
-        p = multiprocessing.Process(target=run_algo, args=(args, library, algo, results_fn, queries))
+        p = multiprocessing.Process(target=run_algo, args=(args, library, algo, results_fn))
         p.start()
         p.join()
 
@@ -312,8 +297,11 @@ if __name__ == '__main__':
     if not os.path.exists(DATA_FILES[args.dataset]):
         raise IOError('Please download the dataset')
 
-    if not os.path.exists(INDEX_DIR):
-        os.makedirs(INDEX_DIR)
+    if not os.path.exists(CACHE_DIR):
+        os.makedirs(CACHE_DIR)
+
+    if not os.path.exists(RESULT_DIR):
+        os.makedirs(RESULT_DIR)
 
     if args.verbose:
         n2_logger.setLevel(logging.DEBUG)
