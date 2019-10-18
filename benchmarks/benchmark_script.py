@@ -148,7 +148,7 @@ class NmslibHNSW(BaseANN):
         nmslib.freeIndex(self._index)
 
 
-def run_algo(args, library, algo, results_fn):
+def run_algo(args, library, algo, results_fn, queries):
     pool = multiprocessing.Pool()
     X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size,
                                   test_size=args.test_size, random_state=args.random_state)
@@ -230,6 +230,10 @@ def get_dataset(which='glove', data_size=0, test_size=10000, random_state=3):
 
 
 def get_queries(args):
+    queries_fn = get_fn('queries', args)
+    if os.path.exists(queries_fn):
+        return pickle.load(open(queries_fn, 'rb'))
+
     n2_logger.debug('computing queries with correct results...')
 
     X_train, X_test = get_dataset(which=args.dataset, data_size=args.data_size,
@@ -245,6 +249,12 @@ def get_queries(args):
         queries.append((x, correct))
         sys.stderr.write('computing queries %d/%d ...\r' % (len(queries), total_queries))
     sys.stderr.write('\n')
+
+    with open(queries_fn, 'wb') as f:
+        pickle.dump(queries, f)
+
+    logging.info('storing queries in {0}.'.format(queries_fn))
+
     return queries
 
 
@@ -256,46 +266,9 @@ def get_fn(base, args):
     return fn
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--distance', help='Distance metric', default='angular', choices=['angular', 'euclidean'])
-    parser.add_argument('--try_count', help='Number of test attempts', type=int, default=3)
-    parser.add_argument('--dataset', help='Which dataset',  default='glove', choices=['glove', 'sift', 'youtube'])
-    parser.add_argument('--data_size', help='Maximum # of data points (0: unlimited)', type=int, default=0)
-    parser.add_argument('--test_size', help='Maximum # of data queries', type=int, default=10000)
-    parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
-    parser.add_argument('--random_state', help='Random seed', type=int, default=3)
-    parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
-    parser.add_argument('--verbose', '--v', help='print verbose log', type=bool, default=False)
-    args = parser.parse_args()
-
-    if not os.path.exists(DATA_FILES[args.dataset]):
-        raise IOError('Please download the dataset')
-
-    if args.verbose:
-        n2_logger.setLevel(logging.DEBUG)
-
-    numpy.random.seed(args.random_state)
-
-    global GT_SIZE
-    GT_SIZE = {'glove': 10, 'sift': 10, 'youtube': 100}[args.dataset]
-    n2_logger.debug('GT size: {}'.format(GT_SIZE))
-
+def run(args):
+    queries = get_queries(args)
     results_fn = get_fn('results', args)
-    queries_fn = get_fn('queries', args)
-    logging.info('storing queries in {0} and results in {1}.'.format(queries_fn, results_fn))
-
-    if not os.path.exists(queries_fn):
-        queries = get_queries(args)
-        with open(queries_fn, 'wb') as f:
-            pickle.dump(queries, f)
-    else:
-        queries = pickle.load(open(queries_fn, 'rb'))
-
-    logging.debug('got {0} queries'.format(len(queries)))
-
-    if not os.path.exists(INDEX_DIR):
-        os.makedirs(INDEX_DIR)
 
     index_params = [(12, 100)]
     query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000]
@@ -318,6 +291,37 @@ if __name__ == '__main__':
 
     for library, algo in algos_flat:
         # Spawn a subprocess to force the memory to be reclaimed at the end
-        p = multiprocessing.Process(target=run_algo, args=(args, library, algo, results_fn))
+        p = multiprocessing.Process(target=run_algo, args=(args, library, algo, results_fn, queries))
         p.start()
         p.join()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--distance', help='Distance metric', default='angular', choices=['angular', 'euclidean'])
+    parser.add_argument('--try_count', help='Number of test attempts', type=int, default=3)
+    parser.add_argument('--dataset', help='Which dataset',  default='glove', choices=['glove', 'sift', 'youtube'])
+    parser.add_argument('--data_size', help='Maximum # of data points (0: unlimited)', type=int, default=0)
+    parser.add_argument('--test_size', help='Maximum # of data queries', type=int, default=10000)
+    parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
+    parser.add_argument('--random_state', help='Random seed', type=int, default=3)
+    parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
+    parser.add_argument('--verbose', '--v', help='print verbose log', type=bool, default=False)
+    args = parser.parse_args()
+
+    if not os.path.exists(DATA_FILES[args.dataset]):
+        raise IOError('Please download the dataset')
+
+    if not os.path.exists(INDEX_DIR):
+        os.makedirs(INDEX_DIR)
+
+    if args.verbose:
+        n2_logger.setLevel(logging.DEBUG)
+
+    numpy.random.seed(args.random_state)
+
+    global GT_SIZE
+    GT_SIZE = {'glove': 10, 'sift': 10, 'youtube': 100}[args.dataset]
+    n2_logger.debug('GT size: {}'.format(GT_SIZE))
+
+    run(args)
