@@ -12,6 +12,7 @@ import multiprocessing
 import numpy
 import nmslib
 
+from config import INDEX_DIR, DATA_FILES
 from n2 import HnswIndex
 
 try:
@@ -31,14 +32,6 @@ soft, hard = resource.getrlimit(resource.RLIMIT_DATA)
 if soft == resource.RLIM_INFINITY or soft >= memory_limit:
     n2_logger.debug('resetting memory limit from {0} to {1}. '.format(soft, memory_limit))
     resource.setrlimit(resource.RLIMIT_DATA, (memory_limit, hard))
-
-
-INDEX_DIR = './indices/'
-DATA_DIR = './datasets/'
-DATA_FILES = {
-    'glove': DATA_DIR + 'glove.txt',
-    'sift': DATA_DIR + 'sift.txt',
-    'youtube': DATA_DIR + 'youtube.txt'}
 
 
 class BaseANN(object):

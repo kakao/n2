@@ -1,10 +1,10 @@
 import os
 import sys
+import gzip
 import shutil
 import tarfile
 import argparse
 import subprocess
-import gzip
 from contextlib import closing
 
 try:
@@ -12,11 +12,7 @@ try:
 except ImportError:
     from urllib.request import urlopen
 
-
-DATA_DIR = './datasets/'
-GLOVE_FILE = DATA_DIR + 'glove.txt'
-SIFT_FILE = DATA_DIR + 'sift.txt'
-YOUTUBE_FILE = DATA_DIR + 'youtube.txt'
+from config import DATA_DIR, DATA_FILES
 
 
 def download_file(url, dst):
@@ -48,17 +44,17 @@ if __name__ == '__main__':
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
-    if args.dataset == 'glove' and not os.path.exists(GLOVE_FILE):
+    if args.dataset == 'glove' and not os.path.exists(DATA_FILES[args.dataset]):
         download_file("https://s3-us-west-1.amazonaws.com/annoy-vectors/glove.twitter.27B.100d.txt.gz", "datasets")
         with gzip.open('datasets/glove.twitter.27B.100d.txt.gz', 'rb') as f_in, open('datasets/glove.twitter.27B.100d.txt', 'w') as f_out:
             shutil.copyfileobj(f_in, f_out)
         subprocess.call("cut -d \" \" -f 2- datasets/glove.twitter.27B.100d.txt > datasets/glove.txt", shell=True)
 
-    if args.dataset == 'sift' and not os.path.exists(SIFT_FILE):
+    if args.dataset == 'sift' and not os.path.exists(DATA_FILES[args.dataset]):
         download_file("ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz", "datasets")
         with tarfile.open("datasets/sift.tar.gz") as t:
             t.extractall(path="datasets")
         subprocess.call("python datasets/convert_texmex_fvec.py datasets/sift/sift_base.fvecs >> datasets/sift.txt", shell=True)
 
-    if args.dataset == 'youtube' and not os.path.exists(YOUTUBE_FILE):
+    if args.dataset == 'youtube' and not os.path.exists(DATA_FILES[args.dataset]):
         raise IOError('Please follow the instructions in the guide to download the YouTube dataset.')
