@@ -8,23 +8,43 @@ from collections import defaultdict
 def parse(fname):
     data = defaultdict(list)
     for line in open(fname):
-        library, _, _, search_elapsed, accuracy = line.strip().split('\t')
-        data[library].append((float(accuracy), math.log(float(search_elapsed))))
+        library, _, build_time, search_elapsed, accuracy = line.strip().split('\t')
+        data[library].append((float(accuracy), math.log(float(search_elapsed)), float(build_time)))
     return data
 
 
 def visualize(data):
-    fig, ax = plt.subplots()
+    fig = plt.figure()
 
+    ax1 = fig.add_subplot(2, 1, 1)
+    draw_build_time(ax1, data)
+
+    ax2 = fig.add_subplot(2, 1, 2)
+    draw_accuracy_elapsed(ax2, data)
+
+    plt.show()
+
+
+def draw_build_time(ax, data):
+    keys = data.keys()
+    y = [max([t for _, _, t in data[k]]) for k in keys]
+    x = list(range(len(y)))
+    ax.bar(x, y)
+    ax.set_xticks(x)
+    ax.set_xticklabels(keys)
+    ax.set_ylabel('elapsed(sec)')
+
+
+def draw_accuracy_elapsed(ax, data):
     for library, values in data.items():
+        values = filter(lambda x: x[0] > 0.5, values)
         values.sort()
-        ax.plot([acc for acc, _ in values], [elapsed for _, elapsed in values], label=library)
+
+        ax.plot([acc for acc, _, _ in values], [elapsed for _, elapsed, _ in values], label=library)
 
     ax.set_xlabel('accuracy')
     ax.set_ylabel('elapsed(log scale)')
     ax.legend(loc='best')
-
-    plt.show()
 
 
 if __name__ == '__main__':
