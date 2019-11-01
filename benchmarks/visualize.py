@@ -43,8 +43,7 @@ def draw_build_time(ax, data):
 def draw_accuracy_elapsed(ax, data):
     ax.set_title('Recall-elasped sec tradeoff')
     for library, values in data.items():
-        values = filter(lambda x: x[0] > 0.5, values)
-        values.sort()
+        values = sorted(filter(lambda x: x[0] > 0.5, values))
         ax.plot([acc for acc, _, _, _ in values], [elapsed for _, elapsed, _, _ in values], label=library)
     ax.set_xlabel('accuracy')
     ax.set_ylabel('elapsed(log scale)')

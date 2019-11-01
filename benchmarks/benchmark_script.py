@@ -13,13 +13,18 @@ import h5py
 import numpy
 import nmslib
 
-from config import CACHE_DIR, RESULT_DIR, DATA_FILES
+from download_dataset import get_dataset_fn, DATASETS
 from n2 import HnswIndex
 
 try:
     xrange
 except NameError:
     xrange = range
+
+
+CACHE_DIR = './cache'
+RESULT_DIR = './result'
+GT_SIZE = 100
 
 
 logging.basicConfig(format='%(message)s')
@@ -52,40 +57,6 @@ class BaseANN(object):
         return psutil.Process().memory_info().rss / 1024
 
 
-class BruteForceBLAS(BaseANN):
-    """kNN search that uses a linear scan = brute force."""
-    def __init__(self, metric, precision=numpy.float32):
-        self._metric = metric
-        self._precision = precision
-
-    def fit(self, X):
-        """Initialize the search index."""
-        lens = (X ** 2).sum(-1)  # precompute (squared) length of each vector
-        if self._metric == 'angular':
-            X /= numpy.sqrt(lens)[..., numpy.newaxis]  # normalize index vectors to unit length
-            self.index = numpy.ascontiguousarray(X, dtype=self._precision)
-        elif self._metric == 'euclidean':
-            self.index = numpy.ascontiguousarray(X, dtype=self._precision)
-            self.lengths = numpy.ascontiguousarray(lens, dtype=self._precision)
-
-    def query(self, v, n):
-        """Find indices of `n` most similar vectors from the index to query vector `v`."""
-        v = numpy.ascontiguousarray(v, dtype=self._precision)  # use same precision for query as for index
-        # HACK we ignore query length as that's a constant not affecting the final ordering
-        if self._metric == 'angular':
-            # argmax_a cossim(a, b) = argmax_a dot(a, b) / |a||b| = argmin_a -dot(a, b)
-            dists = -numpy.dot(self.index, v)
-        elif self._metric == 'euclidean':
-            # argmin_a (a - b)^2 = argmin_a a^2 - 2ab + b^2 = argmin_a a^2 - 2ab
-            dists = self.lengths - 2 * numpy.dot(self.index, v)
-
-        indices = numpy.argpartition(dists, n)[:n]  # partition-sort by distance, get `n` closest
-        return sorted(indices, key=lambda index: dists[index])  # sort `n` closest into correct order
-
-    def __str__(self):
-        return 'BruteForceBLAS'
-
-
 class N2(BaseANN):
     def __init__(self, m, ef_construction, n_threads, ef_search, metric):
         self.name = "N2_M%d_efCon%d_n_thread%s_efSearch%d" % (m, ef_construction, n_threads, ef_search)
@@ -94,7 +65,7 @@ class N2(BaseANN):
         self._ef_construction = ef_construction
         self._n_threads = n_threads
         self._ef_search = ef_search
-        self._index_name = os.path.join(CACHE_DIR, "index_n2_%s_M%d_efCon%d_n_thread%s_data_size%d"
+        self._index_name = os.path.join(CACHE_DIR, "index_n2_%s_M%d_efCon%d_n_thread%s_datasz%d"
                                         % (args.dataset, m, ef_construction, n_threads, args.data_size))
         self._metric = metric
 
@@ -131,7 +102,7 @@ class NmslibHNSW(BaseANN):
             'efConstruction=%d' % ef_construction,
             'post=0', 'delaunay_type=2']
         self._query_param = ['efSearch=%d' % ef_search]
-        self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s_data_size%d"
+        self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s_datasz%d"
                                         % (args.dataset, m, ef_construction, n_threads, args.data_size))
         self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2'}[metric]
 
@@ -163,7 +134,7 @@ class NmslibHNSW(BaseANN):
 
 def run_algo(args, library, algo, results_fn):
     pool = multiprocessing.Pool()
-    X_train, X_test, corrects = get_dataset(args)
+    X_train, X_test, corrects = load_dataset(args.dataset)
     pool.close()
     pool.join()
 
@@ -209,47 +180,13 @@ def run_algo(args, library, algo, results_fn):
     n2_logger.info('Summary: {0}'.format(output))
 
 
-def get_dataset(args):
-    cache_fn = get_fn('dataset', args) + '.hdf5'
-    if not os.path.exists(cache_fn):
-        local_fn = DATA_FILES[args.dataset]
-        X = []
-        for line in open(local_fn):
-            v = [float(x) for x in line.strip().split()]
-            X.append(numpy.array(v))
-            if len(X) == args.data_size:
-                break
-
-        from sklearn.model_selection import train_test_split
-        X_train, X_test = train_test_split(X, test_size=args.test_size, random_state=args.random_state)
-        write_output(numpy.array(X_train), numpy.array(X_test), cache_fn, args.distance, count=GT_SIZE)
-
-    return load_dataset(cache_fn)
-
-
-def load_dataset(fn):
-    f = h5py.File(fn)
+def load_dataset(which):
+    hdf5_fn = get_dataset_fn(which)
+    f = h5py.File(hdf5_fn, 'r')
     X_train = numpy.array(f['train'])
     X_test = numpy.array(f['test'])
     corrects = f['neighbors']
     return X_train, X_test, corrects
-
-
-def write_output(train, test, fn, distance, point_type='float', count=100):
-    f = h5py.File(fn, 'w')
-    f.attrs['distance'] = distance
-    f.attrs['point_type'] = point_type
-    f.create_dataset('train', (len(train), len(train[0])), dtype=train.dtype)[:] = train
-    f.create_dataset('test', (len(test), len(test[0])), dtype=test.dtype)[:] = test
-    neighbors = f.create_dataset('neighbors', (len(test), count), dtype='i')
-    bf = BruteForceBLAS(distance, precision=train.dtype)
-    bf.fit(train)
-    for i, x in enumerate(test):
-        sys.stderr.write('computing queries %d/%d ...\r' % (i+1, len(test)))
-        neighbors[i] = bf.query(x, count)
-
-    sys.stderr.write('\n')
-    f.close()
 
 
 def get_fn(file_type, args, base=CACHE_DIR):
@@ -291,7 +228,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--distance', help='Distance metric', default='angular', choices=['angular', 'euclidean'])
     parser.add_argument('--try_count', help='Number of test attempts', type=int, default=3)
-    parser.add_argument('--dataset', help='Which dataset',  default='glove', choices=['glove', 'sift', 'youtube'])
+    parser.add_argument('--dataset', help='Which dataset',  default='glove', choices=DATASETS)
     parser.add_argument('--data_size', help='Maximum # of data points (0: unlimited)', type=int, default=0)
     parser.add_argument('--test_size', help='Maximum # of data queries', type=int, default=10000)
     parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
@@ -300,7 +237,7 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', '--v', help='print verbose log', type=bool, default=False)
     args = parser.parse_args()
 
-    if not os.path.exists(DATA_FILES[args.dataset]):
+    if not os.path.exists(get_dataset_fn(args.dataset)):
         raise IOError('Please download the dataset')
 
     if not os.path.exists(CACHE_DIR):
@@ -313,9 +250,5 @@ if __name__ == '__main__':
         n2_logger.setLevel(logging.DEBUG)
 
     numpy.random.seed(args.random_state)
-
-    global GT_SIZE
-    GT_SIZE = {'glove': 10, 'sift': 10, 'youtube': 100}[args.dataset]
-    n2_logger.debug('GT size: {}'.format(GT_SIZE))
 
     run(args)

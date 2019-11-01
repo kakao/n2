@@ -8,53 +8,54 @@ import subprocess
 from contextlib import closing
 
 try:
-    from urllib2 import urlopen
+    from urllib import urlretrieve
 except ImportError:
-    from urllib.request import urlopen
-
-from config import DATA_DIR, DATA_FILES
+    from urllib.request import urlretrieve  # Python 3
 
 
-def download_file(url, dst):
-    file_name = url.split('/')[-1]
-    with closing(urlopen(url)) as res:
-        with open(dst+"/"+file_name, 'wb') as f:
-            file_size = int(res.headers["Content-Length"])
-            sys.stdout.write("Downloading datasets %s\r" % (file_name))
+DATASETS = [
+    'fashion-mnist-784-euclidean',
+    'gist-960-euclidean',
+    'glove-25-angular',
+    'glove-50-angular',
+    'glove-100-angular',
+    'glove-200-angular',
+    'mnist-784-euclidean',
+    'random-xs-20-euclidean',
+    'random-s-100-euclidean',
+    'random-xs-20-angular',
+    'random-s-100-angular',
+    'sift-128-euclidean',
+    'nytimes-256-angular',
+    'youtube-40-angular',
+    'youtube1m-40-angular',
+]
 
-            file_size_dl = 0
-            block_sz = 10240
-            while True:
-                buffer = res.read(block_sz)
-                if not buffer:
-                    break
 
-                file_size_dl += len(buffer)
-                f.write(buffer)
-                sys.stdout.write("Downloading datasets %s: %d / %d bytes\r" % (file_name, file_size_dl, file_size))
+def download(src, dst):
+    if not os.path.exists(dst):
+        urlretrieve(src, dst)
 
-        sys.stdout.write('\n')
+
+def get_dataset_fn(dataset):
+    if not os.path.exists('data'):
+        os.mkdir('data')
+    return os.path.join('data', '%s.hdf5' % dataset)
+
+
+def get_dataset(which):
+    hdf5_fn = get_dataset_fn(which)
+    try:
+        url = 'http://ann-benchmarks.com/%s.hdf5' % which
+        download(url, hdf5_fn)
+    except:
+        raise IOError("Cannot download %s" % url)
+
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', help='Which dataset',  default='glove')
+    parser.add_argument('--dataset', help='Which dataset',  choices=DATASETS)
     args = parser.parse_args()
 
-    if not os.path.exists(DATA_DIR):
-        os.makedirs(DATA_DIR)
-
-    if args.dataset == 'glove' and not os.path.exists(DATA_FILES[args.dataset]):
-        download_file("https://s3-us-west-1.amazonaws.com/annoy-vectors/glove.twitter.27B.100d.txt.gz", "datasets")
-        with gzip.open('datasets/glove.twitter.27B.100d.txt.gz', 'rb') as f_in, open('datasets/glove.twitter.27B.100d.txt', 'w') as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        subprocess.call("cut -d \" \" -f 2- datasets/glove.twitter.27B.100d.txt > datasets/glove.txt", shell=True)
-
-    if args.dataset == 'sift' and not os.path.exists(DATA_FILES[args.dataset]):
-        download_file("ftp://ftp.irisa.fr/local/texmex/corpus/sift.tar.gz", "datasets")
-        with tarfile.open("datasets/sift.tar.gz") as t:
-            t.extractall(path="datasets")
-        subprocess.call("python datasets/convert_texmex_fvec.py datasets/sift/sift_base.fvecs >> datasets/sift.txt", shell=True)
-
-    if args.dataset == 'youtube' and not os.path.exists(DATA_FILES[args.dataset]):
-        raise IOError('Please follow the instructions in the guide to download the YouTube dataset.')
+    get_dataset(args.dataset)
