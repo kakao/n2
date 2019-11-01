@@ -3,6 +3,7 @@ import sys
 import abc
 import time
 import random
+import psutil
 import logging
 import argparse
 import resource
@@ -46,6 +47,9 @@ class BaseANN(object):
     @abc.abstractmethod
     def __str__(self):
         pass
+
+    def get_memory_usage(self):
+        return psutil.Process().memory_info().rss / 1024
 
 
 class BruteForceBLAS(BaseANN):
@@ -164,9 +168,11 @@ def run_algo(args, library, algo, results_fn):
     pool.join()
 
     t0 = time.time()
+    memory_usage_before = algo.get_memory_usage()
     algo.fit(X_train)
     build_time = time.time() - t0
-    n2_logger.debug('Built index in {0}'.format(build_time))
+    index_size_kb = algo.get_memory_usage() - memory_usage_before
+    n2_logger.info('Built index in {0}, Index size: {1}KB'.format(build_time, index_size_kb))
 
     best_search_time = float('inf')
     best_precision = 0.0  # should be deterministic but paranoid
@@ -196,7 +202,7 @@ def run_algo(args, library, algo, results_fn):
         n2_logger.debug('[%d/%d][algo: %s] search time: %s, precision: %.5f'
                         % (i+1, try_count, str(algo), str(search_time), precision))
 
-    output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_precision]))
+    output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_precision, index_size_kb]))
     with open(results_fn, 'a') as f:
         f.write(output + '\n')
 
