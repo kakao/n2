@@ -47,7 +47,7 @@ def write_output(train, test, fn, distance, point_type='float', count=100):
 
 
 def youtube(out_fn):
-    fn = './data/youtube.txt.all'
+    fn = './data/youtube.txt'
     X = []
     for line in open(fn):
         v = [float(x) for x in line.strip().split()]

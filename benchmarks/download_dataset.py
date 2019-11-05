@@ -43,10 +43,10 @@ def get_dataset_fn(dataset):
     return os.path.join('data', '%s.hdf5' % dataset)
 
 
-def get_dataset(which):
+def get_dataset(which, baseurl='http://ann-benchmarks.com/'):
     hdf5_fn = get_dataset_fn(which)
     try:
-        url = 'http://ann-benchmarks.com/%s.hdf5' % which
+        url = '%s%s.hdf5' % (baseurl, which)
         download(url, hdf5_fn)
     except:
         raise IOError("Cannot download %s" % url)
@@ -58,4 +58,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', help='Which dataset',  choices=DATASETS)
     args = parser.parse_args()
 
-    get_dataset(args.dataset)
+    if args.dataset in ['youtube1m-40-angular', 'youtube-40-angular']:
+        get_dataset(args.dataset, baseurl='https://arena.kakaocdn.net/n2/dataset/')
+    else:
+        get_dataset(args.dataset)
