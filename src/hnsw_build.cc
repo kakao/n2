@@ -71,7 +71,7 @@ void HnswBuild::AddData(const vector<float>& data) {
         throw runtime_error("[Error] Invalid dimension data inserted: " + to_string(data.size()) + 
                                  ", Predefined dimension: " + to_string(data_dim_));
     if (metric_ == DistanceKind::ANGULAR) {
-        vector<float> noramlized(data_dim_);
+        vector<float> normalized(data_dim_);
         HnswUtils::NormalizeVector(data, normalized);
         data_list_.emplace_back(normalized);
     } else {

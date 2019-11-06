@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS += -O3 -march=native -std=c++11 -pthread -fPIC -fopenmp
+CXXFLAGS += -O3 -march=native -std=c++14 -pthread -fPIC -fopenmp
 CXXFLAGS += -I../../include/ -I../../third_party/spdlog/include/ -I../../third_party/googletest/googletest/ -I../../third_party/googletest/googletest/include/ -I../../third_party/eigen -I../../third_party/boost
 LDFLAGS += -lpthread -L../../build/lib/static -ln2 -fopenmp
 

@@ -62,7 +62,7 @@ protected:
     
     // preallocated buffer
     std::vector<float> normalized_vec_;
-    std::vector<pair<int, float>> ensure_k_path_;
+    std::vector<std::pair<int, float>> ensure_k_path_;
 
 
     // raw pointer of model, ugly but fast

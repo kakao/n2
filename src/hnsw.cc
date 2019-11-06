@@ -141,10 +141,6 @@ void Hnsw::UnloadModel() {
     }
 }
 
-void Hnsw::SearchById(int id, size_t k, size_t ef_search, vector<pair<int, float>>& result) {
-    searcher_->SearchById(id, k, ef_search, ensure_k_, result);
-}
-
 void Hnsw::PrintConfigs() const {
     builder_->PrintConfigs();
 }

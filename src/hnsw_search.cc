@@ -101,7 +101,7 @@ void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, siz
                         cur_dist = d;
                         cur_node_id = fid;
                         changed = true;
-                        if (ensure_k) path.emplace_back(cur_node_id, cur_dist);
+                        if (ensure_k) ensure_k_path_.emplace_back(cur_node_id, cur_dist);
                      }
                 }
             }

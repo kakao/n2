@@ -137,25 +137,38 @@ HnswModel::~HnswModel() {
 
 size_t HnswModel::GetConfigSize() {
     size_t ret = 0;
+    ret += sizeof(size_t);                          // dummy for m_
+    ret += sizeof(size_t);                          // dummy for max_m_
+    ret += sizeof(size_t);                          // dummy for max_m0_
+    ret += sizeof(size_t);                          // dummy for ef_construction_
+    ret += sizeof(float);                           // dummy for level_mult_
+    ret += sizeof(max_level_);
     ret += sizeof(enterpoint_id_);
     ret += sizeof(num_nodes_);
-    ret += sizeof(max_level_);
-    ret += sizeof(data_dim_);
     ret += sizeof(metric_);
+    ret += sizeof(data_dim_);
     ret += sizeof(memory_per_data_);
     ret += sizeof(memory_per_link_level0_);
     ret += sizeof(memory_per_node_level0_);
     ret += sizeof(memory_per_node_higher_level_);
+    ret += sizeof(uint64_t);                        // dummy for higher_level_offset_
+    ret += sizeof(uint64_t) ;                       // dummy for level0_offset_
+    ret -= sizeof(metric_);                         // for old version bug 
     return ret;
 }
 
 void HnswModel::SaveConfigToModel() {
     char* ptr = model_;
+    ptr += sizeof(size_t);                                  // dummy for m_
+    ptr += sizeof(size_t);                                  // dummy for max_m_
+    ptr += sizeof(size_t);                                  // dummy for max_m0_
+    ptr += sizeof(size_t);                                  // dummy for ef_construction_
+    ptr += sizeof(float);                                   // dummy for level_mult_
+    ptr = SetValueAndIncPtr<int>(ptr, max_level_);
     ptr = SetValueAndIncPtr<int>(ptr, enterpoint_id_);
     ptr = SetValueAndIncPtr<int>(ptr, num_nodes_);
-    ptr = SetValueAndIncPtr<int>(ptr, max_level_);
-    ptr = SetValueAndIncPtr<size_t>(ptr, data_dim_);
     ptr = SetValueAndIncPtr<DistanceKind>(ptr, metric_);
+    ptr = SetValueAndIncPtr<size_t>(ptr, data_dim_);
     ptr = SetValueAndIncPtr<uint64_t>(ptr, memory_per_data_);
     ptr = SetValueAndIncPtr<uint64_t>(ptr, memory_per_link_level0_);
     ptr = SetValueAndIncPtr<uint64_t>(ptr, memory_per_node_level0_);
@@ -164,19 +177,24 @@ void HnswModel::SaveConfigToModel() {
 
 void HnswModel::LoadConfigFromModel() {
     char* ptr = model_;
+    ptr += sizeof(size_t);                                  // dummy for m_
+    ptr += sizeof(size_t);                                  // dummy for max_m_
+    ptr += sizeof(size_t);                                  // dummy for max_m0_
+    ptr += sizeof(size_t);                                  // dummy for ef_construction_
+    ptr += sizeof(float);                                   // dummy for level_mult_
+    ptr = GetValueAndIncPtr<int>(ptr, max_level_);
     ptr = GetValueAndIncPtr<int>(ptr, enterpoint_id_);
     ptr = GetValueAndIncPtr<int>(ptr, num_nodes_);
-    ptr = GetValueAndIncPtr<int>(ptr, max_level_);
+    ptr = GetValueAndIncPtr<DistanceKind>(ptr, metric_);
+    if (metric_ != DistanceKind::ANGULAR and metric_ != DistanceKind::L2) {
+        throw runtime_error("[Error] Unknown distance metric. metric");
+    }
     auto data_dim_bak = data_dim_;
     ptr = GetValueAndIncPtr<size_t>(ptr, data_dim_);
     if (data_dim_bak > 0 && data_dim_ != data_dim_bak) {
         throw runtime_error("[Error] index dimension(" + to_string(data_dim_bak)
                             + ") != model dimension(" + to_string(data_dim_) + ")");
         data_dim_ = data_dim_bak;
-    }
-    ptr = GetValueAndIncPtr<DistanceKind>(ptr, metric_);
-    if (metric_ != DistanceKind::ANGULAR and metric_ != DistanceKind::L2) {
-        throw runtime_error("[Error] Unknown distance metric. metric");
     }
     ptr = GetValueAndIncPtr<uint64_t>(ptr, memory_per_data_);
     ptr = GetValueAndIncPtr<uint64_t>(ptr, memory_per_link_level0_);
