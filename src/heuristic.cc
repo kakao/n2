@@ -46,19 +46,18 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(const size_t m, si
     }
 
     for (size_t i = 0; i < neighbors.size(); ++i) {
-        _mm_prefetch(neighbors[i].GetNode()->GetDataAsCharArray(), _MM_HINT_T0);
+        _mm_prefetch(neighbors[i].GetNode()->GetData(), _MM_HINT_T0);
     }
 
     for (int i = static_cast<int>(neighbors.size())-1; i >= 0; --i) {
         bool skip = false;
         float cur_dist = neighbors[i].GetDistance();
-        const float* q = neighbors[i].GetNode()->GetDataAsFloatArray();
         for (size_t j = 0; j < picked.size(); ++j) {
             if (j < picked.size() - 1) {
-                _mm_prefetch(picked[j+1].GetNode()->GetDataAsCharArray(), _MM_HINT_T0);
+                _mm_prefetch(picked[j+1].GetNode()->GetData(), _MM_HINT_T0);
             }
-            _mm_prefetch(q, _MM_HINT_T1);
-            if (dist_func_(q, picked[j].GetNode()->GetDataAsFloatArray(), dim) < cur_dist) {
+            _mm_prefetch(neighbors[i].GetNode()->GetData(), _MM_HINT_T1);
+            if (dist_func_(neighbors[i].GetNode(), picked[j].GetNode(), dim) < cur_dist) {
                 skip = true;
                 break;
             }

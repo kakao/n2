@@ -277,7 +277,7 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
 
     if (cur_level < max_level_copy) {
         HnswNode* cur_node = enterpoint;
-        float d = dist_func_(qnode->GetDataAsFloatArray(), cur_node->GetDataAsFloatArray(), data_dim_);
+        float d = dist_func_(qnode, cur_node, data_dim_);
         float cur_dist = d;
         for (auto i = max_level_copy; i > cur_level; --i) {
             bool changed = true;
@@ -286,13 +286,13 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
                 unique_lock<mutex> local_lock(cur_node->GetAccessGuard());
                 const vector<HnswNode*>& neighbors = cur_node->GetFriends(i);
                 for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter) {
-                    _mm_prefetch((*iter)->GetDataAsCharArray(), _MM_HINT_T0);
+                    _mm_prefetch((*iter)->GetData(), _MM_HINT_T0);
                 }
                 for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter) {
-                    d = dist_func_(qnode->GetDataAsFloatArray(), (*iter)->GetDataAsFloatArray(), data_dim_);
+                    d = dist_func_(qnode, *iter, data_dim_);
                     if (d < cur_dist) {
                         cur_dist = d;
-                        cur_node = (*iter);
+                        cur_node = *iter;
                         changed = true;
                     }
                 }
@@ -324,7 +324,7 @@ void HnswBuildImpl<DistFuncType>::SearchAtLayer(HnswNode* qnode, HnswNode* enter
                                                 VisitedList* visited_list, priority_queue<FurtherFirst>& result) {
     // TODO: check Node 12bytes => 8bytes
     priority_queue<CloserFirst> candidates;
-    float d = dist_func_(qnode->GetDataAsFloatArray(), enterpoint->GetDataAsFloatArray(), data_dim_);
+    float d = dist_func_(qnode, enterpoint, data_dim_);
     result.emplace(enterpoint, d);
     candidates.emplace(enterpoint, d);
     
@@ -342,14 +342,14 @@ void HnswBuildImpl<DistFuncType>::SearchAtLayer(HnswNode* qnode, HnswNode* enter
         const vector<HnswNode*>& neighbors = candidate_node->GetFriends(level);
         candidates.pop();
         for (const auto& neighbor : neighbors) {
-            _mm_prefetch(neighbor->GetDataAsCharArray(), _MM_HINT_T0);
+            _mm_prefetch(neighbor->GetData(), _MM_HINT_T0);
         }
         for (const auto& neighbor : neighbors) {
             int id = neighbor->GetId();
             if (visited_list->NotVisited(id)) {
-                _mm_prefetch(neighbor->GetDataAsCharArray(), _MM_HINT_T0);
+                _mm_prefetch(neighbor->GetData(), _MM_HINT_T0);
                 visited_list->MarkAsVisited(id);
-                d = dist_func_(qnode->GetDataAsFloatArray(), neighbor->GetDataAsFloatArray(), data_dim_);
+                d = dist_func_(qnode, neighbor, data_dim_);
                 if (result.size() < ef_construction_ || result.top().GetDistance() > d) {
                     result.emplace(neighbor, d);
                     candidates.emplace(neighbor, d);
@@ -370,10 +370,10 @@ void HnswBuildImpl<DistFuncType>::Link(HnswNode* source, HnswNode* target, int l
                   (level <= 0 && neighbors.size() > source->GetMaxM0());
     if (!shrink) return;
     if (is_naive_) {
-        float max = dist_func_(source->GetDataAsFloatArray(), neighbors[0]->GetDataAsFloatArray(), data_dim_);
+        float max = dist_func_(source, neighbors[0], data_dim_);
         int maxi = 0;
         for (size_t i = 1; i < neighbors.size(); ++i) {
-                float curd = dist_func_(source->GetDataAsFloatArray(), neighbors[i]->GetDataAsFloatArray(), data_dim_);
+                float curd = dist_func_(source, neighbors[i], data_dim_);
                 if (curd > max) {
                     max = curd;
                     maxi = i;
@@ -383,11 +383,11 @@ void HnswBuildImpl<DistFuncType>::Link(HnswNode* source, HnswNode* target, int l
     } else {
         priority_queue<FurtherFirst> tempres;
         for (const auto& neighbor : neighbors) {
-            _mm_prefetch(neighbor->GetDataAsCharArray(), _MM_HINT_T0);
+            _mm_prefetch(neighbor->GetData(), _MM_HINT_T0);
         }
 
         for (const auto& neighbor : neighbors) {
-            tempres.emplace(neighbor, dist_func_(source->GetDataAsFloatArray(), neighbor->GetDataAsFloatArray(), data_dim_));
+            tempres.emplace(neighbor, dist_func_(source, neighbor, data_dim_));
         }
         selecting_policy_->Select(tempres.size() - 1, data_dim_, tempres);
         neighbors.clear();
@@ -413,8 +413,8 @@ void HnswBuildImpl<DistFuncType>::MergeEdgesOfTwoGraphs(const vector<HnswNode*>&
         }
         priority_queue<FurtherFirst> temp_res;
         for (int cur : merged_neighbor_id_set) {
-            temp_res.emplace(nodes_[cur], dist_func_(data_list_[cur].GetDataAsFloatArray(), 
-                                                     data_list_[i].GetDataAsFloatArray(), data_dim_));
+            temp_res.emplace(nodes_[cur], dist_func_(data_list_[cur].GetRawData(), 
+                                                     data_list_[i].GetRawData(), data_dim_));
         }
 
         // Post Heuristic

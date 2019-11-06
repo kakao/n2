@@ -22,8 +22,7 @@ class Data{
 public:
     Data(const std::vector<float>& data) : data_(data) {}
     inline const std::vector<float>& GetData() const { return data_; };
-    inline const float* GetDataAsFloatArray() const { return &data_[0]; };
-    inline const char* GetDataAsCharArray() const { return reinterpret_cast<const char*>(&data_[0]); };
+    inline const float* GetRawData() const { return &data_[0]; };
 private:
     std::vector<float> data_;
 };

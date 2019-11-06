@@ -33,9 +33,7 @@ public:
     inline size_t GetMaxM() const { return max_m_; }
     inline size_t GetMaxM0() const { return max_m0_; }
     
-    inline const std::vector<float>& GetData() const { return data_->GetData(); }
-    inline const float* GetDataAsFloatArray() const { return data_->GetDataAsFloatArray(); }
-    inline const char* GetDataAsCharArray() const { return data_->GetDataAsCharArray(); }
+    inline const float* GetData() const { return data_->GetRawData(); }
     
     inline std::vector<HnswNode*>& GetFriends(int level) { return friends_at_layer_[level]; }
     inline void SetFriends(int level, std::vector<HnswNode*>& new_friends) {
