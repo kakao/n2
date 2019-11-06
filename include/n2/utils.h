@@ -20,7 +20,7 @@
 
 namespace n2 {
 
-class HnswUtils {
+class Utils {
 public:
     static void NormalizeVector(const std::vector<float>& in, std::vector<float>& out) {
         float sum = std::inner_product(in.begin(), in.end(), in.begin(), 0.0);

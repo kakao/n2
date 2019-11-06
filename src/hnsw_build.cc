@@ -27,9 +27,9 @@
 
 #include "n2/distance.h"
 #include "n2/hnsw_node.h"
-#include "n2/hnsw_utils.h"
 #include "n2/max_heap.h"
 #include "n2/min_heap.h"
+#include "n2/utils.h"
 
 namespace n2 {
 
@@ -72,7 +72,7 @@ void HnswBuild::AddData(const vector<float>& data) {
                                  ", Predefined dimension: " + to_string(data_dim_));
     if (metric_ == DistanceKind::ANGULAR) {
         vector<float> normalized(data_dim_);
-        HnswUtils::NormalizeVector(data, normalized);
+        Utils::NormalizeVector(data, normalized);
         data_list_.emplace_back(normalized);
     } else {
         data_list_.emplace_back(data);

@@ -16,9 +16,9 @@
 
 #include <xmmintrin.h>
 
-#include "n2/hnsw_utils.h"
 #include "n2/max_heap.h"
 #include "n2/min_heap.h"
+#include "n2/utils.h"
 
 namespace n2 {
 
@@ -60,7 +60,7 @@ void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, siz
 
     const float* qraw = nullptr;
     if (metric_ == DistanceKind::ANGULAR) {
-        HnswUtils::NormalizeVector(qvec, normalized_vec_);
+        Utils::NormalizeVector(qvec, normalized_vec_);
         qraw = &normalized_vec_[0];
     } else {
         qraw = &qvec[0];
