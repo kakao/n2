@@ -29,27 +29,27 @@ class BaseNeighborSelectingPolicies {
 public:
     BaseNeighborSelectingPolicies() {}
     virtual ~BaseNeighborSelectingPolicies() = 0;
-    virtual void Select(const size_t m, size_t dim, distance_function dist_func,
-                        std::priority_queue<FurtherFirst>& result) = 0;
+    
+    virtual void Select(const size_t m, size_t dim, std::priority_queue<FurtherFirst>& result) = 0;
 };
 
 class NaiveNeighborSelectingPolicies : public BaseNeighborSelectingPolicies {
 public:
     NaiveNeighborSelectingPolicies() {}
     ~NaiveNeighborSelectingPolicies() override {}
-    void Select(const size_t m, size_t dim, distance_function dist_func,
-                std::priority_queue<FurtherFirst>& result) override;
+    void Select(const size_t m, size_t dim, std::priority_queue<FurtherFirst>& result) override;
 };
 
+template<typename DistFuncType>
 class HeuristicNeighborSelectingPolicies : public BaseNeighborSelectingPolicies {
 public:
     HeuristicNeighborSelectingPolicies(): save_remains_(false) {}
     HeuristicNeighborSelectingPolicies(bool save_remain) : save_remains_(save_remain) {}
     ~HeuristicNeighborSelectingPolicies() override {}
-    void Select(const size_t m, size_t dim, distance_function dist_func,
-                std::priority_queue<FurtherFirst>& result) override;
+    void Select(const size_t m, size_t dim, std::priority_queue<FurtherFirst>& result) override;
 private:
     bool save_remains_;
+    DistFuncType dist_func_;
 };
 
 } // namespace n2

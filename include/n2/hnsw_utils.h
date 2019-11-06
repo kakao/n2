@@ -14,23 +14,20 @@
 
 #pragma once
 
-#include <eigen3/Eigen/Dense>
+#include <algorithm>
+#include <numeric>
+#include <vector>
 
-namespace n2 
-{
-class L2Distance {
-public:
-    inline float operator()(const float* v1, const float* v2, size_t qty) const {
-        Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
-        return (p - q).squaredNorm();
-    }
-};
+namespace n2 {
 
-class AngularDistance {
+class HnswUtils {
 public:
-    inline float operator()(const float* v1, const float* v2, size_t qty) const {
-        Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
-        return 1.0 - p.dot(q);
+    static void NormalizeVector(const std::vector<float>& in, std::vector<float>& out) {
+        float sum = std::inner_product(in.begin(), in.end(), in.begin(), 0.0);
+        if (sum != 0.0) {
+            sum = 1 / std::sqrt(sum);
+            std::transform(in.begin(), in.end(), out.begin(), std::bind1st(std::multiplies<float>(), sum));
+        }
     }
 };
 

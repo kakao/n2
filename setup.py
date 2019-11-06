@@ -34,13 +34,13 @@ def long_description():
 def define_extensions(**kwargs):
     libraries = []
     extra_link_args = []
-    extra_compile_args = ['-std=c++11', '-O3', '-fPIC', '-march=native']
+    extra_compile_args = ['-std=c++14', '-O3', '-fPIC', '-march=native']
     extra_link_args.append('-fopenmp')
     extra_compile_args.append('-fopenmp')
 
-    sources = ['./src/base.cc', './src/distance.cc', './src/heuristic.cc',
-        './src/hnsw.cc', './src/hnsw_node.cc',  './src/mmap.cc',
-        './bindings/python/n2.pyx']
+    sources = ['./src/heuristic.cc', './src/hnsw.cc', './src/hnsw_node.cc',
+               './src/hnsw_build.cc', './src/hnsw_model.cc', './src/hnsw_search.cc',
+               './src/mmap.cc', './bindings/python/n2.pyx']
 
     client_ext = Extension(name='n2',
                            sources=sources,

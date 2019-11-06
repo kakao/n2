@@ -20,20 +20,21 @@
 
 namespace n2 {
 
-using std::priority_queue
+using std::priority_queue;
 using std::vector;
 
 BaseNeighborSelectingPolicies::~BaseNeighborSelectingPolicies() {}
 
-void NaiveNeighborSelectingPolicies::Select(const size_t m, size_t dim, distance_function dist_func,
+void NaiveNeighborSelectingPolicies::Select(const size_t m, size_t dim, 
                                             priority_queue<FurtherFirst>& result) {
     while (result.size() > m) {
         result.pop();
     }
 }
 
-void HeuristicNeighborSelectingPolicies::Select(const size_t m, size_t dim, distance_function dist_func,
-                                                priority_queue<FurtherFirst>& result) {
+template<typename DistFuncType>
+void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(const size_t m, size_t dim, 
+                                                              priority_queue<FurtherFirst>& result) {
     if (result.size() <= m) return;
    
     vector<FurtherFirst> neighbors, picked;
@@ -48,7 +49,7 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, size_t dim, dist
         _mm_prefetch(neighbors[i].GetNode()->GetDataAsCharArray(), _MM_HINT_T0);
     }
 
-    for (size_t i = neighbors.size() - 1; i >= 0; --i) {
+    for (int i = static_cast<int>(neighbors.size())-1; i >= 0; --i) {
         bool skip = false;
         float cur_dist = neighbors[i].GetDistance();
         const float* q = neighbors[i].GetNode()->GetDataAsFloatArray();
@@ -57,7 +58,7 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, size_t dim, dist
                 _mm_prefetch(picked[j+1].GetNode()->GetDataAsCharArray(), _MM_HINT_T0);
             }
             _mm_prefetch(q, _MM_HINT_T1);
-            if (dist_func(q, picked[j].GetNode()->GetDataAsFloatArray(), dim) < cur_dist) {
+            if (dist_func_(q, picked[j].GetNode()->GetDataAsFloatArray(), dim) < cur_dist) {
                 skip = true;
                 break;
             }
@@ -84,5 +85,8 @@ void HeuristicNeighborSelectingPolicies::Select(const size_t m, size_t dim, dist
         }
     }   
 }
+
+template class HeuristicNeighborSelectingPolicies<AngularDistance>;
+template class HeuristicNeighborSelectingPolicies<L2Distance>;
 
 } // namespace n2

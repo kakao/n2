@@ -25,7 +25,7 @@ HnswNode::HnswNode(int id, const Data* data, int level, int max_m, int max_m0)
     friends_at_layer_[0].reserve(max_m0_ + 1);
 }
 
-void HnswNode::CopyHigherLevelLinksToOptIndex(char* mem_offset, long long memory_per_node_higher_level) const {
+void HnswNode::CopyHigherLevelLinksToOptIndex(char* mem_offset, uint64_t memory_per_node_higher_level) const {
     char* mem_data = mem_offset;
     for (int level = 1; level <= level_; ++level) {
         CopyLinksToOptIndex(mem_data, level);
@@ -33,12 +33,12 @@ void HnswNode::CopyHigherLevelLinksToOptIndex(char* mem_offset, long long memory
     }
 }
 
-void HnswNode::CopyDataAndLevel0LinksToOptIndex(char* mem_offset, int higher_level_offset, int M0) const {
+void HnswNode::CopyDataAndLevel0LinksToOptIndex(char* mem_offset, int higher_level_offset) const {
     char* mem_data = mem_offset;
     *((int*)(mem_data)) = higher_level_offset;
     mem_data += sizeof(int);
     CopyLinksToOptIndex(mem_data, 0);
-    mem_data += (sizeof(int) + sizeof(int)*M0);
+    mem_data += (sizeof(int) + sizeof(int)*max_m0_);
     auto& data = data_->GetData();
     for (size_t i = 0; i < data.size(); ++i) {
         *((float*)(mem_data)) = (float)data[i];

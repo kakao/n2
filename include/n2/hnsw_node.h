@@ -14,8 +14,9 @@
 
 #pragma once
 
-#include <vector>
+#include <cstdint>
 #include <mutex>
+#include <vector>
 
 #include "data.h"
 
@@ -24,8 +25,8 @@ namespace n2 {
 class HnswNode {
 public:
     explicit HnswNode(int id, const Data* data, int level, int max_m, int max_m0);
-    void CopyHigherLevelLinksToOptIndex(char* mem_offset, long long memory_per_node_higher_level) const;
-    void CopyDataAndLevel0LinksToOptIndex(char* mem_offset, int higher_level_offset, int M0) const;
+    void CopyHigherLevelLinksToOptIndex(char* mem_offset, uint64_t memory_per_node_higher_level) const;
+    void CopyDataAndLevel0LinksToOptIndex(char* mem_offset, int higher_level_offset) const;
 
     inline int GetId() const { return id_; }
     inline int GetLevel() const { return level_; }
@@ -47,10 +48,10 @@ private:
 
 private:
     int id_;
+    const Data* data_;
     int level_;
     size_t max_m_;
     size_t max_m0_;
-    const Data* data_;
 
     std::vector<std::vector<HnswNode*>> friends_at_layer_;
     std::mutex access_guard_;

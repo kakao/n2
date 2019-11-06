@@ -22,6 +22,9 @@ public:
         visited_ = new unsigned int[size_];
         memset(visited_, 0, sizeof(unsigned int)*size_);
     }
+    
+    ~VisitedList() { delete [] visited_; }
+    
     inline bool Visited(unsigned int index) const { return visited_[index] == mark_; }
     inline bool NotVisited(unsigned int index) const { return visited_[index] != mark_; }
     inline void MarkAsVisited(unsigned int index) { visited_[index] = mark_; }
@@ -31,7 +34,8 @@ public:
             memset(visited_, 0, sizeof(unsigned int)*size_);
         }
     }
-    ~VisitedList() { delete [] visited_; }
+    inline unsigned int* GetVisited() { return visited_; }
+    inline unsigned int GetVisitMark() { return mark_; }
 
 private:
     unsigned int* visited_;
