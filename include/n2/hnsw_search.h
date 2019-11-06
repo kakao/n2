@@ -65,7 +65,7 @@ protected:
     std::vector<std::pair<int, float>> ensure_k_path_;
 
 
-    // raw pointer of model, ugly but fast
+    // raw pointer of model
     char* model_higher_level_ = nullptr;
     char* model_level0_ = nullptr;
     char* model_level0_node_base_offset_ = nullptr;
