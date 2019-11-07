@@ -16,14 +16,17 @@ def parse(fname):
 def visualize(data, fname):
     fig = plt.figure(figsize=(8, 12))
 
-    ax1 = fig.add_subplot(3, 1, 1)
+    ax1 = fig.add_subplot(4, 1, 1)
     draw_build_time(ax1, data)
 
-    ax2 = fig.add_subplot(3, 1, 2)
-    draw_accuracy_elapsed(ax2, data)
+    ax2 = fig.add_subplot(4, 1, 2)
+    draw_index_size(ax2, data)
 
-    ax3 = fig.add_subplot(3, 1, 3)
-    draw_index_size(ax3, data)
+    ax3 = fig.add_subplot(4, 1, 3)
+    draw_accuracy_elapsed(ax3, data)
+
+    ax4 = fig.add_subplot(4, 1, 4)
+    draw_accuracy_elapsed(ax4, data, limit=0.8)
 
     fig.tight_layout()
     fig.savefig(fname)
@@ -40,10 +43,10 @@ def draw_build_time(ax, data):
     ax.set_ylabel('elapsed(sec)')
 
 
-def draw_accuracy_elapsed(ax, data):
+def draw_accuracy_elapsed(ax, data, limit=0.5):
     ax.set_title('Recall-elasped sec tradeoff')
     for library, values in data.items():
-        values = sorted(filter(lambda x: x[0] > 0.5, values))
+        values = sorted(filter(lambda x: x[0] > limit, values))
         ax.plot([acc for acc, _, _, _ in values], [elapsed for _, elapsed, _, _ in values], label=library)
     ax.set_xlabel('accuracy')
     ax.set_ylabel('elapsed(log scale)')

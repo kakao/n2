@@ -77,7 +77,7 @@ class N2(BaseANN):
 
         if os.path.exists(self._index_name):
             n2_logger.info("Loading index from file")
-            self._n2.load(self._index_name)
+            self._n2.load(self._index_name, use_mmap=False)
             return
 
         n2_logger.debug("Create Index")
@@ -190,7 +190,7 @@ def load_dataset(which):
 
 
 def get_fn(file_type, args, base=CACHE_DIR):
-    fn = '%s-%s-%s-%d-%d-%d' % (os.path.join(base, file_type), args.dataset, args.distance,
+    fn = '%s_%s_%d_%d_%d' % (os.path.join(base, file_type), args.dataset,
                                 args.data_size, args.test_size, args.random_state)
     return fn
 
