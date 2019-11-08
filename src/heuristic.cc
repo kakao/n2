@@ -38,7 +38,6 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(const size_t m, si
     if (result.size() <= m) return;
    
     vector<FurtherFirst> neighbors, picked;
-    // TODO(gony): minheap / priority_queue 를 사용하고 있는 부분 하나의 자료 구조를 사용할지 테스트
     MinHeap<float, HnswNode*> skipped;
     while(!result.empty()) {
         neighbors.push_back(result.top());
