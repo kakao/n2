@@ -24,7 +24,7 @@ namespace n2 {
 
 class HnswNode {
 public:
-    explicit HnswNode(int id, const Data* data, int level, int max_m, int max_m0);
+    explicit HnswNode(int id, const Data* data, int level, size_t max_m, size_t max_m0);
     void CopyHigherLevelLinksToOptIndex(char* mem_offset, uint64_t memory_per_node_higher_level) const;
     void CopyDataAndLevel0LinksToOptIndex(char* mem_offset, int higher_level_offset) const;
 

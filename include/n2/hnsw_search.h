@@ -30,9 +30,9 @@ public:
                                                         DistanceKind metric);
     virtual ~HnswSearch() {}
 
-    virtual void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search, bool ensure_k,
+    virtual void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                                 std::vector<std::pair<int, float>>& result) = 0;
-    virtual void SearchById(int id, size_t k, size_t ef_search, bool ensure_k, 
+    virtual void SearchById(int id, size_t k, int ef_search, bool ensure_k, 
                             std::vector<std::pair<int, float>>& result) = 0;
 };
 
@@ -41,9 +41,9 @@ class HnswSearchImpl : public HnswSearch {
 public:
     HnswSearchImpl(std::shared_ptr<const HnswModel> model, size_t data_dim, DistanceKind metric);
 
-    void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search, bool ensure_k,
+    void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                         std::vector<std::pair<int, float>>& result) override;
-    void SearchById(int id, size_t k, size_t ef_search, bool ensure_k,
+    void SearchById(int id, size_t k, int ef_search, bool ensure_k,
                     std::vector<std::pair<int, float>>& result) override;
 
 

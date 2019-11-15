@@ -16,9 +16,8 @@
 
 namespace n2 {
 
-HnswNode::HnswNode(int id, const Data* data, int level, int max_m, int max_m0)
-        : id_(id), data_(data), level_(level), max_m_(max_m), max_m0_(max_m0) {
-    friends_at_layer_.resize(level+1);
+HnswNode::HnswNode(int id, const Data* data, int level, size_t max_m, size_t max_m0)
+        : id_(id), data_(data), level_(level), max_m_(max_m), max_m0_(max_m0), friends_at_layer_(level+1) {
     for (int i = 1; i <= level; ++i) {
         friends_at_layer_[i].reserve(max_m_ + 1);
     }

@@ -53,7 +53,7 @@ HnswSearchImpl<DistFuncType>::HnswSearchImpl(shared_ptr<const HnswModel> model, 
 }
 
 template<typename DistFuncType>
-void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, size_t k, size_t ef_search, 
+void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, size_t k, int ef_search, 
                                                   bool ensure_k, vector<pair<int, float>>& result) {
     if (ef_search < 0)
         ef_search = 50 * k;
@@ -77,13 +77,13 @@ void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, siz
         ensure_k_path_.emplace_back(cur_node_id, cur_dist);
     }
 
-    visited_list_->Reset();
-    unsigned int visited_mark = visited_list_->GetVisitMark();
-    unsigned int* visited = visited_list_->GetVisited();
-    visited[cur_node_id] = visited_mark;
-
     bool changed;
     for (auto i = model_->GetMaxLevel(); i > 0; --i) {
+        visited_list_->Reset();
+        unsigned int visited_mark = visited_list_->GetVisitMark();
+        unsigned int* visited = visited_list_->GetVisited();
+        visited[cur_node_id] = visited_mark;
+        
         changed = true;
         while (changed) {
             changed = false;
@@ -130,7 +130,7 @@ void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, siz
 }
 
 template<typename DistFuncType>
-void HnswSearchImpl<DistFuncType>::SearchById(int id, size_t k, size_t ef_search, bool ensure_k, 
+void HnswSearchImpl<DistFuncType>::SearchById(int id, size_t k, int ef_search, bool ensure_k, 
                                               vector<pair<int, float>>& result) {
     if (ef_search < 0) {
         ef_search = 50 * k;
@@ -193,7 +193,7 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
                 float d = dist_func_(qraw, vec, data_dim_);
                 if (d < minimum_distance || total_size < ef_search) {
                     candidates.emplace(node_id, d);
-                    if ( d > farthest_distance ) {
+                    if (d > farthest_distance) {
                         farthest_distance = d;
                     }
                     ++total_size;

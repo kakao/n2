@@ -25,7 +25,7 @@ using std::vector;
 
 BaseNeighborSelectingPolicies::~BaseNeighborSelectingPolicies() {}
 
-void NaiveNeighborSelectingPolicies::Select(const size_t m, size_t dim, 
+void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim, 
                                             priority_queue<FurtherFirst>& result) {
     while (result.size() > m) {
         result.pop();
@@ -33,7 +33,7 @@ void NaiveNeighborSelectingPolicies::Select(const size_t m, size_t dim,
 }
 
 template<typename DistFuncType>
-void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(const size_t m, size_t dim, 
+void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t dim, 
                                                               priority_queue<FurtherFirst>& result) {
     if (result.size() <= m) return;
    
