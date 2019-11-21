@@ -150,7 +150,7 @@ shared_ptr<const HnswModel> HnswBuild::Build() {
     }
 
     auto&& model = HnswModel::GenerateModel(nodes_, enterpoint_->GetId(), max_m_, max_m0_, metric_, 
-                                          max_level_, data_dim_);
+                                            max_level_, data_dim_);
     for (size_t i = 0; i < nodes_.size(); ++i) {
         delete nodes_[i];
     }
