@@ -7,7 +7,51 @@
 [submodule "third_party/eigen/eigen3"]
 	path = third_party/eigen/eigen3
 	url = https://github.com/eigenteam/eigen-git-mirror
-[submodule "third_party/boost"]
-	path = third_party/boost
-	url = https://github.com/boostorg/boost.git
-	ignore = dirty
+[submodule "third_party/boost/assert"]
+	path = third_party/boost/assert
+	url = https://github.com/boostorg/assert.git
+[submodule "third_party/boost/bind"]
+	path = third_party/boost/bind
+	url = https://github.com/boostorg/bind.git
+[submodule "third_party/boost/concept_check"]
+	path = third_party/boost/concept_check
+	url = https://github.com/boostorg/concept_check.git
+[submodule "third_party/boost/config"]
+	path = third_party/boost/config
+	url = https://github.com/boostorg/config.git
+[submodule "third_party/boost/core"]
+	path = third_party/boost/core
+	url = https://github.com/boostorg/core.git
+[submodule "third_party/boost/heap"]
+	path = third_party/boost/heap
+	url = https://github.com/boostorg/heap.git
+[submodule "third_party/boost/iterator"]
+	path = third_party/boost/iterator
+	url = https://github.com/boostorg/iterator.git
+[submodule "third_party/boost/static_assert"]
+	path = third_party/boost/static_assert
+	url = https://github.com/boostorg/static_assert.git
+[submodule "third_party/boost/throw_exception"]
+	path = third_party/boost/throw_exception
+	url = https://github.com/boostorg/throw_exception.git
+[submodule "third_party/boost/type_traits"]
+	path = third_party/boost/type_traits
+	url = https://github.com/boostorg/type_traits.git
+[submodule "third_party/boost/preprocessor"]
+	path = third_party/boost/preprocessor
+	url = https://github.com/boostorg/preprocessor.git
+[submodule "third_party/boost/mpl"]
+	path = third_party/boost/mpl
+	url = https://github.com/boostorg/mpl.git
+[submodule "third_party/boost/detail"]
+	path = third_party/boost/detail
+	url = https://github.com/boostorg/detail.git
+[submodule "third_party/boost/parameter"]
+	path = third_party/boost/parameter
+	url = https://github.com/boostorg/parameter.git
+[submodule "third_party/boost/mp11"]
+	path = third_party/boost/mp11
+	url = https://github.com/boostorg/mp11.git
+[submodule "third_party/boost/utility"]
+	path = third_party/boost/utility
+	url = https://github.com/boostorg/utility.git
