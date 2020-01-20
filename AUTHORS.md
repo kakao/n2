@@ -6,3 +6,5 @@
 - Jisang Yoon <jason.yoon@kakaocorp.com>
 - Seongjin Kim <nick.kim@kakaocorp.com>
 - Tackhee Lee <leeth92@naver.com>
+- Kwangsung Ha <jesse.ha@kakaocorp.com>
+- GeonHee Lee <gony.noreply@kakaocorp.com>
