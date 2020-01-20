@@ -8,3 +8,7 @@ build/
 dist/
 .eggs/
 n2.egg-info/
+GTAGS
+GRTAGS
+GPATH
+*.un~

@@ -34,20 +34,25 @@ def long_description():
 def define_extensions(**kwargs):
     libraries = []
     extra_link_args = []
-    extra_compile_args = ['-std=c++11', '-O3', '-fPIC', '-march=native']
+    extra_compile_args = ['-std=c++14', '-O3', '-fPIC', '-march=native']
     extra_link_args.append('-fopenmp')
     extra_compile_args.append('-fopenmp')
 
-    sources = ['./src/base.cc', './src/distance.cc', './src/heuristic.cc',
-        './src/hnsw.cc', './src/hnsw_node.cc',  './src/mmap.cc',
-        './bindings/python/n2.pyx']
+    sources = ['./src/heuristic.cc', './src/hnsw.cc', './src/hnsw_node.cc',
+               './src/hnsw_build.cc', './src/hnsw_model.cc', './src/hnsw_search.cc',
+               './src/mmap.cc', './bindings/python/n2.pyx']
+
+    boost_dirs = ['assert', 'bind', 'concept_check', 'config', 'core', 'detail', 'heap', 'iterator', 'mp11', 'mpl',
+                  'parameter', 'preprocessor', 'static_assert', 'throw_exception', 'type_traits', 'utility']
+    include_dirs = ['./include/', './third_party/spdlog/include/', './third_party/eigen']
+    include_dirs.extend(['third_party/boost/' + b + '/include/' for b in boost_dirs])
 
     client_ext = Extension(name='n2',
                            sources=sources,
                            extra_compile_args=extra_compile_args,
                            libraries=libraries,
                            extra_link_args=extra_link_args,
-                           include_dirs=['./include/', './third_party/spdlog/include/', './third_party/eigen', './third_party/boost/'],
+                           include_dirs=include_dirs,
                            language="c++",)
     return cythonize(client_ext)
 

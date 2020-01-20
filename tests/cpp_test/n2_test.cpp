@@ -215,25 +215,21 @@ TEST_F(CppApiTest, UnloadModelTest) {
 }
 
 TEST_F(CppApiTest, L2DistanceTest) {
-    n2::BaseDistance* metric = new n2::L2Distance();
-    float PORTABLE_ALIGN32 TmpRes[8];
+    n2::L2Distance dist_func;
     float vec1[] = {0.0, 0.0, 0.0};
     float vec2[] = {1,0, 0.0, 1.0};
     float vec3[] = {0,0, 0.75, 1.0};
-    float res1 = metric->Evaluate(vec1, vec2, 3, TmpRes);
+    float res1 = dist_func(vec1, vec2, 3);
     EXPECT_FLOAT_EQ(1, res1);
-    float res2 = metric->Evaluate(vec2, vec3, 3, TmpRes);
+    float res2 = dist_func(vec2, vec3, 3);
     EXPECT_FLOAT_EQ(1.5625, res2);
-    delete metric;
 }
 
 TEST_F(CppApiTest, AngularDistanceTest) {
-    n2::BaseDistance* metric = new n2::AngularDistance();
-    float PORTABLE_ALIGN32 TmpRes[8];
+    n2::AngularDistance dist_func;
     float vec1[] = {0.1, 0.2, 0.3, 0.4};
     float vec2[] = {0.5, 0.6, 0.7, 0.8};
-    float res1 = metric->Evaluate(vec1, vec2, 4, TmpRes);
-    delete metric;
+    float res1 = dist_func(vec1, vec2, 4);
     EXPECT_FLOAT_EQ(0.3, res1);
 }
 

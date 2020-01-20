@@ -11,15 +11,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <fcntl.h>
-#include <iostream>
-#include <unistd.h>
-#include <string>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <stdexcept>
 
 #include "n2/mmap.h"
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
 namespace n2 {
 
@@ -29,7 +30,7 @@ Mmap::Mmap(char const* fname) {
    
 Mmap::~Mmap() {
     UnMap();
-    if(file_handle_ != -1) {
+    if (file_handle_ != -1) {
         close(file_handle_);
         file_handle_ = -1;
     }
@@ -48,12 +49,12 @@ void Mmap::Map(char const* fname) {
 
 void Mmap::UnMap() {
     if (data_ != nullptr) {
-        int ret = munmap(const_cast<char*>(data_), file_size_);
+        int ret = munmap(static_cast<void*>(data_), file_size_);
         if (ret != 0) throw std::runtime_error("[Error] Memory unmapping failed!");
     }
     data_ = nullptr;
     file_size_ = 0;
-    if(file_handle_ != -1) {
+    if (file_handle_ != -1) {
         close(file_handle_);
         file_handle_ = -1;
     }    

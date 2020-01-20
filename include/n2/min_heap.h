@@ -13,13 +13,14 @@
 // limitations under the License.
 
 #pragma once
-#include <vector>
+
+#include <string.h>
+
 #include <algorithm>
 #include <stdexcept>
-#include <string.h>
-#include <boost/heap/d_ary_heap.hpp>
+#include <vector>
 
-#include <utility>
+#include <boost/heap/d_ary_heap.hpp>
 
 namespace n2 {
 
@@ -65,7 +66,7 @@ public:
         return v_.size();
     }
 
-public:
+private:
     std::vector<Item> v_;
 };
 
