@@ -1,11 +1,11 @@
 // Copyright 2017 Kakao Corp. <http://www.kakaocorp.com>
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,26 +14,21 @@
 
 #pragma once
 
-#include <chrono>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
+#include <algorithm>
+#include <numeric>
 #include <vector>
 
 namespace n2 {
 
-class Data{
+class Utils {
 public:
-    Data(const std::vector<float>& vec);
-    inline const std::vector<float>& GetData() const { return data_; };
-private:
-    std::vector<float> data_;
+    static void NormalizeVector(const std::vector<float>& in, std::vector<float>& out) {
+        float sum = std::inner_product(in.begin(), in.end(), in.begin(), 0.0);
+        if (sum != 0.0) {
+            sum = 1 / std::sqrt(sum);
+            std::transform(in.begin(), in.end(), out.begin(), std::bind1st(std::multiplies<float>(), sum));
+        }
+    }
 };
-
-float GetTimeDiff(const std::chrono::steady_clock::time_point& begin_t,
-                  const std::chrono::steady_clock::time_point& end_t);
-
-std::string GetCurrentDateTime();
 
 } // namespace n2

@@ -1,33 +1,30 @@
 // Copyright 2017 Kakao Corp. <http://www.kakaocorp.com>
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <eigen3/Eigen/Dense>
+#pragma once
 
-#include "n2/distance.h"
+#include <vector>
 
 namespace n2 {
 
-float l2_distance(const float* v1, const float* v2, size_t qty)
-{
-    Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
-    return (p - q).squaredNorm();
-}
-
-float angular_distance(const float* v1, const float* v2, size_t qty)
-{
-    Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> p(v1, qty, 1), q(v2, qty, 1);
-    return 1.0 - p.dot(q);
-}
+class Data{
+public:
+    Data(const std::vector<float>& data) : data_(data) {}
+    inline const std::vector<float>& GetData() const { return data_; };
+    inline const float* GetRawData() const { return &data_[0]; };
+private:
+    std::vector<float> data_;
+};
 
 } // namespace n2
