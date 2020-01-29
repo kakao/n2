@@ -20,8 +20,8 @@ Test dataset
 Dataset description
 ~~~~~~~~~~~~~~~~~~~
 
-The dataset consists of two files. ``youtube.txt`` contains 14520986
-samples, each sample has 40 data points.
+To test large amounts of data, we use ``youtube`` dataset that 
+contains 14520986 samples, each sample has 40 data points.
 
 +-------------------+-------------------+----+-------------------+--------------------+
 | feature1(float32) | feature2(float32) | …… | feature2(float32) | feature40(float32) |
@@ -29,7 +29,15 @@ samples, each sample has 40 data points.
 |     -0.167898     |     0.160478      | …… |    0.104421       |    0.0503584       |
 +-------------------+-------------------+----+-------------------+--------------------+
 
-``youtube.txt.vids`` is a metadata informations of the dataset. Each
+How to get it
+~~~~~~~~~~~~~
+
+For benchmark, you can download it using our script. see `Download dataset`_.
+
+We also share ``youtube`` dataset through `google
+drive <https://drive.google.com/open?id=1B3PWRTb8xol9fEkawVbpfitOsuwXkqss>`__.
+It consists of two plain text files, ``youtube.txt`` and ``youtube.txt.vids``.
+``youtube.txt`` contains samples, ``youtube.txt.vids`` is a metadata informations of the dataset. Each
 line is the metadata corresponding to each sample of ``youtube.txt``.
 
 +------------------+-------------+-------------------------------------------+
@@ -38,109 +46,112 @@ line is the metadata corresponding to each sample of ``youtube.txt``.
 |34XnPr4YKpo8wE_mEl| Z1Jilm0TZHY | http://www.youtube.com/watch?v=Z1Jilm0TZHY|
 +------------------+-------------+-------------------------------------------+
 
-How to get it
-~~~~~~~~~~~~~
-
-We share our dataset through `google
-drive <https://drive.google.com/open?id=1B3PWRTb8xol9fEkawVbpfitOsuwXkqss>`__.
-
 Index build times
 -----------------
 
 |image0|
 
-Generally N2 is faster than the nmslib to build index file. Compared to
-the annoy, N2 begins to show the similar performance of the annoy when
-N2 uses 5 threads, and from then on it shows a faster build performance
-than the annoy.
++----------------+-------------+-------------+-------------+-------------+------------+
+| Library        | 1 thread    | 2 threads   | 4 threads   | 8 threads   | 16 threads |
++================+=============+=============+=============+=============+============+
+| N2 (3.7GB)     | 4628.62 sec | 2625.57 sec | 1456.18 sec | 844.54 sec  | 538.68 sec |
++----------------+-------------+-------------+-------------+-------------+------------+
+| nmslib (3.9GB) | 6368.85 sec | 3865.73 sec | 2081.81 sec | 1092.89 sec | 666.20 sec |
++----------------+-------------+-------------+-------------+-------------+------------+
 
-+-----------+--------------+-------------+-------------+-------------+
-| Library   | 1 thread     | 5 threads   | 10 threads  | 20 threads  |
-+===========+==============+=============+=============+=============+
-| N2        | 4505.3669540 | 1002.475105 | 591.6419599 | 478.1210601 |
-| (3.1Gb)   | 9            | 05          | 06          | 33          |
-|           | sec          | sec         | sec         | sec         |
-+-----------+--------------+-------------+-------------+-------------+
-| nmslib    | 7130.7202520 | 1453.570172 | 826.9151070 | 602.1200079 |
-| (3.4Gb)   | 4            | 07          | 12          | 92          |
-|           | sec          | sec         | sec         | sec         |
-+-----------+--------------+-------------+-------------+-------------+
-| annoy     | 915.41107487 | 915.4110748 | 915.4110748 | 915.4110748 |
-| (4.4Gb)   | 7            | 77          | 77          | 77          |
-|           | sec          | sec         | sec         | sec         |
-+-----------+--------------+-------------+-------------+-------------+
+The above data shows a comparison of index build times with thread changes. 
+N2 is 19~27% faster than the nmslib to build index file. 
 
 Search speed
 ------------
 
 |image1|
 
-+-----------------------------------------+-----------------------+----------+
-| Library                                 | Search time           | Accuracy |
-+=========================================+=======================+==========+
-| Linear search (numpy based)             | 0.358749273825 sec    | 1.0      |
-+-----------------------------------------+-----------------------+----------+
-| N2 (efCon = 100, efSearch = 10)         | 2.98758983612e-05 sec | 0.054243 |
-+-----------------------------------------+-----------------------+----------+
-| N2 (efCon = 100, efSearch = 100)        | 0.000128486037254 sec | 0.48313  |
-+-----------------------------------------+-----------------------+----------+
-| N2 (efCon = 100, efSearch = 1000)       | 0.000824773144722 sec | 0.840634 |
-+-----------------------------------------+-----------------------+----------+
-| N2 (efCon = 100, efSearch = 10000)      | 0.00720949418545 sec  | 0.926739 |
-+-----------------------------------------+-----------------------+----------+
-| N2 (efCon = 100, efSearch = 100000)     | 0.0763142487288 sec   | 0.940606 |
-+-----------------------------------------+-----------------------+----------+
-| Nmslib (efCon = 100, efSearch = 10)     | 9.8201584816e-05 sec  | 0.226192 |
-+-----------------------------------------+-----------------------+----------+
-| Nmslib (efCon = 100, efSearch = 100)    | 0.000225761222839 sec | 0.672228 |
-+-----------------------------------------+-----------------------+----------+
-| Nmslib (efCon = 100, efSearch = 1000)   | 0.00140970699787 sec  | 0.882695 |
-+-----------------------------------------+-----------------------+----------+
-| Nmslib (efCon = 100, efSearch = 10000)  | 0.0143689704418 sec   | 0.935395 |
-+-----------------------------------------+-----------------------+----------+
-| Nmslib (efCon = 100, efSearch = 100000) | 0.159999159241 sec    | 0.94283  |
-+-----------------------------------------+-----------------------+----------+
-| Annoy(n_trees=10, search_k=7)           | 4.04834747314e-05 sec | 0.05471  |
-+-----------------------------------------+-----------------------+----------+
-| Annoy(n_trees=10, search_k=3000)        | 0.00096510682106 sec  | 0.481099 |
-+-----------------------------------------+-----------------------+----------+
-| Annoy(n_trees=10, search_k=50000)       | 0.0144059297085 sec   | 0.835895 |
-+-----------------------------------------+-----------------------+----------+
-| Annoy(n_trees=10, search_k=200000)      | 0.053891249156 sec    | 0.918569 |
-+-----------------------------------------+-----------------------+----------+
-| Annoy(n_trees=10, search_k=500000)      | 0.108285815144 sec    | 0.940851 |
-+-----------------------------------------+-----------------------+----------+
++-----------------------------------------+-----------------+----------+
+| Library                                 | search time     | accuracy |
++=========================================+=================+==========+
+| N2 (efCon = 100, efSearch = 25)         | 0.000191692853  | 0.424057 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 50)         | 0.0002163668156 | 0.601179 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 100)        | 0.0002673476934 | 0.748796 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 250)        | 0.0005520210505 | 0.850445 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 500)        | 0.001028939319  | 0.895242 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 750)        | 0.001303373504  | 0.910901 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 1000)       | 0.001953691959  | 0.919208 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 1500)       | 0.002749215031  | 0.928018 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 2500)       | 0.003751451612  | 0.934984 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 5000)       | 0.008200209832  | 0.939109 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 10000)      | 0.01378832684   | 0.941021 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 25000)      | 0.03242799292   | 0.942262 |
++-----------------------------------------+-----------------+----------+
+| N2 (efCon = 100, efSearch = 100000)     | 0.1272339942    | 0.943302 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 25)     | 0.0001844111204 | 0.486474 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 50)     | 0.0002713298321 | 0.637868 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 100)    | 0.0003269775152 | 0.764977 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 250)    | 0.0005977529526 | 0.857598 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 500)    | 0.001127228618  | 0.899621 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 750)    | 0.00142812109   | 0.915815 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 1000)   | 0.001758913255  | 0.923814 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 1500)   | 0.002715426302  | 0.932147 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 2500)   | 0.004713194823  | 0.938547 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 5000)   | 0.008359930491  | 0.942717 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 10000)  | 0.01632316473   | 0.944737 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 25000)  | 0.03980695992   | 0.946092 |
++-----------------------------------------+-----------------+----------+
+| nmslib (efCon = 100, efSearch = 100000) | 0.144999783     | 0.946819 |
++-----------------------------------------+-----------------+----------+
 
-Overall, we can see that N2 has a much higher accuracy than the annoy,
-and N2 has better performance than the other two libraries at high
-precision points.
+The above data shows QPS(Queries Per Seconds) values according to accuracy change. N2 and nmslib both libraries have similar search performance.
 
 Memory usage
 ------------
 
 |image2|
 
-+---------+-------------------+-------------------------------+
-| Library | Peak memory usage | Search time peak memory usage |
-+=========+===================+===============================+
-| N2      | 5360.93750Mb      | 3441.13281Mb                  |
-+---------+-------------------+-------------------------------+
-| annoy   | 5360.89844Mb      | 3441.09375Mb                  |
-+---------+-------------------+-------------------------------+
-| nmslib  | 5360.97656Mb      | 3441.17188 Mb                 |
-+---------+-------------------+-------------------------------+
++-----------+----------------+
+|  Library  |  memory usage  |
++===========+================+
+| N2        | 11209.5 MB     |
++-----------+----------------+
+| nmslib    | 13006.2 MB     |
++-----------+----------------+
 
-The three libraries do not show much difference in memory usage.
+The above data shows the difference in memory usage before and after index file build.
+N2 uses 14% less memory than nmslib.
 
 Conclusion
 ----------
 
-In short, on multi-core CPU, N2 performs best. annoy is a good choice
-for small datasets that can be handled by a single thread. However, when
-dataset is large, where high indexing performance is critical, N2 is
-where to go. N2 runs almost 2x faster than annoy. When high precision is
-required, both nmslib and N2 are good.
+N2 builds index file faster and uses less memory than nmslib, but has similar search performance.
+
+The benchmark environment uses multiple threads for index builds but a single thread for searching.
+In a real production environment, you will need concurrent searches (by multiple processes or multiple threads).
+N2 allows you to search simultaneously using multiple processes. With mmap support in N2, It works much more efficiently than other libraries, including the nmslib.
+
+.. _Download dataset: ../benchmarks/README.md#1-download-dataset
 
 .. |image0| image:: imgs/build_time/build_time_threads.png
-.. |image1| image:: imgs/search_time/total.png
+.. |image1| image:: imgs/search_time/search_time.png
 .. |image2| image:: imgs/mem/memory_usage.png

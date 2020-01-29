@@ -129,6 +129,6 @@ limitations under the License.
 .. _Go: docs/Go_API.rst
 .. _Apache 2 license: LICENSE.txt
 
-.. |image0| image:: docs/imgs/build_time/build_time.png
-.. |image1| image:: docs/imgs/search_time/search_speed.png
+.. |image0| image:: docs/imgs/build_time/build_time_threads.png
+.. |image1| image:: docs/imgs/search_time/search_time.png
 .. |image2| image:: docs/imgs/mem/memory_usage.png
