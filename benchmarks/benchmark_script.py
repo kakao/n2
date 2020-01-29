@@ -191,7 +191,7 @@ def load_dataset(which):
 
 def get_fn(file_type, args, base=CACHE_DIR):
     fn = '%s_%s_%d_%d_%d' % (os.path.join(base, file_type), args.dataset,
-                                args.data_size, args.test_size, args.random_state)
+                             args.data_size, args.test_size, args.random_state)
     return fn
 
 
@@ -202,10 +202,10 @@ def run(args):
     query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000]
 
     algos = {
-        'n2': [N2(M, ef_con, args.n_threads, ef_search, 'angular')
+        'n2': [N2(M, ef_con, args.n_threads, ef_search, args.distance)
                for M, ef_con in index_params
                for ef_search in query_params],
-        'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, 'angular')
+        'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, args.distance)
                    for M, ef_con in index_params
                    for ef_search in query_params],
     }
