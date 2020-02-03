@@ -38,23 +38,23 @@ typedef _gostring_ swig_type_6;
 typedef _goslice_ swig_type_7;
 typedef _goslice_ swig_type_8;
 typedef _goslice_ swig_type_9;
-extern void _wrap_Swig_free_n2_ab9ec64a84e85a64(uintptr_t arg1);
-extern uintptr_t _wrap_Swig_malloc_n2_ab9ec64a84e85a64(swig_intgo arg1);
-extern uintptr_t _wrap_new_HnswIndex__SWIG_0_n2_ab9ec64a84e85a64(swig_intgo arg1);
-extern uintptr_t _wrap_new_HnswIndex__SWIG_1_n2_ab9ec64a84e85a64(swig_intgo arg1, swig_type_1 arg2);
-extern void _wrap_delete_HnswIndex_n2_ab9ec64a84e85a64(uintptr_t arg1);
-extern void _wrap_HnswIndex_Build_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4, swig_intgo arg5, float arg6, swig_type_2 arg7, swig_type_3 arg8);
-extern _Bool _wrap_HnswIndex_SaveModel_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_type_4 arg2);
-extern _Bool _wrap_HnswIndex_LoadModel__SWIG_0_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_type_5 arg2);
-extern _Bool _wrap_HnswIndex_LoadModel__SWIG_1_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_type_6 arg2, _Bool arg3);
-extern void _wrap_HnswIndex_UnloadModel_n2_ab9ec64a84e85a64(uintptr_t arg1);
-extern void _wrap_HnswIndex_AddData_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_type_7 arg2);
-extern void _wrap_HnswIndex_SearchByVector__SWIG_0_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_type_8 arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5);
-extern void _wrap_HnswIndex_SearchByVector__SWIG_1_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_type_9 arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5, swig_voidp arg6);
-extern void _wrap_HnswIndex_SearchById__SWIG_0_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5);
-extern void _wrap_HnswIndex_SearchById__SWIG_1_n2_ab9ec64a84e85a64(uintptr_t arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5, swig_voidp arg6);
-extern void _wrap_HnswIndex_PrintDegreeDist_n2_ab9ec64a84e85a64(uintptr_t arg1);
-extern void _wrap_HnswIndex_PrintConfigs_n2_ab9ec64a84e85a64(uintptr_t arg1);
+extern void _wrap_Swig_free_n2_a488e07e7793b4ac(uintptr_t arg1);
+extern uintptr_t _wrap_Swig_malloc_n2_a488e07e7793b4ac(swig_intgo arg1);
+extern uintptr_t _wrap_new_HnswIndex__SWIG_0_n2_a488e07e7793b4ac(swig_intgo arg1);
+extern uintptr_t _wrap_new_HnswIndex__SWIG_1_n2_a488e07e7793b4ac(swig_intgo arg1, swig_type_1 arg2);
+extern void _wrap_delete_HnswIndex_n2_a488e07e7793b4ac(uintptr_t arg1);
+extern void _wrap_HnswIndex_Build_n2_a488e07e7793b4ac(uintptr_t arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4, swig_intgo arg5, float arg6, swig_type_2 arg7, swig_type_3 arg8);
+extern _Bool _wrap_HnswIndex_SaveModel_n2_a488e07e7793b4ac(uintptr_t arg1, swig_type_4 arg2);
+extern _Bool _wrap_HnswIndex_LoadModel__SWIG_0_n2_a488e07e7793b4ac(uintptr_t arg1, swig_type_5 arg2);
+extern _Bool _wrap_HnswIndex_LoadModel__SWIG_1_n2_a488e07e7793b4ac(uintptr_t arg1, swig_type_6 arg2, _Bool arg3);
+extern void _wrap_HnswIndex_UnloadModel_n2_a488e07e7793b4ac(uintptr_t arg1);
+extern void _wrap_HnswIndex_AddData_n2_a488e07e7793b4ac(uintptr_t arg1, swig_type_7 arg2);
+extern void _wrap_HnswIndex_SearchByVector__SWIG_0_n2_a488e07e7793b4ac(uintptr_t arg1, swig_type_8 arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5);
+extern void _wrap_HnswIndex_SearchByVector__SWIG_1_n2_a488e07e7793b4ac(uintptr_t arg1, swig_type_9 arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5, swig_voidp arg6);
+extern void _wrap_HnswIndex_SearchById__SWIG_0_n2_a488e07e7793b4ac(uintptr_t arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5);
+extern void _wrap_HnswIndex_SearchById__SWIG_1_n2_a488e07e7793b4ac(uintptr_t arg1, swig_intgo arg2, swig_intgo arg3, swig_intgo arg4, swig_voidp arg5, swig_voidp arg6);
+extern void _wrap_HnswIndex_PrintDegreeDist_n2_a488e07e7793b4ac(uintptr_t arg1);
+extern void _wrap_HnswIndex_PrintConfigs_n2_a488e07e7793b4ac(uintptr_t arg1);
 #undef intgo
 */
 import "C"
@@ -78,15 +78,34 @@ type _swig_memberptr *byte
 
 type _ sync.Mutex
 
+
+type swig_goslice struct { array uintptr; len int; cap int }
+func swigCopyIntSlice(s *[]int) []int {
+	p := *(*swig_goslice)(unsafe.Pointer(s))
+	r := make([]int, p.len)
+	copy(r, *s)
+	Swig_free(p.array)
+	return r
+}
+
+
+func swigCopyFloatSlice(s *[]float32) []float32 {
+	p := *(*swig_goslice)(unsafe.Pointer(s))
+	r := make([]float32, p.len)
+	copy(r, *s)
+	Swig_free(p.array)
+	return r
+}
+
 func Swig_free(arg1 uintptr) {
 	_swig_i_0 := arg1
-	C._wrap_Swig_free_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0))
+	C._wrap_Swig_free_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0))
 }
 
 func Swig_malloc(arg1 int) (_swig_ret uintptr) {
 	var swig_r uintptr
 	_swig_i_0 := arg1
-	swig_r = (uintptr)(C._wrap_Swig_malloc_n2_ab9ec64a84e85a64(C.swig_intgo(_swig_i_0)))
+	swig_r = (uintptr)(C._wrap_Swig_malloc_n2_a488e07e7793b4ac(C.swig_intgo(_swig_i_0)))
 	return swig_r
 }
 
@@ -102,7 +121,7 @@ func (p SwigcptrHnswIndex) SwigIsHnswIndex() {
 func NewHnswIndex__SWIG_0(arg1 int) (_swig_ret HnswIndex) {
 	var swig_r HnswIndex
 	_swig_i_0 := arg1
-	swig_r = (HnswIndex)(SwigcptrHnswIndex(C._wrap_new_HnswIndex__SWIG_0_n2_ab9ec64a84e85a64(C.swig_intgo(_swig_i_0))))
+	swig_r = (HnswIndex)(SwigcptrHnswIndex(C._wrap_new_HnswIndex__SWIG_0_n2_a488e07e7793b4ac(C.swig_intgo(_swig_i_0))))
 	return swig_r
 }
 
@@ -110,7 +129,7 @@ func NewHnswIndex__SWIG_1(arg1 int, arg2 string) (_swig_ret HnswIndex) {
 	var swig_r HnswIndex
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r = (HnswIndex)(SwigcptrHnswIndex(C._wrap_new_HnswIndex__SWIG_1_n2_ab9ec64a84e85a64(C.swig_intgo(_swig_i_0), *(*C.swig_type_1)(unsafe.Pointer(&_swig_i_1)))))
+	swig_r = (HnswIndex)(SwigcptrHnswIndex(C._wrap_new_HnswIndex__SWIG_1_n2_a488e07e7793b4ac(C.swig_intgo(_swig_i_0), *(*C.swig_type_1)(unsafe.Pointer(&_swig_i_1)))))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -130,7 +149,7 @@ func NewHnswIndex(a ...interface{}) HnswIndex {
 
 func DeleteHnswIndex(arg1 HnswIndex) {
 	_swig_i_0 := arg1.Swigcptr()
-	C._wrap_delete_HnswIndex_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0))
+	C._wrap_delete_HnswIndex_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0))
 }
 
 func (arg1 SwigcptrHnswIndex) Build(arg2 int, arg3 int, arg4 int, arg5 int, arg6 float32, arg7 string, arg8 string) {
@@ -142,7 +161,7 @@ func (arg1 SwigcptrHnswIndex) Build(arg2 int, arg3 int, arg4 int, arg5 int, arg6
 	_swig_i_5 := arg6
 	_swig_i_6 := arg7
 	_swig_i_7 := arg8
-	C._wrap_HnswIndex_Build_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4), C.float(_swig_i_5), *(*C.swig_type_2)(unsafe.Pointer(&_swig_i_6)), *(*C.swig_type_3)(unsafe.Pointer(&_swig_i_7)))
+	C._wrap_HnswIndex_Build_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_intgo(_swig_i_4), C.float(_swig_i_5), *(*C.swig_type_2)(unsafe.Pointer(&_swig_i_6)), *(*C.swig_type_3)(unsafe.Pointer(&_swig_i_7)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg7
 	}
@@ -155,7 +174,7 @@ func (arg1 SwigcptrHnswIndex) SaveModel(arg2 string) (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r = (bool)(C._wrap_HnswIndex_SaveModel_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), *(*C.swig_type_4)(unsafe.Pointer(&_swig_i_1))))
+	swig_r = (bool)(C._wrap_HnswIndex_SaveModel_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), *(*C.swig_type_4)(unsafe.Pointer(&_swig_i_1))))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -166,7 +185,7 @@ func (arg1 SwigcptrHnswIndex) LoadModel__SWIG_0(arg2 string) (_swig_ret bool) {
 	var swig_r bool
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	swig_r = (bool)(C._wrap_HnswIndex_LoadModel__SWIG_0_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), *(*C.swig_type_5)(unsafe.Pointer(&_swig_i_1))))
+	swig_r = (bool)(C._wrap_HnswIndex_LoadModel__SWIG_0_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), *(*C.swig_type_5)(unsafe.Pointer(&_swig_i_1))))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -178,7 +197,7 @@ func (arg1 SwigcptrHnswIndex) LoadModel__SWIG_1(arg2 string, arg3 bool) (_swig_r
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
-	swig_r = (bool)(C._wrap_HnswIndex_LoadModel__SWIG_1_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), *(*C.swig_type_6)(unsafe.Pointer(&_swig_i_1)), C._Bool(_swig_i_2)))
+	swig_r = (bool)(C._wrap_HnswIndex_LoadModel__SWIG_1_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), *(*C.swig_type_6)(unsafe.Pointer(&_swig_i_1)), C._Bool(_swig_i_2)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -198,13 +217,13 @@ func (p SwigcptrHnswIndex) LoadModel(a ...interface{}) bool {
 
 func (arg1 SwigcptrHnswIndex) UnloadModel() {
 	_swig_i_0 := arg1
-	C._wrap_HnswIndex_UnloadModel_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0))
+	C._wrap_HnswIndex_UnloadModel_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0))
 }
 
 func (arg1 SwigcptrHnswIndex) AddData(arg2 []float32) {
 	_swig_i_0 := arg1
 	_swig_i_1 := arg2
-	C._wrap_HnswIndex_AddData_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), *(*C.swig_type_7)(unsafe.Pointer(&_swig_i_1)))
+	C._wrap_HnswIndex_AddData_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), *(*C.swig_type_7)(unsafe.Pointer(&_swig_i_1)))
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -215,8 +234,19 @@ func (arg1 SwigcptrHnswIndex) SearchByVector__SWIG_0(arg2 []float32, arg3 int, a
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	_swig_i_4 := arg5
-	C._wrap_HnswIndex_SearchByVector__SWIG_0_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), *(*C.swig_type_8)(unsafe.Pointer(&_swig_i_1)), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))
+	var _swig_i_4 *[]int
+
+	//Wrap variables to avoid cgocheck
+	var v []int
+	_swig_i_4 = &v
+
+	C._wrap_HnswIndex_SearchByVector__SWIG_0_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), *(*C.swig_type_8)(unsafe.Pointer(&_swig_i_1)), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))
+
+	{
+		r := swigCopyIntSlice(_swig_i_4)
+		*arg5 = r
+	}
+
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -227,9 +257,31 @@ func (arg1 SwigcptrHnswIndex) SearchByVector__SWIG_1(arg2 []float32, arg3 int, a
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	_swig_i_4 := arg5
-	_swig_i_5 := arg6
-	C._wrap_HnswIndex_SearchByVector__SWIG_1_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), *(*C.swig_type_9)(unsafe.Pointer(&_swig_i_1)), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_voidp(_swig_i_5))
+	var _swig_i_4 *[]int
+
+	//Wrap variables to avoid cgocheck
+	var v []int
+	_swig_i_4 = &v
+
+	var _swig_i_5 *[]float32
+
+	//Wrap variables to avoid cgocheck
+	var vv []float32
+	_swig_i_5 = &vv
+
+	C._wrap_HnswIndex_SearchByVector__SWIG_1_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), *(*C.swig_type_9)(unsafe.Pointer(&_swig_i_1)), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_voidp(_swig_i_5))
+
+	{
+		r := swigCopyIntSlice(_swig_i_4)
+		*arg5 = r
+	}
+
+
+	{
+		r := swigCopyFloatSlice(_swig_i_5)
+		*arg6 = r
+	}
+
 	if Swig_escape_always_false {
 		Swig_escape_val = arg2
 	}
@@ -253,8 +305,19 @@ func (arg1 SwigcptrHnswIndex) SearchById__SWIG_0(arg2 int, arg3 int, arg4 int, a
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	_swig_i_4 := arg5
-	C._wrap_HnswIndex_SearchById__SWIG_0_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))
+	var _swig_i_4 *[]int
+
+	//Wrap variables to avoid cgocheck
+	var v []int
+	_swig_i_4 = &v
+
+	C._wrap_HnswIndex_SearchById__SWIG_0_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4))
+
+	{
+		r := swigCopyIntSlice(_swig_i_4)
+		*arg5 = r
+	}
+
 }
 
 func (arg1 SwigcptrHnswIndex) SearchById__SWIG_1(arg2 int, arg3 int, arg4 int, arg5 *[]int, arg6 *[]float32) {
@@ -262,9 +325,31 @@ func (arg1 SwigcptrHnswIndex) SearchById__SWIG_1(arg2 int, arg3 int, arg4 int, a
 	_swig_i_1 := arg2
 	_swig_i_2 := arg3
 	_swig_i_3 := arg4
-	_swig_i_4 := arg5
-	_swig_i_5 := arg6
-	C._wrap_HnswIndex_SearchById__SWIG_1_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_voidp(_swig_i_5))
+	var _swig_i_4 *[]int
+
+	//Wrap variables to avoid cgocheck
+	var v []int
+	_swig_i_4 = &v
+
+	var _swig_i_5 *[]float32
+
+	//Wrap variables to avoid cgocheck
+	var vv []float32
+	_swig_i_5 = &vv
+
+	C._wrap_HnswIndex_SearchById__SWIG_1_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0), C.swig_intgo(_swig_i_1), C.swig_intgo(_swig_i_2), C.swig_intgo(_swig_i_3), C.swig_voidp(_swig_i_4), C.swig_voidp(_swig_i_5))
+
+	{
+		r := swigCopyIntSlice(_swig_i_4)
+		*arg5 = r
+	}
+
+
+	{
+		r := swigCopyFloatSlice(_swig_i_5)
+		*arg6 = r
+	}
+
 }
 
 func (p SwigcptrHnswIndex) SearchById(a ...interface{}) {
@@ -282,12 +367,12 @@ func (p SwigcptrHnswIndex) SearchById(a ...interface{}) {
 
 func (arg1 SwigcptrHnswIndex) PrintDegreeDist() {
 	_swig_i_0 := arg1
-	C._wrap_HnswIndex_PrintDegreeDist_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0))
+	C._wrap_HnswIndex_PrintDegreeDist_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0))
 }
 
 func (arg1 SwigcptrHnswIndex) PrintConfigs() {
 	_swig_i_0 := arg1
-	C._wrap_HnswIndex_PrintConfigs_n2_ab9ec64a84e85a64(C.uintptr_t(_swig_i_0))
+	C._wrap_HnswIndex_PrintConfigs_n2_a488e07e7793b4ac(C.uintptr_t(_swig_i_0))
 }
 
 type HnswIndex interface {
