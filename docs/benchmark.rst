@@ -46,6 +46,17 @@ line is the metadata corresponding to each sample of ``youtube.txt``.
 |34XnPr4YKpo8wE_mEl| Z1Jilm0TZHY | http://www.youtube.com/watch?v=Z1Jilm0TZHY|
 +------------------+-------------+-------------------------------------------+
 
+Test Environment
+----------------
+
+- CPU: Intel(R) Xeon(R) CPU E5-2620 v4
+- Memory: 64GB
+- Storage: HDD
+- Dataset: Youtube(5.4GB)
+- N2 version: 0.1.5
+- nmslib version: 2.0.4
+- g++(gcc) 7.3.1
+
 Index build times
 -----------------
 
@@ -123,7 +134,7 @@ Search speed
 | nmslib (efCon = 100, efSearch = 100000) | 0.144999783     | 0.946819 |
 +-----------------------------------------+-----------------+----------+
 
-The above data shows QPS(Queries Per Seconds) values according to accuracy change. N2 and nmslib both libraries have similar search performance.
+The above data shows QPS(Queries Per Second) values according to accuracy change. N2 and nmslib both libraries have similar search performance.
 
 Memory usage
 ------------
