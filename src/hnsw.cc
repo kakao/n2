@@ -19,6 +19,7 @@ using std::move;
 using std::pair;
 using std::runtime_error;
 using std::string;
+using std::to_string;
 using std::vector;
 
 Hnsw::Hnsw() : Hnsw(0) {}
@@ -126,7 +127,12 @@ bool Hnsw::SaveModel(const string& fname) const {
 
 bool Hnsw::LoadModel(const string& fname, const bool use_mmap) {
     model_ = HnswModel::LoadModelFromFile(fname, use_mmap);
-    data_dim_ = model_->GetDataDim();
+    size_t model_data_dim = model_->GetDataDim();
+    if (data_dim_ > 0 && data_dim_ != model_data_dim) {
+        throw runtime_error("[Error] index dimension(" + to_string(data_dim_)
+                            + ") != model dimension(" + to_string(model_data_dim) + ")");
+    }
+    data_dim_ = model_data_dim;
     metric_ = model_->GetMetric();
     searcher_ = HnswSearch::GenerateSearcher(model_, data_dim_,  metric_);
     return true;

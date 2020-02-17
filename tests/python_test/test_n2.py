@@ -41,9 +41,9 @@ class AngularTest(TestCase):
         i.add_data([1, 0, 0])
         i.build(max_m0=10, m=5)
 
-        self.assertEqual(i.search_by_vector([3, 2, 1], 3), [0, 1, 2])
+        self.assertEqual(i.search_by_vector([3, 2, 1], 3), [2, 1, 0])
         self.assertEqual(i.search_by_vector([1, 2, 3], 3), [0, 1, 2])
-        self.assertEqual(i.search_by_vector([2, 0, 1], 3), [0, 1, 2])
+        self.assertEqual(i.search_by_vector([2, 0, 1], 3), [2, 0, 1])
 
     def test_search_by_id(self):
         f = 3
