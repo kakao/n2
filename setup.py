@@ -13,14 +13,12 @@
 # limitations under the License.
 
 import io
-
-from setuptools import setup, Extension
+import os
+import platform
+import subprocess
 
 from Cython.Build import cythonize
-
-import platform
-import glob
-import os
+from setuptools import Extension, setup
 
 NAME = 'n2'
 VERSION = '0.1.6'
@@ -32,21 +30,13 @@ def long_description():
     return readme
 
 
-# brought from https://github.com/maciejkula/glove-python/blob/master/setup.py#L47
 def set_binary_mac():
-    # For macports and homebrew
-    patterns = ['/opt/local/bin/g++-mp-[0-9].[0-9]',
-                '/opt/local/bin/g++-mp-[0-9]',
-                '/usr/local/bin/g++-[0-9].[0-9]',
-                '/usr/local/bin/g++-[0-9]']
-
-    binaries = []
-    for pattern in patterns:
-        binaries += glob.glob(pattern)
-    binaries.sort()
-
+    gcc_dir = subprocess.check_output("brew --prefix gcc", shell=True).decode().strip()
+    gcc_dir = os.path.join(gcc_dir, 'bin')
+    binaries = [gcc for gcc in os.listdir(gcc_dir) if gcc.startswith("g++")]
     if binaries:
-        _, gcc = os.path.split(binaries[-1])
+        gcc_binary = sorted(binaries, key=lambda x: int(x.split('-')[1]))[-1]
+        gcc = os.path.join(gcc_dir, gcc_binary)
         os.environ["CC"] = gcc
         os.environ["CXX"] = gcc
     else:
@@ -83,6 +73,7 @@ def define_extensions(**kwargs):
                            include_dirs=include_dirs,
                            language="c++",)
     return cythonize(client_ext)
+
 
 setup(
     name=NAME,
