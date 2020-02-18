@@ -18,6 +18,10 @@ from setuptools import setup, Extension
 
 from Cython.Build import cythonize
 
+import platform
+import glob
+import os
+
 NAME = 'n2'
 VERSION = '0.1.6'
 
@@ -28,7 +32,34 @@ def long_description():
     return readme
 
 
+# brought from https://github.com/maciejkula/glove-python/blob/master/setup.py#L47
+def set_binary_mac():
+    # For macports and homebrew
+    patterns = ['/opt/local/bin/g++-mp-[0-9].[0-9]',
+                '/opt/local/bin/g++-mp-[0-9]',
+                '/usr/local/bin/g++-[0-9].[0-9]',
+                '/usr/local/bin/g++-[0-9]']
+
+    binaries = []
+    for pattern in patterns:
+        binaries += glob.glob(pattern)
+    binaries.sort()
+
+    if binaries:
+        _, gcc = os.path.split(binaries[-1])
+        os.environ["CC"] = gcc
+        os.environ["CXX"] = gcc
+    else:
+        raise AttributeError('No GCC available. Install gcc from Homebrew using brew install gcc.')
+
+
 def define_extensions(**kwargs):
+    system = platform.system().lower()
+    if "windows" in system:  # Windows
+        raise AttributeError("Installation on Windows is not supported yet.")
+    elif "darwin" in system:  # osx
+        set_binary_mac()
+
     libraries = []
     extra_link_args = []
     extra_compile_args = ['-std=c++14', '-O3', '-fPIC', '-march=native']
