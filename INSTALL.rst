@@ -13,7 +13,7 @@ fetch the package from `Python Package
 Index <https://pypi.org/>`__\ (PyPI). This will also install cython
 dependency.
 
-For MacOS users, please install gcc >= 7.0 with `brew <https://brew.sh/index_ko.html>`__ to install gcc.
+For MacOS users, please install gcc >= 7.0 with `brew <https://brew.sh/index.html>`__ to install gcc.
 
 ::
 
