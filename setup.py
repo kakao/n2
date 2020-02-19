@@ -14,6 +14,7 @@
 
 import io
 import os
+import glob
 import platform
 import subprocess
 
@@ -33,13 +34,20 @@ def long_description():
 def set_binary_mac():
     gcc_dir = subprocess.check_output("brew --prefix gcc", shell=True).decode().strip()
     gcc_dir = os.path.join(gcc_dir, 'bin')
-    binaries = [gcc for gcc in os.listdir(gcc_dir) if gcc.startswith("g++")]
-    if binaries:
-        gcc_binary = sorted(binaries, key=lambda x: int(x.split('-')[1]))[-1]
-        gcc = os.path.join(gcc_dir, gcc_binary)
-        os.environ["CC"] = gcc
-        os.environ["CXX"] = gcc
-    else:
+    gpp_binaries = glob.glob(os.path.join(gcc_dir, 'g++-[0-9]'))
+    gcc_binaries = glob.glob(os.path.join(gcc_dir, 'gcc-[0-9]'))
+    binaries = [gcc_binaries, gpp_binaries]
+    targets = ["CC", "CXX"]
+    fail = False
+    for binary, target in zip(binaries, targets):
+        if binary:
+            binary = sorted(binary, key=lambda x: int(x.split('-')[1]))[-1]
+            os.environ[target] = os.path.join(gcc_dir, binary)
+        else:
+            fail = True
+            break
+
+    if fail:
         raise AttributeError('No GCC available. Install gcc from Homebrew using brew install gcc.')
 
 
