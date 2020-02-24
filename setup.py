@@ -13,10 +13,13 @@
 # limitations under the License.
 
 import io
-
-from setuptools import setup, Extension
+import os
+import glob
+import platform
+import subprocess
 
 from Cython.Build import cythonize
+from setuptools import Extension, setup
 
 NAME = 'n2'
 VERSION = '0.1.6'
@@ -28,7 +31,33 @@ def long_description():
     return readme
 
 
+def set_binary_mac():
+    gcc_dir = subprocess.check_output("brew --prefix gcc", shell=True).decode().strip()
+    gcc_dir = os.path.join(gcc_dir, 'bin')
+    gpp_binaries = glob.glob(os.path.join(gcc_dir, 'g++-[0-9]'))
+    gcc_binaries = glob.glob(os.path.join(gcc_dir, 'gcc-[0-9]'))
+    binaries = [gcc_binaries, gpp_binaries]
+    targets = ["CC", "CXX"]
+    fail = False
+    for binary, target in zip(binaries, targets):
+        if binary:
+            binary = sorted(binary, key=lambda x: int(x.split('-')[1]))[-1]
+            os.environ[target] = os.path.join(gcc_dir, binary)
+        else:
+            fail = True
+            break
+
+    if fail:
+        raise AttributeError('No GCC available. Install gcc from Homebrew using brew install gcc.')
+
+
 def define_extensions(**kwargs):
+    system = platform.system().lower()
+    if "windows" in system:  # Windows
+        raise AttributeError("Installation on Windows is not supported yet.")
+    elif "darwin" in system:  # osx
+        set_binary_mac()
+
     libraries = []
     extra_link_args = []
     extra_compile_args = ['-std=c++14', '-O3', '-fPIC', '-march=native']
@@ -52,6 +81,7 @@ def define_extensions(**kwargs):
                            include_dirs=include_dirs,
                            language="c++",)
     return cythonize(client_ext)
+
 
 setup(
     name=NAME,

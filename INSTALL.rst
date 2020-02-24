@@ -13,21 +13,11 @@ fetch the package from `Python Package
 Index <https://pypi.org/>`__\ (PyPI). This will also install cython
 dependency.
 
-For MacOS users, please set $CXX and $CC to your gcc/g++ path. e.g:
-
-::
-
-    $> export CXX=/usr/local/bin/g++-7
-    $> export CC=/usr/local/bin/g++-7
-
-If no gcc available, we recommend use
-`brew <https://brew.sh/index_ko.html>`__ to install gcc.
+For MacOS users, please install gcc >= 7.0 with `brew <https://brew.sh/index.html>`__ to install gcc.
 
 ::
 
     $> brew install gcc
-    $> export CXX=/usr/local/bin/g++-7  # check g++ location on your system
-    $> export CC=/usr/local/bin/g++-7
     $> sudo pip install n2
 
 You can also build from source by ``python setup.py install``. You may
