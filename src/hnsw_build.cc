@@ -273,10 +273,10 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
         max_level_lock.lock();
 
     int max_level_copy = max_level_;
-    HnswNode* enterpoint = enterpoint_;
+    vector<HnswNode*> enterpoints;
 
     if (cur_level < max_level_copy) {
-        HnswNode* cur_node = enterpoint;
+        HnswNode* cur_node = enterpoint_;
         float d = dist_func_(qnode, cur_node, data_dim_);
         float cur_dist = d;
         for (auto i = max_level_copy; i > cur_level; --i) {
@@ -298,13 +298,24 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
                 }
             }
         }
-        enterpoint = cur_node;
+        enterpoints.push_back(cur_node);
+    } else {
+        enterpoints.push_back(enterpoint_);
     }
     
     _mm_prefetch(&selecting_policy_, _MM_HINT_T0);
     for (auto i = min(max_level_copy, cur_level); i >= 0; --i) {
         priority_queue<FurtherFirst> result;
-        SearchAtLayer(qnode, enterpoint, i, visited_list, result);
+        SearchAtLayer(qnode, enterpoints, i, visited_list, result);
+
+        enterpoints.clear();
+        priority_queue<FurtherFirst> next_enterpoints = result;
+        while (next_enterpoints.size() > 0) {
+            auto* top_node = next_enterpoints.top().GetNode();
+            next_enterpoints.pop();
+            enterpoints.push_back(top_node);
+        }
+
         selecting_policy_->Select(m_, data_dim_, result);
         while (result.size() > 0) {
             auto* top_node = result.top().GetNode();
@@ -313,6 +324,7 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
             Link(qnode, top_node, i);
         }
     }
+
     if (cur_level > enterpoint_->GetLevel()) {
         enterpoint_ = qnode;
         max_level_ = cur_level;
@@ -320,17 +332,18 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
 }
 
 template<typename DistFuncType>
-void HnswBuildImpl<DistFuncType>::SearchAtLayer(HnswNode* qnode, HnswNode* enterpoint, int level, 
+void HnswBuildImpl<DistFuncType>::SearchAtLayer(HnswNode* qnode, const vector<HnswNode*>& enterpoints, int level, 
                                                 VisitedList* visited_list, priority_queue<FurtherFirst>& result) {
-    // TODO: check Node 12bytes => 8bytes
     priority_queue<CloserFirst> candidates;
-    float d = dist_func_(qnode, enterpoint, data_dim_);
-    result.emplace(enterpoint, d);
-    candidates.emplace(enterpoint, d);
-    
     visited_list->Reset();
-    visited_list->MarkAsVisited(enterpoint->GetId());
-   
+  
+    for (const auto& enterpoint : enterpoints) {
+        visited_list->MarkAsVisited(enterpoint->GetId());
+        float d = dist_func_(qnode, enterpoint, data_dim_);
+        result.emplace(enterpoint, d);
+        candidates.emplace(enterpoint, d);
+    }
+
     while (!candidates.empty()) {
         const CloserFirst& candidate = candidates.top();
         float lower_bound = result.top().GetDistance();
@@ -349,7 +362,7 @@ void HnswBuildImpl<DistFuncType>::SearchAtLayer(HnswNode* qnode, HnswNode* enter
             if (visited_list->NotVisited(id)) {
                 _mm_prefetch(neighbor->GetData(), _MM_HINT_T0);
                 visited_list->MarkAsVisited(id);
-                d = dist_func_(qnode, neighbor, data_dim_);
+                float d = dist_func_(qnode, neighbor, data_dim_);
                 if (result.size() < ef_construction_ || result.top().GetDistance() > d) {
                     result.emplace(neighbor, d);
                     candidates.emplace(neighbor, d);
