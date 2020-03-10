@@ -25,7 +25,7 @@ using std::vector;
 
 BaseNeighborSelectingPolicies::~BaseNeighborSelectingPolicies() {}
 
-void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim, int level, 
+void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim, bool select_nn, 
                                             priority_queue<FurtherFirst>& result) {
     while (result.size() > m) {
         result.pop();
@@ -33,51 +33,61 @@ void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim, int level,
 }
 
 template<typename DistFuncType>
-void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t dim, int level, 
+void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t dim, bool select_nn, 
                                                               priority_queue<FurtherFirst>& result) {
     if (result.size() <= m) return;
   
     size_t nn_num = 0;
-    if (level == 0) {
+    if (select_nn) {
         nn_num = (size_t)(m * 0.25);
         m -= nn_num;
     }
 
-    // vector<FurtherFirst> neighbors, picked;
     vector<FurtherFirst> picked;
-    MinHeap<float, HnswNode*> skipped, nn;
+    vector<HnswNode*> nn_picked;
+    MinHeap<float, HnswNode*> skipped, neighbors;
     while (!result.empty()) {
         const auto& top = result.top();
-        // neighbors.push_back(top);
-        nn.push(top.GetDistance(), top.GetNode());
+        neighbors.push(top.GetDistance(), top.GetNode());
         result.pop();
     }
 
     while (result.size() < nn_num) {
-        result.emplace(nn.top().data, nn.top().key);
-        nn.pop();
+        float cur_dist = neighbors.top().key;
+        HnswNode* cur_node = neighbors.top().data;
+        result.emplace(cur_node, cur_dist);
+        nn_picked.push_back(cur_node);
+        neighbors.pop();
     }
 
-    /*
-    for (size_t i = 0; i < neighbors.size(); ++i) {
-        _mm_prefetch(neighbors[i].GetNode()->GetData(), _MM_HINT_T0);
-    }
-    */
-
-    while (nn.size() > 0) {
-        float cur_dist = nn.top().key;
-        HnswNode* cur_node = nn.top().data;
-        nn.pop();
+    while (neighbors.size() > 0) {
+        float cur_dist = neighbors.top().key;
+        HnswNode* cur_node = neighbors.top().data;
+        _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
+        neighbors.pop();
 
         bool skip = false;
-        for (size_t j = 0; j < picked.size(); ++j) {
-            if (j < picked.size() - 1) {
-                _mm_prefetch(picked[j+1].GetNode()->GetData(), _MM_HINT_T0);
+        for (size_t j = 0; j < nn_picked.size(); ++j) {
+            if (j < nn_picked.size() - 1) {
+                _mm_prefetch(nn_picked[j+1]->GetData(), _MM_HINT_T0);
             }
             _mm_prefetch(cur_node->GetData(), _MM_HINT_T1);
-            if (dist_func_(cur_node, picked[j].GetNode(), dim) < cur_dist) {
+            if (dist_func_(cur_node, nn_picked[j], dim) < cur_dist) {
                 skip = true;
                 break;
+            }
+        }
+
+        if (!skip) {
+            for (size_t j = 0; j < picked.size(); ++j) {
+                if (j < picked.size() - 1) {
+                    _mm_prefetch(picked[j+1].GetNode()->GetData(), _MM_HINT_T0);
+                }
+                _mm_prefetch(cur_node->GetData(), _MM_HINT_T1);
+                if (dist_func_(cur_node, picked[j].GetNode(), dim) < cur_dist) {
+                    skip = true;
+                    break;
+                }
             }
         }
 
