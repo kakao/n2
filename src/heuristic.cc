@@ -67,6 +67,7 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         neighbors.pop();
 
         bool skip = false;
+        /*
         for (size_t j = 0; j < nn_picked.size(); ++j) {
             if (j < nn_picked.size() - 1) {
                 _mm_prefetch(nn_picked[j+1]->GetData(), _MM_HINT_T0);
@@ -77,6 +78,7 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
                 break;
             }
         }
+        */
 
         if (!skip) {
             for (size_t j = 0; j < picked.size(); ++j) {

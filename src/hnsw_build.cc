@@ -316,7 +316,7 @@ void HnswBuildImpl<DistFuncType>::InsertNode(HnswNode* qnode, VisitedList* visit
             enterpoints.push_back(top_node);
         }
 
-        selecting_policy_->Select(m_, data_dim_, cur_level == 0, result);
+        selecting_policy_->Select(m_, data_dim_, i == 0, result);
         while (result.size() > 0) {
             auto* top_node = result.top().GetNode();
             result.pop();
@@ -402,7 +402,7 @@ void HnswBuildImpl<DistFuncType>::Link(HnswNode* source, HnswNode* target, int l
         for (const auto& neighbor : neighbors) {
             tempres.emplace(neighbor, dist_func_(source, neighbor, data_dim_));
         }
-        selecting_policy_->Select(tempres.size() - 1, data_dim_, source->GetLevel() == 0, tempres);
+        selecting_policy_->Select(tempres.size() - 1, data_dim_, level == 0, tempres);
         neighbors.clear();
         while (tempres.size()) {
             neighbors.emplace_back(tempres.top().GetNode());
@@ -431,7 +431,7 @@ void HnswBuildImpl<DistFuncType>::MergeEdgesOfTwoGraphs(const vector<HnswNode*>&
         }
 
         // Post Heuristic
-        post_selecting_policy_->Select(max_m0_, data_dim_, nodes_[i]->GetLevel() == 0, temp_res);
+        post_selecting_policy_->Select(max_m0_, data_dim_, true, temp_res);
         vector<HnswNode*> merged_neighbors;
         while (!temp_res.empty()) {
             merged_neighbors.emplace_back(temp_res.top().GetNode());
