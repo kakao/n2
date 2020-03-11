@@ -56,18 +56,8 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         float cur_dist = neighbors.top().key;
         HnswNode* cur_node = neighbors.top().data;
         result.emplace(cur_node, cur_dist);
-        nn_picked.push_back(cur_node);
-        neighbors.pop();
-    }
-
-    while (neighbors.size() > 0) {
-        float cur_dist = neighbors.top().key;
-        HnswNode* cur_node = neighbors.top().data;
-        _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
-        neighbors.pop();
 
         bool skip = false;
-        /*
         for (size_t j = 0; j < nn_picked.size(); ++j) {
             if (j < nn_picked.size() - 1) {
                 _mm_prefetch(nn_picked[j+1]->GetData(), _MM_HINT_T0);
@@ -78,7 +68,30 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
                 break;
             }
         }
-        */
+        if (!skip) {
+            nn_picked.push_back(cur_node);
+        }
+
+        neighbors.pop();
+    }
+
+    while (neighbors.size() > 0) {
+        float cur_dist = neighbors.top().key;
+        HnswNode* cur_node = neighbors.top().data;
+        _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
+        neighbors.pop();
+
+        bool skip = false;
+        for (size_t j = 0; j < nn_picked.size(); ++j) {
+            if (j < nn_picked.size() - 1) {
+                _mm_prefetch(nn_picked[j+1]->GetData(), _MM_HINT_T0);
+            }
+            _mm_prefetch(cur_node->GetData(), _MM_HINT_T1);
+            if (dist_func_(cur_node, nn_picked[j], dim) < cur_dist) {
+                skip = true;
+                break;
+            }
+        }
 
         if (!skip) {
             for (size_t j = 0; j < picked.size(); ++j) {
