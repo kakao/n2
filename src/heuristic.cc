@@ -18,6 +18,8 @@
 
 #include <vector>
 
+#include "n2/min_heap.h"
+
 namespace n2 {
 
 using std::priority_queue;

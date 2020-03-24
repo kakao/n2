@@ -20,7 +20,6 @@
 #include <queue>
 
 #include "distance.h"
-#include "min_heap.h"
 #include "sort.h"
 
 namespace n2 {
