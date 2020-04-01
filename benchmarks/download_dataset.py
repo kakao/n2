@@ -1,11 +1,5 @@
 import os
-import sys
-import gzip
-import shutil
-import tarfile
 import argparse
-import subprocess
-from contextlib import closing
 
 try:
     from urllib import urlretrieve
@@ -21,10 +15,6 @@ DATASETS = [
     'glove-100-angular',
     'glove-200-angular',
     'mnist-784-euclidean',
-    'random-xs-20-euclidean',
-    'random-s-100-euclidean',
-    'random-xs-20-angular',
-    'random-s-100-angular',
     'sift-128-euclidean',
     'nytimes-256-angular',
     'youtube-40-angular',
@@ -52,13 +42,19 @@ def get_dataset(which, baseurl='http://ann-benchmarks.com/'):
         raise IOError("Cannot download %s" % url)
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', help='Which dataset',  choices=DATASETS)
+    parser.add_argument('--whole_dataset', help='Download whole dataset', action='store_true')
+    parser.add_argument('--dataset', help='Which dataset', choices=DATASETS)
     args = parser.parse_args()
 
-    if args.dataset in ['youtube1m-40-angular', 'youtube-40-angular']:
-        get_dataset(args.dataset, baseurl='https://arena.kakaocdn.net/n2/dataset/')
+    if args.whole_dataset:
+        datasets = DATASETS
     else:
-        get_dataset(args.dataset)
+        datasets = [args.dataset]
+
+    for dataset in datasets:
+        if dataset in ['youtube1m-40-angular', 'youtube-40-angular']:
+            get_dataset(dataset, baseurl='https://arena.kakaocdn.net/n2/dataset/')
+        else:
+            get_dataset(dataset)

@@ -13,8 +13,10 @@ import h5py
 import numpy
 import nmslib
 
-from download_dataset import get_dataset_fn, DATASETS
 from n2 import HnswIndex
+from metrics import knn_recall, metrics
+from download_dataset import get_dataset_fn, DATASETS
+
 
 try:
     xrange
@@ -24,10 +26,9 @@ except NameError:
 
 CACHE_DIR = './cache'
 RESULT_DIR = './result'
-GT_SIZE = 100
 
 
-logging.basicConfig(format='%(message)s')
+logging.basicConfig(stream=sys.stdout, format='%(message)s')
 n2_logger = logging.getLogger("n2_benchmark")
 n2_logger.setLevel(logging.INFO)
 
@@ -65,8 +66,8 @@ class N2(BaseANN):
         self._ef_construction = ef_construction
         self._n_threads = n_threads
         self._ef_search = ef_search
-        self._index_name = os.path.join(CACHE_DIR, "index_n2_%s_M%d_efCon%d_n_thread%s_datasz%d"
-                                        % (args.dataset, m, ef_construction, n_threads, args.data_size))
+        self._index_name = os.path.join(CACHE_DIR, "index_n2_%s_M%d_efCon%d_n_thread%s"
+                                        % (args.dataset, m, ef_construction, n_threads))
         self._metric = metric
 
     def fit(self, X):
@@ -80,7 +81,7 @@ class N2(BaseANN):
             self._n2.load(self._index_name, use_mmap=False)
             return
 
-        n2_logger.debug("Create Index")
+        n2_logger.info("Create Index")
         for i, x in enumerate(X):
             self._n2.add_data(x)
         self._n2.build(m=self._m, max_m0=self._m0, ef_construction=self._ef_construction, n_threads=self._n_threads)
@@ -102,18 +103,18 @@ class NmslibHNSW(BaseANN):
             'efConstruction=%d' % ef_construction,
             'post=0', 'delaunay_type=2']
         self._query_param = ['efSearch=%d' % ef_search]
-        self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s_datasz%d"
-                                        % (args.dataset, m, ef_construction, n_threads, args.data_size))
+        self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s"
+                                        % (args.dataset, m, ef_construction, n_threads))
         self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2'}[metric]
 
     def fit(self, X):
         self._index = nmslib.init(self._metric, [], "hnsw", nmslib.DataType.DENSE_VECTOR, nmslib.DistType.FLOAT)
 
         if os.path.exists(self._index_name):
-            logging.debug("Loading index from file")
+            logging.info("Loading index from file")
             nmslib.loadIndex(self._index, self._index_name)
         else:
-            logging.debug("Create Index")
+            logging.info("Create Index")
             for i, x in enumerate(X):
                 self._index.addDataPoint(i, x)
 
@@ -133,10 +134,12 @@ class NmslibHNSW(BaseANN):
 
 
 def run_algo(args, library, algo, results_fn):
+    n2_logger.info('algo: {0}'.format(algo))
     pool = multiprocessing.Pool()
-    X_train, X_test, corrects = load_dataset(args.dataset)
     pool.close()
     pool.join()
+
+    X_train = load_train_data(args.dataset)
 
     memory_usage_before = algo.get_memory_usage()
     t0 = time.time()
@@ -145,53 +148,69 @@ def run_algo(args, library, algo, results_fn):
     index_size_kb = algo.get_memory_usage() - memory_usage_before
     n2_logger.info('Built index in {0}, Index size: {1}KB'.format(build_time, index_size_kb))
 
+    X_test, nn_dists = load_test_data(args.dataset)
+
     best_search_time = float('inf')
-    best_precision = 0.0  # should be deterministic but paranoid
+    best_recall = 0.0  # should be deterministic but paranoid
     try_count = args.try_count
     for i in xrange(try_count):  # Do multiple times to warm up page cache, use fastest
-        results = []
+        recall = 0.0
         search_time = 0.0
         for j, v in enumerate(X_test):
             sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r"
                              % (i+1, try_count, str(algo), j+1, len(X_test)))
             t0 = time.time()
-            found = algo.query(v, GT_SIZE)
+            found = algo.query(v, args.count)
             search_time += (time.time() - t0)
 
-            results.append(len(set(found).intersection(corrects[j])))
+            found = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
+            recall += knn_recall(nn_dists[j], found, args.count)
 
-            if len(found) < len(corrects[j]):
-                n2_logger.debug('found: {0}, correct: {1}'.format(len(found), len(corrects[j])))
+            if len(found) < args.count:
+                n2_logger.debug('found: {0}, correct: {1}'.format(len(found), args.count))
 
         sys.stderr.write("\n")
 
-        k = float(sum(results))
         search_time /= len(X_test)
-        precision = k / (len(X_test) * GT_SIZE)
+        recall /= len(X_test)
         best_search_time = min(best_search_time, search_time)
-        best_precision = max(best_precision, precision)
-        n2_logger.debug('[%d/%d][algo: %s] search time: %s, precision: %.5f'
-                        % (i+1, try_count, str(algo), str(search_time), precision))
+        best_recall = max(best_recall, recall)
+        n2_logger.info('[%d/%d][algo: %s] search time: %s, recall: %.5f'
+                       % (i+1, try_count, str(algo), str(search_time), recall))
 
-    output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_precision, index_size_kb]))
+    output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_recall, index_size_kb]))
     with open(results_fn, 'a') as f:
         f.write(output + '\n')
 
-    n2_logger.info('Summary: {0}'.format(output))
+    n2_logger.info('Summary: {0}\n'.format(output))
 
 
-def load_dataset(which):
+def load_train_data(which):
+    return load_data(which, lambda x: numpy.array(x['train']))
+
+
+def load_test_data(which):
+    def load(x):
+        test = numpy.array(x['test'])
+        try:
+            distances = numpy.array(x['distances'])
+        except KeyError:
+            if which in ['youtube1m-40-angular', 'youtube-40-angular']:
+                n2_logger.error('Your "%s" dataset may be outdated. Remove it and download again.' % which)
+            sys.exit('"distances" does not exists in the hdf5 database.')
+        return test, distances
+    return load_data(which, load)
+
+
+def load_data(which, method):
     hdf5_fn = get_dataset_fn(which)
-    f = h5py.File(hdf5_fn, 'r')
-    X_train = numpy.array(f['train'])
-    X_test = numpy.array(f['test'])
-    corrects = f['neighbors']
-    return X_train, X_test, corrects
+    with h5py.File(hdf5_fn, 'r') as f:
+        ret = method(f)
+    return ret
 
 
 def get_fn(file_type, args, base=CACHE_DIR):
-    fn = '%s_%s_%d_%d_%d' % (os.path.join(base, file_type), args.dataset,
-                             args.data_size, args.test_size, args.random_state)
+    fn = '%s_%s_%d_%d' % (os.path.join(base, file_type), args.dataset, args.count, args.random_state)
     return fn
 
 
@@ -227,14 +246,13 @@ def run(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--distance', help='Distance metric', default='angular', choices=['angular', 'euclidean'])
+    parser.add_argument('--count', '-k', help="the number of nn to search for", type=int, default=100)
     parser.add_argument('--try_count', help='Number of test attempts', type=int, default=3)
-    parser.add_argument('--dataset', help='Which dataset',  default='glove', choices=DATASETS)
-    parser.add_argument('--data_size', help='Maximum # of data points (0: unlimited)', type=int, default=0)
-    parser.add_argument('--test_size', help='Maximum # of data queries', type=int, default=10000)
+    parser.add_argument('--dataset', help='Which dataset',  default='glove-100-angular', choices=DATASETS)
     parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
     parser.add_argument('--random_state', help='Random seed', type=int, default=3)
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
-    parser.add_argument('--verbose', '--v', help='print verbose log', type=bool, default=False)
+    parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
     if not os.path.exists(get_dataset_fn(args.dataset)):
@@ -249,6 +267,6 @@ if __name__ == '__main__':
     if args.verbose:
         n2_logger.setLevel(logging.DEBUG)
 
-    numpy.random.seed(args.random_state)
+    random.seed(args.random_state)
 
     run(args)
