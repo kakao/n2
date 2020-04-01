@@ -6,7 +6,7 @@ import numpy
 
 from sklearn.model_selection import train_test_split
 
-from distance import metrics as pd
+from metrics import metrics as pd
 
 
 class BruteForceBLAS():
