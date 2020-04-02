@@ -10,8 +10,8 @@ import resource
 import multiprocessing
 
 import h5py
-import numpy
 import nmslib
+import numpy as np
 
 from n2 import HnswIndex
 from metrics import knn_recall, metrics
@@ -28,7 +28,7 @@ CACHE_DIR = './cache'
 RESULT_DIR = './result'
 
 
-logging.basicConfig(stream=sys.stdout, format='%(message)s')
+logging.basicConfig(format='%(message)s')
 n2_logger = logging.getLogger("n2_benchmark")
 n2_logger.setLevel(logging.INFO)
 
@@ -139,7 +139,11 @@ def run_algo(args, library, algo, results_fn):
     pool.close()
     pool.join()
 
-    X_train = load_train_data(args.dataset)
+    db = load_db(args.dataset)
+    if args.read_train_data_directly:
+        X_train = load_train_data_directly(db)
+    else:
+        X_train = load_train_data(db)
 
     memory_usage_before = algo.get_memory_usage()
     t0 = time.time()
@@ -148,7 +152,7 @@ def run_algo(args, library, algo, results_fn):
     index_size_kb = algo.get_memory_usage() - memory_usage_before
     n2_logger.info('Built index in {0}, Index size: {1}KB'.format(build_time, index_size_kb))
 
-    X_test, nn_dists = load_test_data(args.dataset)
+    X_test, nn_dists = load_test_data(db, args.dataset)
 
     best_search_time = float('inf')
     best_recall = 0.0  # should be deterministic but paranoid
@@ -178,6 +182,7 @@ def run_algo(args, library, algo, results_fn):
         n2_logger.info('[%d/%d][algo: %s] search time: %s, recall: %.5f'
                        % (i+1, try_count, str(algo), str(search_time), recall))
 
+    db.close()
     output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_recall, index_size_kb]))
     with open(results_fn, 'a') as f:
         f.write(output + '\n')
@@ -185,28 +190,29 @@ def run_algo(args, library, algo, results_fn):
     n2_logger.info('Summary: {0}\n'.format(output))
 
 
-def load_train_data(which):
-    return load_data(which, lambda x: numpy.array(x['train']))
-
-
-def load_test_data(which):
-    def load(x):
-        test = numpy.array(x['test'])
-        try:
-            distances = numpy.array(x['distances'])
-        except KeyError:
-            if which in ['youtube1m-40-angular', 'youtube-40-angular']:
-                n2_logger.error('Your "%s" dataset may be outdated. Remove it and download again.' % which)
-            sys.exit('"distances" does not exists in the hdf5 database.')
-        return test, distances
-    return load_data(which, load)
-
-
-def load_data(which, method):
+def load_db(which):
     hdf5_fn = get_dataset_fn(which)
-    with h5py.File(hdf5_fn, 'r') as f:
-        ret = method(f)
-    return ret
+    db = h5py.File(hdf5_fn, 'r')
+    return db
+
+
+def load_train_data_directly(db):
+    return db['train']
+
+
+def load_train_data(db):
+    return np.array(db['train'])
+
+
+def load_test_data(db, which):
+    test = np.array(db['test'])
+    try:
+        distances = np.array(db['distances'])
+    except KeyError:
+        if which in ['youtube1m-40-angular', 'youtube-40-angular']:
+            n2_logger.error('Your "%s" dataset may be outdated. Remove it and download again.' % which)
+        sys.exit('"distances" does not exists in the hdf5 database.')
+    return test, distances
 
 
 def get_fn(file_type, args, base=CACHE_DIR):
@@ -252,6 +258,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
     parser.add_argument('--random_state', help='Random seed', type=int, default=3)
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
+    parser.add_argument('--read_train_data_directly', help='Read train data directly for use less memory', action='store_true')
     parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
