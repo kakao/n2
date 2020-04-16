@@ -167,8 +167,8 @@ def run_algo(args, library, algo, results_fn):
             found = algo.query(v, args.count)
             search_time += (time.time() - t0)
 
-            found = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
-            recall += knn_recall(nn_dists[j], found, args.count)
+            found_dists = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
+            recall += knn_recall(nn_dists[j], found_dists, args.count)
 
             if len(found) < args.count:
                 n2_logger.debug('found: {0}, correct: {1}'.format(len(found), args.count))
