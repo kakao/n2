@@ -43,19 +43,20 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         m -= nn_num;
     }
 
-    vector<FurtherFirst> picked;
+    vector<FurtherFirst> neighbors, picked;
     vector<HnswNode*> nn_picked;
-    MinHeap<float, HnswNode*> skipped, neighbors;
+    MinHeap<float, HnswNode*> skipped;
     while (!result.empty()) {
-        const auto& top = result.top();
-        neighbors.push(top.GetDistance(), top.GetNode());
+        neighbors.push_back(result.top());
         result.pop();
     }
 
+    int cur_index = static_cast<int>(neighbors.size())-1;
+
     while (result.size() < nn_num) {
-        float cur_dist = neighbors.top().key;
-        HnswNode* cur_node = neighbors.top().data;
-        result.emplace(cur_node, cur_dist);
+        float cur_dist = neighbors[cur_index].GetDistance();
+        HnswNode* cur_node = neighbors[cur_index].GetNode();
+        result.emplace(neighbors[cur_index]);
 
         bool skip = false;
         for (size_t j = 0; j < nn_picked.size(); ++j) {
@@ -70,16 +71,17 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         }
         if (!skip) {
             nn_picked.push_back(cur_node);
+        } else if (save_remains_) {
+            skipped.push(cur_dist, cur_node);
         }
 
-        neighbors.pop();
+        --cur_index;
     }
 
-    while (neighbors.size() > 0) {
-        float cur_dist = neighbors.top().key;
-        HnswNode* cur_node = neighbors.top().data;
+    for (; cur_index >= 0; --cur_index) {
+        float cur_dist = neighbors[cur_index].GetDistance();
+        HnswNode* cur_node = neighbors[cur_index].GetNode();
         _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
-        neighbors.pop();
 
         bool skip = false;
         for (size_t j = 0; j < nn_picked.size(); ++j) {
@@ -107,7 +109,7 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         }
 
         if (!skip) {
-            picked.emplace_back(cur_node, cur_dist);
+            picked.push_back(neighbors[cur_index]);
         } else if (save_remains_) {
             skipped.push(cur_dist, cur_node);
         }
