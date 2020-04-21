@@ -8,7 +8,7 @@ def parse(args):
     data = defaultdict(dict)
     for line in open(args.fname):
         library, algo, _, search_elapsed, accuracy, _ = line.strip().split('\t')
-        data[library][algo] = float(accuracy), float(search_elapsed)
+        data[library][algo] = float(search_elapsed), float(accuracy)
     return data[args.base_lib], data[args.target_lib]
 
 
@@ -20,7 +20,7 @@ def compare(base, target):
             return [convert(c) for c in re.split('([0-9]+)', key)]
         return sorted(l, key=alphanum_key)
 
-    print('algo\taccuracy(positive values are better)\tsearch_elapsed_seconds(negative values are better)')
+    print('algo\tsearch_elapsed_seconds(negative values are better)\taccuracy(positive values are better)')
     for key in natural_sort(target.keys()):
         if key in base:
             print('%s\t%s' % (key, '\t'.join(str(round((z[0] - z[1]) * 100 / z[1], 2)) + ' %'
