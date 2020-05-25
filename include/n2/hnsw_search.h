@@ -31,6 +31,8 @@ public:
     virtual ~HnswSearch() {}
 
     virtual void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
+                                std::vector<int>& result) = 0;
+    virtual void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                                 std::vector<std::pair<int, float>>& result) = 0;
     virtual void SearchById(int id, size_t k, int ef_search, bool ensure_k, 
                             std::vector<std::pair<int, float>>& result) = 0;
@@ -42,12 +44,24 @@ public:
     HnswSearchImpl(std::shared_ptr<const HnswModel> model, size_t data_dim, DistanceKind metric);
 
     void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
+                        std::vector<int>& result) override;
+    void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                         std::vector<std::pair<int, float>>& result) override;
     void SearchById(int id, size_t k, int ef_search, bool ensure_k,
                     std::vector<std::pair<int, float>>& result) override;
 
-
 protected:
+    template<typename ResultType>
+    void SearchByVector_(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
+                         ResultType& result);
+
+    void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                         bool ensure_k, std::vector<int>& result);
+    void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                         bool ensure_k, std::vector<std::pair<int, float>>& result);
+
+    void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                     std::vector<int>& result);
     void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
                      bool ensure_k, std::vector<std::pair<int, float>>& result);
 
