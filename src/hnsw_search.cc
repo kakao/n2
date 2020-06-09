@@ -22,6 +22,7 @@
 
 namespace n2 {
 
+using std::numeric_limits;
 using std::make_unique;
 using std::pair;
 using std::runtime_error;
@@ -176,24 +177,32 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
                                                size_t ef_search, vector<int>& result) {
     IdDistancePairMinHeap candidates;
     IdDistancePairMinHeap visited_nodes;
+    float farthest_visited_dist = numeric_limits<float>::min();
+    DistanceMaxHeap found_distances;
 
     candidates.emplace(cur_node_id, cur_dist);
+    found_distances.emplace(cur_dist);
 
     visited_list_->Reset();
     unsigned int visited_mark = visited_list_->GetVisitMark();
     unsigned int* visited = visited_list_->GetVisited();
-
     visited[cur_node_id] = visited_mark;
 
-    float farthest_distance = cur_dist;
-    size_t total_size = 1;
-    while (!candidates.empty() && visited_nodes.size() < ef_search) {
+    while (!candidates.empty()) {
         const IdDistancePair& c = candidates.top();
+        if (c.second > found_distances.top()) {
+            break;
+        }
+
         cur_node_id = c.first;
-        visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));
+        if (visited_nodes.size() < k || farthest_visited_dist > c.second) {
+            if (farthest_visited_dist < c.second) {
+                farthest_visited_dist = c.second;
+            }
+            visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));
+        }
         candidates.pop();
 
-        float minimum_distance = farthest_distance;
         const int* friends_with_size = (const int*)(model_level0_ 
                                         + cur_node_id * memory_per_node_level0_ + sizeof(int));
         _mm_prefetch(friends_with_size, _MM_HINT_T0);
@@ -211,12 +220,12 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
                 _mm_prefetch(vec, _MM_HINT_NTA);
                 visited[node_id] = visited_mark;
                 float d = dist_func_(qraw, vec, data_dim_);
-                if (d < minimum_distance || total_size < ef_search) {
+                if (d < found_distances.top() || found_distances.size() < ef_search) {
                     candidates.emplace(node_id, d);
-                    if (d > farthest_distance) {
-                        farthest_distance = d;
+					found_distances.emplace(d);
+                    if (found_distances.size() > ef_search) {
+                        found_distances.pop();
                     }
-                    ++total_size;
                 }
             }
         }
