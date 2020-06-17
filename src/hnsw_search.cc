@@ -177,7 +177,6 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
                                                size_t ef_search, vector<int>& result) {
     IdDistancePairMinHeap candidates;
     IdDistancePairMinHeap visited_nodes;
-    float farthest_visited_dist = numeric_limits<float>::min();
     DistanceMaxHeap found_distances;
 
     candidates.emplace(cur_node_id, cur_dist);
@@ -195,12 +194,7 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
         }
 
         cur_node_id = c.first;
-        if (visited_nodes.size() < k || farthest_visited_dist > c.second) {
-            if (farthest_visited_dist < c.second) {
-                farthest_visited_dist = c.second;
-            }
-            visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));
-        }
+        visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));
         candidates.pop();
 
         const int* friends_with_size = (const int*)(model_level0_ 
