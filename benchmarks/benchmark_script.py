@@ -223,8 +223,10 @@ def get_fn(file_type, args, base=CACHE_DIR):
 def run(args):
     results_fn = get_fn('result', args, base=RESULT_DIR) + '.txt'
 
-    index_params = [(12, 100)]
-    query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000]
+    # index_params = [(12, 100)]
+    # query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000, 10000]
+    index_params = [(32, 800)]
+    query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500]
 
     algos = {
         'n2': [N2(M, ef_con, args.n_threads, ef_search, args.distance)
