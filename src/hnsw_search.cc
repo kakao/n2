@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "n2/hnsw_search.h"
+#include "n2/hnsw_search_impl.h"
 
 #include <xmmintrin.h>
 
@@ -271,7 +271,7 @@ void HnswSearchImpl<DistFuncType>::SearchByIdV2_(int cur_node_id, float cur_dist
 }
 
 template<typename DistFuncType>
-void HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<int>& result, 
+bool HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<int>& result, 
                                                         IdDistancePairMinHeap& visited_nodes) {
     // this code should never be called.
     result.clear();
@@ -279,7 +279,7 @@ void HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<
 }
 
 template<typename DistFuncType>
-void HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<pair<int, float>>& result, 
+bool HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<pair<int, float>>& result, 
                                                         IdDistancePairMinHeap& visited_nodes) {
     unsigned int visited_mark = visited_list_->GetVisitMark();
     unsigned int* visited = visited_list_->GetVisited();
