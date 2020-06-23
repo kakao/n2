@@ -24,6 +24,8 @@
 
 namespace n2 {
 
+class IdDistancePairMinHeap;
+
 class HnswSearch {
 public:
     static std::unique_ptr<HnswSearch> GenerateSearcher(std::shared_ptr<const HnswModel> model, size_t data_dim,
@@ -55,15 +57,90 @@ protected:
     void SearchByVector_(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                          ResultType& result);
 
-    void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
-                         bool ensure_k, std::vector<int>& result);
-    void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
-                         bool ensure_k, std::vector<std::pair<int, float>>& result);
+    inline void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                                bool ensure_k, std::vector<int>& result) {
+        if (ensure_k) {
+            // TODO make tmp result and call <int, float> version
+        } else {
+            // call search by id directly
+            SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, false, result);
+        }
+    }
+    inline void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                                bool ensure_k, std::vector<std::pair<int, float>>& result) {
+        if (ensure_k) {
+            while (result.size() < k && !ensure_k_path_.empty()) {
+                cur_node_id = ensure_k_path_.back().first;
+                cur_dist = ensure_k_path_.back().second;
+                ensure_k_path_.pop_back();
+                SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+            }
+        } else {
+            SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+        }
+    }
 
-    void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
-                     std::vector<int>& result);
-    void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
-                     bool ensure_k, std::vector<std::pair<int, float>>& result);
+    template<typename ResultType>
+    inline void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                            bool ensure_k, ResultType& result) {
+        if (ef_search >= k)
+            SearchByIdV2_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+        else 
+            SearchByIdV1_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+    }
+
+    template<typename ResultType>
+    void SearchByIdV1_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                       bool ensure_k, ResultType& result);
+
+    template<typename ResultType>
+    void SearchByIdV2_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                       bool ensure_k, ResultType& result);
+
+    bool PrepareEnsureKSearch(int cur_node_id, std::vector<int>& result, IdDistancePairMinHeap& visited_nodes);
+    bool PrepareEnsureKSearch(int cur_node_id, std::vector<std::pair<int, float>>& result,
+                              IdDistancePairMinHeap& visited_nodes);
+
+    void MakeSearchResult(size_t k, IdDistancePairMinHeap& candidates, IdDistancePairMinHeap& visited_nodes,
+                          std::vector<int>& result);
+    void MakeSearchResult(size_t k, IdDistancePairMinHeap& candidates, IdDistancePairMinHeap& visited_nodes,
+                          std::vector<std::pair<int, float>>& result);
+
+    /*
+    inline void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                            std::vector<int>& result) {
+        if (ef_search >= k)
+            SearchByIdV2_(cur_node_id, cur_dist, qraw, k, ef_search, result);
+        else 
+            SearchByIdV1_(cur_node_id, cur_dist, qraw, k, ef_search, result);
+    }
+    inline void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                            bool ensure_k, std::vector<std::pair<int, float>>& result) {
+        if (ef_search >= k)
+            SearchByIdV2_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+        else 
+            SearchByIdV1_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+    }
+    
+
+    void SearchByIdV1_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                       std::vector<int>& result);
+    void SearchByIdV1_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                       bool ensure_k, std::vector<std::pair<int, float>>& result);
+    void SearchByIdV1Impl_(const float* qraw, size_t ef_search, 
+                           IdDistancePairMinHeap& candidates, IdDistancePairMinHeap& visited_nodes);
+
+    void SearchByIdV2_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                       std::vector<int>& result);
+    void SearchByIdV2_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
+                       bool ensure_k, std::vector<std::pair<int, float>>& result);
+    void SearchByIdV2Impl_(const float* qraw, size_t ef_search,
+                           IdDistancePairMinHeap& candidates, IdDistancePairMinHeap& visited_nodes,
+                           DistanceMaxHeap& found_distances);
+    */
+
+
+
 
 protected:
     std::shared_ptr<const HnswModel> model_;
