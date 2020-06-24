@@ -69,7 +69,7 @@ protected:
     template<typename ResultType>
     inline void SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
                             bool ensure_k, ResultType& result) {
-        if (ef_sesarch < k) 
+        if (ef_search < k) 
             SearchByIdV1_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
         else
             SearchByIdV2_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
