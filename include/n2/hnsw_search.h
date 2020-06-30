@@ -33,6 +33,8 @@ public:
     virtual void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                                 std::vector<std::pair<int, float>>& result) = 0;
     virtual void SearchById(int id, size_t k, int ef_search, bool ensure_k, 
+                            std::vector<int>& result) = 0;
+    virtual void SearchById(int id, size_t k, int ef_search, bool ensure_k, 
                             std::vector<std::pair<int, float>>& result) = 0;
 };
 

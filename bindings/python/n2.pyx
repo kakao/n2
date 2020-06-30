@@ -33,6 +33,7 @@ cdef extern from "n2/hnsw.h" namespace "n2":
         void Fit() nogil except +
         void SearchByVector(const vector[float]& qvec, size_t, size_t, vector[int]& result) nogil except +
         void SearchByVector(const vector[float]& qvec, size_t, size_t, vector[pair[int, float]]& result) nogil except +
+        void SearchById(int, size_t, size_t, vector[int]& result) nogil except +
         void SearchById(int, size_t, size_t, vector[pair[int, float]]& result) nogil except +
         void PrintDegreeDist() nogil except +
         void PrintConfigs() nogil except +
@@ -92,12 +93,20 @@ cdef class _HnswIndex:
             self.obj.SearchByVector(v, k, ef_search, ret)
         return ret
 
+    def search_by_id_incl_dist(self, _item_id, _k, _ef_search):
+        cdef int item_id = _item_id
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef vector[pair[int, float]] ret
+        with nogil:
+            self.obj.SearchById(item_id, k, ef_search, ret)
+        return ret
 
     def search_by_id(self, _item_id, _k, _ef_search):
         cdef int item_id = _item_id
         cdef size_t k = _k
         cdef size_t ef_search = _ef_search
-        cdef vector[pair[int, float]] ret
+        cdef vector[int] ret
         with nogil:
             self.obj.SearchById(item_id, k, ef_search, ret)
         return ret
@@ -203,11 +212,10 @@ class HnswIndex(object):
         """
         if ef_search == -1:
             ef_search = k * 10
-        ret = self.model.search_by_id(item_id, k, ef_search)
         if include_distances:
-            return ret
+            return self.model.search_by_id_incl_dist(item_id, k, ef_search)
         else:
-            return [k for k, _ in ret]
+            return self.model.search_by_id(item_id, k, ef_search)
 
     def print_degree_dist(self):
         """

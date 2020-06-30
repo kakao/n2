@@ -36,6 +36,8 @@ public:
     void SearchByVector(const std::vector<float>& qvec, size_t k, int ef_search, bool ensure_k,
                         std::vector<std::pair<int, float>>& result) override;
     void SearchById(int id, size_t k, int ef_search, bool ensure_k,
+                    std::vector<int>& result) override;
+    void SearchById(int id, size_t k, int ef_search, bool ensure_k,
                     std::vector<std::pair<int, float>>& result) override;
 
 protected:
@@ -46,9 +48,12 @@ protected:
     inline void CallSearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, size_t ef_search,
                                 bool ensure_k, std::vector<int>& result) {
         if (ensure_k) {
-            // TODO make tmp result and call <int, float> version
+            std::vector<std::pair<int, float>> tmp_result;
+            CallSearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, tmp_result);
+            for (const auto& p : tmp_result) {
+                result.push_back(p.first);
+            }
         } else {
-            // call search by id directly
             SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, false, result);
         }
     }

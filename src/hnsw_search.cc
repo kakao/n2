@@ -133,15 +133,26 @@ void HnswSearchImpl<DistFuncType>::SearchByVector_(const vector<float>& qvec, si
     CallSearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
 }
 
-// TODO: need vector<int> version
+template<typename DistFuncType>
+void HnswSearchImpl<DistFuncType>::SearchById(int id, size_t k, int ef_search, bool ensure_k, 
+                                              vector<int>& result) {
+    if (ef_search < 0) {
+        ef_search = 50 * k;
+    }
+    // ensure_k is not yet support in SearchById function
+    SearchById_(id, 0.0, (const float*)(model_level0_node_base_offset_ + id * memory_per_node_level0_), 
+                k, ef_search, false, result);
+}
+
 template<typename DistFuncType>
 void HnswSearchImpl<DistFuncType>::SearchById(int id, size_t k, int ef_search, bool ensure_k, 
                                               vector<pair<int, float>>& result) {
     if (ef_search < 0) {
         ef_search = 50 * k;
     }
+    // ensure_k is not yet support in SearchById function
     SearchById_(id, 0.0, (const float*)(model_level0_node_base_offset_ + id * memory_per_node_level0_), 
-                k, ef_search, ensure_k, result);
+                k, ef_search, false, result);
 }
 
 template<typename DistFuncType>
