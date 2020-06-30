@@ -140,10 +140,7 @@ def run_algo(args, library, algo, results_fn):
     pool.join()
 
     db = load_db(args.dataset)
-    if args.read_train_data_directly:
-        X_train = load_train_data_directly(db)
-    else:
-        X_train = load_train_data(db)
+    X_train = load_train_data(db)
 
     memory_usage_before = algo.get_memory_usage()
     t0 = time.time()
@@ -194,10 +191,6 @@ def load_db(which):
     hdf5_fn = get_dataset_fn(which)
     db = h5py.File(hdf5_fn, 'r')
     return db
-
-
-def load_train_data_directly(db):
-    return db['train']
 
 
 def load_train_data(db):
@@ -258,7 +251,6 @@ if __name__ == '__main__':
     parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
     parser.add_argument('--random_state', help='Random seed', type=int, default=3)
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
-    parser.add_argument('--read_train_data_directly', help='Read train data directly for use less memory', action='store_true')
     parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
