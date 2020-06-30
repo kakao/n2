@@ -60,7 +60,7 @@ def define_extensions(**kwargs):
 
     libraries = []
     extra_link_args = []
-    extra_compile_args = ['-std=c++14', '-O3', '-fPIC', '-march=native']
+    extra_compile_args = ['-std=c++14', '-O3', '-fPIC', '-march=native', '-DNDEBUG', '-DBOOST_DISABLE_ASSERTS']
     extra_link_args.append('-fopenmp')
     extra_compile_args.append('-fopenmp')
 
