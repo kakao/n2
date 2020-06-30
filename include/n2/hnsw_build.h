@@ -56,7 +56,7 @@ protected:
    
     virtual void InitPolicies() = 0;
     virtual void InsertNode(HnswNode* qnode, VisitedList* visited_list) = 0;
-    virtual void SearchAtLayer(HnswNode* qnode, HnswNode* enterpoint, int level, 
+    virtual void SearchAtLayer(HnswNode* qnode, const std::vector<HnswNode*>& enterpoints, int level, 
                                VisitedList* visited_list, std::priority_queue<FurtherFirst>& result) = 0;
     virtual void Link(HnswNode* source, HnswNode* target, int level) = 0;
     virtual void MergeEdgesOfTwoGraphs(const std::vector<HnswNode*>& another_nodes) = 0;
@@ -95,7 +95,7 @@ public:
 protected:
     void InitPolicies() override;
     void InsertNode(HnswNode* qnode, VisitedList* visited_list) override;
-    void SearchAtLayer(HnswNode* qnode, HnswNode* enterpoint, int level, 
+    void SearchAtLayer(HnswNode* qnode, const std::vector<HnswNode*>& enterpoint, int level, 
                        VisitedList* visited_list, std::priority_queue<FurtherFirst>& result) override;
     void Link(HnswNode* source, HnswNode* target, int level) override;
     void MergeEdgesOfTwoGraphs(const std::vector<HnswNode*>& another_nodes) override;

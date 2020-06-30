@@ -27,7 +27,7 @@ using std::vector;
 
 BaseNeighborSelectingPolicies::~BaseNeighborSelectingPolicies() {}
 
-void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim, 
+void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim, bool select_nn, 
                                             priority_queue<FurtherFirst>& result) {
     while (result.size() > m) {
         result.pop();
@@ -35,39 +35,85 @@ void NaiveNeighborSelectingPolicies::Select(size_t m, size_t dim,
 }
 
 template<typename DistFuncType>
-void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t dim, 
+void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t dim, bool select_nn, 
                                                               priority_queue<FurtherFirst>& result) {
     if (result.size() <= m) return;
-   
+  
+    size_t nn_num = 0;
+    if (select_nn) {
+        nn_num = (size_t)(m * 0.25);
+        m -= nn_num;
+    }
+
     vector<FurtherFirst> neighbors, picked;
+    vector<HnswNode*> nn_picked;
     MinHeap<float, HnswNode*> skipped;
-    while(!result.empty()) {
+    while (!result.empty()) {
         neighbors.push_back(result.top());
         result.pop();
     }
 
-    for (size_t i = 0; i < neighbors.size(); ++i) {
-        _mm_prefetch(neighbors[i].GetNode()->GetData(), _MM_HINT_T0);
+    int cur_index = static_cast<int>(neighbors.size())-1;
+
+    while (result.size() < nn_num) {
+        float cur_dist = neighbors[cur_index].GetDistance();
+        HnswNode* cur_node = neighbors[cur_index].GetNode();
+        result.emplace(neighbors[cur_index]);
+
+        bool skip = false;
+        for (size_t j = 0; j < nn_picked.size(); ++j) {
+            if (j < nn_picked.size() - 1) {
+                _mm_prefetch(nn_picked[j+1]->GetData(), _MM_HINT_T0);
+            }
+            _mm_prefetch(cur_node->GetData(), _MM_HINT_T1);
+            if (dist_func_(cur_node, nn_picked[j], dim) < cur_dist) {
+                skip = true;
+                break;
+            }
+        }
+        if (!skip) {
+            nn_picked.push_back(cur_node);
+        } else if (save_remains_) {
+            skipped.push(cur_dist, cur_node);
+        }
+
+        --cur_index;
     }
 
-    for (int i = static_cast<int>(neighbors.size())-1; i >= 0; --i) {
+    for (; cur_index >= 0; --cur_index) {
+        float cur_dist = neighbors[cur_index].GetDistance();
+        HnswNode* cur_node = neighbors[cur_index].GetNode();
+        _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
+
         bool skip = false;
-        float cur_dist = neighbors[i].GetDistance();
-        for (size_t j = 0; j < picked.size(); ++j) {
-            if (j < picked.size() - 1) {
-                _mm_prefetch(picked[j+1].GetNode()->GetData(), _MM_HINT_T0);
+        for (size_t j = 0; j < nn_picked.size(); ++j) {
+            if (j < nn_picked.size() - 1) {
+                _mm_prefetch(nn_picked[j+1]->GetData(), _MM_HINT_T0);
             }
-            _mm_prefetch(neighbors[i].GetNode()->GetData(), _MM_HINT_T1);
-            if (dist_func_(neighbors[i].GetNode(), picked[j].GetNode(), dim) < cur_dist) {
+            _mm_prefetch(cur_node->GetData(), _MM_HINT_T1);
+            if (dist_func_(cur_node, nn_picked[j], dim) < cur_dist) {
                 skip = true;
                 break;
             }
         }
 
         if (!skip) {
-            picked.push_back(neighbors[i]);
+            for (size_t j = 0; j < picked.size(); ++j) {
+                if (j < picked.size() - 1) {
+                    _mm_prefetch(picked[j+1].GetNode()->GetData(), _MM_HINT_T0);
+                }
+                _mm_prefetch(cur_node->GetData(), _MM_HINT_T1);
+                if (dist_func_(cur_node, picked[j].GetNode(), dim) < cur_dist) {
+                    skip = true;
+                    break;
+                }
+            }
+        }
+
+        if (!skip) {
+            picked.push_back(neighbors[cur_index]);
         } else if (save_remains_) {
-            skipped.push(cur_dist, neighbors[i].GetNode());
+            skipped.push(cur_dist, cur_node);
         }
             
         if (picked.size() == m) 
