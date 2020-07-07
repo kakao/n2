@@ -1,5 +1,5 @@
 CXX ?= g++
-CXXFLAGS += -O3 -march=native -std=c++14 -pthread -fPIC -fopenmp
+CXXFLAGS += -O3 -march=native -std=c++14 -pthread -fPIC -fopenmp -DNDEBUG -DBOOST_DISABLE_ASSERTS
 CXXFLAGS += -I../third_party/spdlog/include/ -I../include/ -I../third_party/eigen \
 			-I../third_party/boost/assert/include/ -I../third_party/boost/bind/include/ \
 			-I../third_party/boost/concept_check/include/ -I../third_party/boost/config/include/ \

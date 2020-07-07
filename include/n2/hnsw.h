@@ -54,8 +54,15 @@ public:
     ////////////////////////////////////////////
     // Search 
     inline void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search,
+                               std::vector<int>& result) {
+        searcher_->SearchByVector(qvec, k, ef_search, ensure_k_, result);
+    }
+    inline void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search,
                                std::vector<std::pair<int, float>>& result) {
         searcher_->SearchByVector(qvec, k, ef_search, ensure_k_, result);
+    }
+    inline void SearchById(int id, size_t k, size_t ef_search, std::vector<int>& result) {
+        searcher_->SearchById(id, k, ef_search, ensure_k_, result);
     }
     inline void SearchById(int id, size_t k, size_t ef_search, std::vector<std::pair<int, float>>& result) {
         searcher_->SearchById(id, k, ef_search, ensure_k_, result);
