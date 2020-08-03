@@ -30,7 +30,8 @@ enum class NeighborSelectingPolicy {
 enum class DistanceKind {
     UNKNOWN = -1,
     ANGULAR = 0,
-    L2 = 1
+    L2 = 1,
+    DOT = 2
 };
 
 } // namespace n2
