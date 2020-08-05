@@ -366,9 +366,15 @@ void HnswSearchImpl<DistFuncType>::MakeSearchResult(size_t k, IdDistancePairMinH
         }
     }
 
+    if(metric_ == DistanceKind::DOT) {
+        for(auto &id_distance: result)
+            id_distance.second *= -1.;
+    }
+
 }
 
 template class HnswSearchImpl<AngularDistance>;
 template class HnswSearchImpl<L2Distance>;
+template class HnswSearchImpl<DotDistance>;
 
 } // namespace n2

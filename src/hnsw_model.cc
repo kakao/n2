@@ -186,7 +186,7 @@ void HnswModel::LoadConfigFromModel() {
     ptr = GetValueAndIncPtr<int>(ptr, enterpoint_id_);
     ptr = GetValueAndIncPtr<int>(ptr, num_nodes_);
     ptr = GetValueAndIncPtr<DistanceKind>(ptr, metric_);
-    if (metric_ != DistanceKind::ANGULAR and metric_ != DistanceKind::L2) {
+    if (metric_ != DistanceKind::ANGULAR and metric_ != DistanceKind::L2 and metric_ != DistanceKind::DOT) {
         throw runtime_error("[Error] Unknown distance metric. metric");
     }
     auto data_dim_bak = data_dim_;

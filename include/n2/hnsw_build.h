@@ -113,5 +113,6 @@ protected:
 
 using HnswBuildAngular = HnswBuildImpl<AngularDistance>;
 using HnswBuildL2 = HnswBuildImpl<L2Distance>;
+using HnswBuildDot = HnswBuildImpl<DotDistance>;
 
 } // namespace n2
