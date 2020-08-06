@@ -217,10 +217,11 @@ TEST_F(CppApiTest, UnloadModelTest) {
 TEST_F(CppApiTest, L2DistanceTest) {
     n2::L2Distance dist_func;
     float vec1[] = {0.0, 0.0, 0.0};
-    float vec2[] = {1,0, 0.0, 1.0};
-    float vec3[] = {0,0, 0.75, 1.0};
+    float vec2[] = {1.0, 0.0, 1.0};
+    float vec3[] = {0.0, 0.75, 1.0};
+
     float res1 = dist_func(vec1, vec2, 3);
-    EXPECT_FLOAT_EQ(1, res1);
+    EXPECT_FLOAT_EQ(2, res1);
     float res2 = dist_func(vec2, vec3, 3);
     EXPECT_FLOAT_EQ(1.5625, res2);
 }
@@ -231,6 +232,17 @@ TEST_F(CppApiTest, AngularDistanceTest) {
     float vec2[] = {0.5, 0.6, 0.7, 0.8};
     float res1 = dist_func(vec1, vec2, 4);
     EXPECT_FLOAT_EQ(0.3, res1);
+}
+
+TEST_F(CppApiTest, DotDistanceTest) {
+    n2::DotDistance dist_func;
+    float vec1[] = {1.0, 0.0, 0.0};
+    float vec2[] = {1.0, 1.0, 1.0};
+    float vec3[] = {0.0, 1.0, 2.0};
+    float res1 = dist_func(vec1, vec2, 3);
+    EXPECT_FLOAT_EQ(-1, res1);
+    float res2 = dist_func(vec2, vec3, 3);
+    EXPECT_FLOAT_EQ(-3, res2);
 }
 
 TEST_F(CppApiTest, MinHeapTest) {
