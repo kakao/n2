@@ -13,6 +13,8 @@
 
 #include "n2/hnsw.h"
 
+#include <mutex>
+
 namespace n2 {
 
 using std::move;
@@ -20,6 +22,7 @@ using std::pair;
 using std::runtime_error;
 using std::string;
 using std::to_string;
+using std::unique_lock;
 using std::vector;
 
 Hnsw::Hnsw() : Hnsw(0) {}
@@ -47,7 +50,7 @@ Hnsw& Hnsw::operator=(const Hnsw& other) {
         model_ = other.model_;
         data_dim_ = other.data_dim_;
         metric_ = other.metric_;
-        searcher_ = HnswSearch::GenerateSearcher(model_, data_dim_, metric_);
+        InitSearcherAndSearcherPool_();
         ensure_k_ = other.ensure_k_;
     }
     return *this;
@@ -57,6 +60,7 @@ Hnsw& Hnsw::operator=(Hnsw&& other) noexcept {
     if (this != &other) {
         model_ = move(other.model_);
         searcher_ = move(other.searcher_);
+        searcher_pool_ = move(other.searcher_pool_);
         data_dim_ = other.data_dim_;
         metric_ = other.metric_;
         ensure_k_ = other.ensure_k_;
@@ -106,7 +110,7 @@ void Hnsw::Build(int m, int max_m0, int ef_construction, int n_threads, float mu
         builder_ = HnswBuild::GenerateBuilder(data_dim_, metric_);
     }
     model_ = builder_->Build(m, max_m0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging);
-    searcher_ = HnswSearch::GenerateSearcher(model_, data_dim_, metric_);
+    InitSearcherAndSearcherPool_();
     builder_.reset();
     
     ensure_k_ = ensure_k;
@@ -117,7 +121,7 @@ void Hnsw::Fit() {
         throw runtime_error("[Error] No data to fit. Load data first.");
     }
     model_ = builder_->Build();
-    searcher_ = HnswSearch::GenerateSearcher(model_, data_dim_,  metric_);
+    InitSearcherAndSearcherPool_();
     builder_.reset();
 }
 
@@ -134,7 +138,7 @@ bool Hnsw::LoadModel(const string& fname, const bool use_mmap) {
     }
     data_dim_ = model_data_dim;
     metric_ = model_->GetMetric();
-    searcher_ = HnswSearch::GenerateSearcher(model_, data_dim_,  metric_);
+    InitSearcherAndSearcherPool_();
     return true;
 }
 
@@ -145,6 +149,9 @@ void Hnsw::UnloadModel() {
     if (searcher_ != nullptr) {
         searcher_.reset();
     }
+    if (searcher_pool_ != nullptr) {
+        searcher_pool_.reset();
+    }
 }
 
 void Hnsw::PrintConfigs() const {
@@ -153,6 +160,13 @@ void Hnsw::PrintConfigs() const {
 
 void Hnsw::PrintDegreeDist() const {
     builder_->PrintDegreeDist();
+}
+
+void Hnsw::InitSearcherAndSearcherPool_() {
+    searcher_pool_ = HnswSearcherPool::GeneratePool(model_, data_dim_, metric_);
+    // the first searcher of the pool is used for both single-thread search and multi-thread(batch) search
+    searcher_ = searcher_pool_->GetInstanceFromPool();        
+    searcher_pool_->ReturnInstanceToPool(searcher_);
 }
 
 } // namespace n2

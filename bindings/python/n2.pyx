@@ -27,14 +27,22 @@ cdef extern from "n2/hnsw.h" namespace "n2":
         Hnsw(int, string) except +
         void SetConfigs(const vector[pair[string, string]]& configs) nogil except +
         bool_t SaveModel(const string&) nogil except +
-        bool_t LoadModel(const string&, const bool_t use_mmap) nogil except +
+        bool_t LoadModel(const string&, const bool_t) nogil except +
         void UnloadModel() nogil except +
-        void AddData(const vector[float]& data) nogil except +
+        void AddData(const vector[float]&) nogil except +
         void Fit() nogil except +
-        void SearchByVector(const vector[float]& qvec, size_t, size_t, vector[int]& result) nogil except +
-        void SearchByVector(const vector[float]& qvec, size_t, size_t, vector[pair[int, float]]& result) nogil except +
-        void SearchById(int, size_t, size_t, vector[int]& result) nogil except +
-        void SearchById(int, size_t, size_t, vector[pair[int, float]]& result) nogil except +
+        void SearchByVector(const vector[float]&, size_t, size_t, vector[int]&) nogil except +
+        void SearchByVector(const vector[float]&, size_t, size_t, vector[pair[int, float]]&) nogil except +
+        void SearchById(int, size_t, size_t, vector[int]&) nogil except +
+        void SearchById(int, size_t, size_t, vector[pair[int, float]]&) nogil except +
+        void BatchSearchByVectors(const vector[vector[float]]&, size_t, size_t, int,
+                                  vector[vector[int]]&) nogil except +
+        void BatchSearchByVectors(const vector[vector[float]]&, size_t, size_t, int,
+                                  vector[vector[pair[int, float]]]&) nogil except +
+        void BatchSearchByIds(const vector[int]&, size_t, size_t, int,
+                              vector[vector[int]]&) nogil except +
+        void BatchSearchByIds(const vector[int]&, size_t, size_t, int,
+                              vector[vector[pair[int, float]]]&) nogil except +
         void PrintDegreeDist() nogil except +
         void PrintConfigs() nogil except +
 
@@ -110,6 +118,46 @@ cdef class _HnswIndex:
         with nogil:
             self.obj.SearchById(item_id, k, ef_search, ret)
         return ret
+
+    def batch_search_by_vectors_incl_dist(self, _vs, _k, _ef_search, _num_threads):
+        cdef vector[vector[float]] vs = _vs
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef int num_threads = _num_threads
+        cdef vector[vector[pair[int, float]]] rets
+        with nogil:
+            self.obj.BatchSearchByVectors(vs, k, ef_search, num_threads, rets)
+        return rets
+
+    def batch_search_by_vectors(self, _vs, _k, _ef_search, _num_threads):
+        cdef vector[vector[float]] vs = _vs
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef int num_threads = _num_threads
+        cdef vector[vector[int]] rets
+        with nogil:
+            self.obj.BatchSearchByVectors(vs, k, ef_search, num_threads, rets)
+        return rets
+
+    def batch_search_by_ids_incl_dist(self, _item_ids, _k, _ef_search, _num_threads):
+        cdef vector[int] item_ids = _item_ids
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef int num_threads = _num_threads
+        cdef vector[vector[pair[int, float]]] rets
+        with nogil:
+            self.obj.BatchSearchByIds(item_ids, k, ef_search, num_threads, rets)
+        return rets
+
+    def batch_search_by_ids(self, _item_ids, _k, _ef_search, _num_threads):
+        cdef vector[int] item_ids = _item_ids
+        cdef size_t k = _k
+        cdef size_t ef_search = _ef_search
+        cdef int num_threads = _num_threads
+        cdef vector[vector[int]] rets
+        with nogil:
+            self.obj.BatchSearchByIds(item_ids, k, ef_search, num_threads, rets)
+        return rets
 
     def print_degree_dist(self):
         with nogil:
@@ -202,7 +250,7 @@ class HnswIndex(object):
         """
         Returns k nearest items by id.
 
-        :param v: A query id
+        :param item_id: A query id
         :param k: k value
         :param ef_search: ef_search metric
         :param include_distances: If you set this argument to True,
@@ -216,6 +264,46 @@ class HnswIndex(object):
             return self.model.search_by_id_incl_dist(item_id, k, ef_search)
         else:
             return self.model.search_by_id(item_id, k, ef_search)
+
+    def batch_search_by_vectors(self, vs, k, ef_search=-1, num_threads=4, include_distances=False):
+        """
+        Returns k nearest items by each vector (batch search with multi-thread).
+
+        :param vs: query vectors
+        :param k: k value
+        :param ef_search: ef_search metric
+        :param num_threads: number of threads for searching
+        :param include_distances: If you set this argument to True,
+        it will return a list of tuples((item_id, distance)).
+
+        :return ret: a list of list of k nearest items for each query in the same order.
+        """
+        if ef_search == -1:
+            ef_search = k * 10
+        if include_distances:
+            return self.model.batch_search_by_vectors_incl_dist(vs, k, ef_search, num_threads)
+        else:
+            return self.model.batch_search_by_vectors(vs, k, ef_search, num_threads)
+
+    def batch_search_by_ids(self, item_ids, k, ef_search=-1, num_threads=4, include_distances=False):
+        """
+        Returns k nearest items by each id (batch search with multi-thread).
+
+        :param item_ids: query ids
+        :param k: k value
+        :param ef_search: ef_search metric
+        :param num_threads: number of threads for searching
+        :param include_distances: If you set this argument to True,
+        it will return a list of tuples((item_id, distance)).
+
+        :return ret: a list of list of k nearest items for each query in the same order.
+        """
+        if ef_search == -1:
+            ef_search = k * 10
+        if include_distances:
+            return self.model.batch_search_by_ids_incl_dist(item_ids, k, ef_search, num_threads)
+        else:
+            return self.model.batch_search_by_ids(item_ids, k, ef_search, num_threads)
 
     def print_degree_dist(self):
         """
