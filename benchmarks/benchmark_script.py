@@ -107,7 +107,7 @@ class NmslibHNSW(BaseANN):
         self._query_param = ['efSearch=%d' % ef_search]
         self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s"
                                         % (args.dataset, m, ef_construction, n_threads))
-        self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2', 'dot': 'cosinesimil'}[metric]
+        self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2', 'dot': None}[metric]
 
     def fit(self, X):
         self._index = nmslib.init(self._metric, [], "hnsw", nmslib.DataType.DENSE_VECTOR, nmslib.DistType.FLOAT)
