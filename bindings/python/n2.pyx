@@ -267,7 +267,10 @@ class HnswIndex(object):
 
     def batch_search_by_vectors(self, vs, k, ef_search=-1, num_threads=4, include_distances=False):
         """
-        Returns k nearest items by each vector (batch search with multi-thread).
+        Returns k nearest items by each vector (batch search with multi-threads).
+
+        How threads are scheduled can be set through the OMP_SCHEDULE environment variable.
+        See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE
 
         :param vs: query vectors
         :param k: k value
@@ -287,7 +290,10 @@ class HnswIndex(object):
 
     def batch_search_by_ids(self, item_ids, k, ef_search=-1, num_threads=4, include_distances=False):
         """
-        Returns k nearest items by each id (batch search with multi-thread).
+        Returns k nearest items by each id (batch search with multi-threads).
+
+        How threads are scheduled can be set through the OMP_SCHEDULE environment variable.
+        See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE
 
         :param item_ids: query ids
         :param k: k value

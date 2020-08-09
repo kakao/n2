@@ -102,7 +102,7 @@ private:
         results.resize(qvecs.size());
         #pragma omp parallel num_threads(n_threads)
         {
-            #pragma omp for schedule(guided)
+            #pragma omp for schedule(runtime)
             for (size_t i = 0; i < qvecs.size(); ++i) {
                 auto s = searcher_pool_->GetInstanceFromPool();
                 s->SearchByVector(qvecs[i], k, ef_search, ensure_k_, results[i]);
@@ -116,7 +116,7 @@ private:
         results.resize(ids.size());
         #pragma omp parallel num_threads(n_threads)
         {
-            #pragma omp for schedule(guided)
+            #pragma omp for schedule(runtime)
             for (size_t i = 0; i < ids.size(); ++i) {
                 auto s = searcher_pool_->GetInstanceFromPool();
                 s->SearchById(ids[i], k, ef_search, ensure_k_, results[i]);
