@@ -13,8 +13,6 @@
 
 #include "n2/hnsw.h"
 
-#include <mutex>
-
 namespace n2 {
 
 using std::move;
@@ -22,7 +20,6 @@ using std::pair;
 using std::runtime_error;
 using std::string;
 using std::to_string;
-using std::unique_lock;
 using std::vector;
 
 Hnsw::Hnsw() : Hnsw(0) {}
