@@ -19,6 +19,8 @@ DATASETS = [
     'nytimes-256-angular',
     'youtube-40-angular',
     'youtube1m-40-angular',
+    'youtube-40-dot',
+    'youtube1m-40-dot',
 ]
 
 
@@ -54,7 +56,7 @@ if __name__ == '__main__':
         datasets = [args.dataset]
 
     for dataset in datasets:
-        if dataset in ['youtube1m-40-angular', 'youtube-40-angular']:
+        if dataset in ['youtube1m-40-angular', 'youtube-40-angular', 'youtube1m-40-dot', 'youtube-40-dot']:
             get_dataset(dataset, baseurl='https://arena.kakaocdn.net/n2/dataset/')
         else:
             get_dataset(dataset)
