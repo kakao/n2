@@ -51,6 +51,14 @@ class BaseANN(object):
         pass
 
     @abc.abstractmethod
+    def batch_query(self, X, n):
+        pass
+
+    @abc.abstractmethod
+    def get_batch_results(self):
+        pass
+
+    @abc.abstractmethod
     def __str__(self):
         pass
 
@@ -59,8 +67,9 @@ class BaseANN(object):
 
 
 class N2(BaseANN):
-    def __init__(self, m, ef_construction, n_threads, ef_search, metric):
-        self.name = "N2_M%d_efCon%d_n_thread%s_efSearch%d" % (m, ef_construction, n_threads, ef_search)
+    def __init__(self, m, ef_construction, n_threads, ef_search, metric, batch):
+        self.name = "N2_M%d_efCon%d_n_thread%s_efSearch%d%s" % (m, ef_construction, n_threads, ef_search,
+                                                                '_batch' if batch else '')
         self._m = m
         self._m0 = m * 2
         self._ef_construction = ef_construction
@@ -90,13 +99,20 @@ class N2(BaseANN):
     def query(self, v, n):
         return self._n2.search_by_vector(v, n, self._ef_search)
 
+    def batch_query(self, X, n):
+        self.b_res = self._n2.batch_search_by_vectors(X, n, self._ef_search, self._n_threads)
+
+    def get_batch_results(self):
+        return self.b_res
+
     def __str__(self):
         return self.name
 
 
 class NmslibHNSW(BaseANN):
-    def __init__(self, m, ef_construction, n_threads, ef_search, metric):
-        self.name = "nmslib_M%d_efCon%d_n_thread%s_efSearch%d" % (m, ef_construction, n_threads, ef_search)
+    def __init__(self, m, ef_construction, n_threads, ef_search, metric, batch):
+        self.name = "nmslib_M%d_efCon%d_n_thread%s_efSearch%d%s" % (m, ef_construction, n_threads, ef_search,
+                                                                    '_batch' if batch else '')
         self._index_param = [
             'M=%d' % m,
             'indexThreadQty=%d' % n_threads,
@@ -105,6 +121,7 @@ class NmslibHNSW(BaseANN):
         self._query_param = ['efSearch=%d' % ef_search]
         self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s"
                                         % (args.dataset, m, ef_construction, n_threads))
+        self._n_threads = n_threads
         self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2'}[metric]
 
     def fit(self, X):
@@ -112,22 +129,26 @@ class NmslibHNSW(BaseANN):
 
         if os.path.exists(self._index_name):
             logging.info("Loading index from file")
-            nmslib.loadIndex(self._index, self._index_name)
+            self._index.loadIndex(self._index_name)
         else:
             logging.info("Create Index")
             for i, x in enumerate(X):
                 self._index.addDataPoint(i, x)
 
-            nmslib.createIndex(self._index, self._index_param)
-            nmslib.saveIndex(self._index, self._index_name)
+            self._index.createIndex(self._index_param)
+            self._index.saveIndex(self._index_name)
 
-        nmslib.setQueryTimeParams(self._index, self._query_param)
+        self._index.setQueryTimeParams(self._query_param)
 
     def query(self, v, n):
-        return nmslib.knnQuery(self._index, n, v)
+        ids, distances = self._index.knnQuery(v, n)
+        return ids
 
-    def free_index(self):
-        nmslib.freeIndex(self._index)
+    def batch_query(self, X, n):
+        self.b_res = self._index.knnQueryBatch(X, n, self._n_threads)
+
+    def get_batch_results(self):
+        return [x for x, _ in self.b_res]
 
     def __str__(self):
         return self.name
@@ -155,22 +176,28 @@ def run_algo(args, library, algo, results_fn):
     best_recall = 0.0  # should be deterministic but paranoid
     try_count = args.try_count
     for i in xrange(try_count):  # Do multiple times to warm up page cache, use fastest
-        recall = 0.0
-        search_time = 0.0
-        for j, v in enumerate(X_test):
-            sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r"
-                             % (i+1, try_count, str(algo), j+1, len(X_test)))
+        if args.batch:
             t0 = time.time()
-            found = algo.query(v, args.count)
-            search_time += (time.time() - t0)
-
-            found_dists = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
-            recall += knn_recall(nn_dists[j], found_dists, args.count)
-
-            if len(found) < args.count:
-                n2_logger.debug('found: {0}, correct: {1}'.format(len(found), args.count))
-
-        sys.stderr.write("\n")
+            algo.batch_query(X_test, args.count)
+            search_time = (time.time() - t0)
+            b_found = algo.get_batch_results()
+            b_found_dists = [[float(metrics[args.distance]['distance'](v, X_train[k]))
+                              for k in found]
+                             for v, found in zip(X_test, b_found)]
+            recall = sum(knn_recall(dists, found_dists, args.count)
+                         for dists, found_dists in zip(nn_dists, b_found_dists))
+        else:
+            recall = 0.0
+            search_time = 0.0
+            for j, v in enumerate(X_test):
+                sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r"
+                                 % (i+1, try_count, str(algo), j+1, len(X_test)))
+                t0 = time.time()
+                found = algo.query(v, args.count)
+                search_time += (time.time() - t0)
+                found_dists = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
+                recall += knn_recall(nn_dists[j], found_dists, args.count)
+            sys.stderr.write("\n")
 
         search_time /= len(X_test)
         recall /= len(X_test)
@@ -220,10 +247,10 @@ def run(args):
     query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000]
 
     algos = {
-        'n2': [N2(M, ef_con, args.n_threads, ef_search, args.distance)
+        'n2': [N2(M, ef_con, args.n_threads, ef_search, args.distance, args.batch)
                for M, ef_con in index_params
                for ef_search in query_params],
-        'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, args.distance)
+        'nmslib': [NmslibHNSW(M, ef_con, args.n_threads, ef_search, args.distance, args.batch)
                    for M, ef_con in index_params
                    for ef_search in query_params],
     }
@@ -233,7 +260,7 @@ def run(args):
 
     algos_flat = [(k, v) for k, vals in algos.items() for v in vals]
     random.shuffle(algos_flat)
-    n2_logger.debug('order: %s' % str([a.name for l, a in algos_flat]))
+    n2_logger.debug('order: %s' % str([a.name for _, a in algos_flat]))
 
     for library, algo in algos_flat:
         # Spawn a subprocess to force the memory to be reclaimed at the end
@@ -251,6 +278,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_threads', help='Number of threads', type=int, default=10)
     parser.add_argument('--random_state', help='Random seed', type=int, default=3)
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
+    parser.add_argument('--batch', help='Batch search mode with multi-threading', action='store_true')
     parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
