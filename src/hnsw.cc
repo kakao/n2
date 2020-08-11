@@ -146,9 +146,7 @@ void Hnsw::UnloadModel() {
     if (searcher_ != nullptr) {
         searcher_.reset();
     }
-    if (searcher_pool_ != nullptr) {
-        searcher_pool_.reset();
-    }
+    searcher_pool_.clear();
 }
 
 void Hnsw::PrintConfigs() const {
@@ -160,10 +158,10 @@ void Hnsw::PrintDegreeDist() const {
 }
 
 void Hnsw::InitSearcherAndSearcherPool_() {
-    searcher_pool_ = HnswSearcherPool::GeneratePool(model_, data_dim_, metric_);
-    // the first searcher of the pool is used for both single-thread search and multi-thread(batch) search
-    searcher_ = searcher_pool_->GetInstanceFromPool();        
-    searcher_pool_->ReturnInstanceToPool(searcher_);
+    searcher_ = HnswSearch::GenerateSearcher(model_, data_dim_, metric_);
+    searcher_pool_.clear();
+    // the searcher_ is used for both single-thread search and multi-thread(batch) search
+    searcher_pool_.push_back(searcher_);
 }
 
 } // namespace n2

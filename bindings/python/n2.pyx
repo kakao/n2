@@ -35,13 +35,13 @@ cdef extern from "n2/hnsw.h" namespace "n2":
         void SearchByVector(const vector[float]&, size_t, size_t, vector[pair[int, float]]&) nogil except +
         void SearchById(int, size_t, size_t, vector[int]&) nogil except +
         void SearchById(int, size_t, size_t, vector[pair[int, float]]&) nogil except +
-        void BatchSearchByVectors(const vector[vector[float]]&, size_t, size_t, int,
+        void BatchSearchByVectors(const vector[vector[float]]&, size_t, size_t, size_t,
                                   vector[vector[int]]&) nogil except +
-        void BatchSearchByVectors(const vector[vector[float]]&, size_t, size_t, int,
+        void BatchSearchByVectors(const vector[vector[float]]&, size_t, size_t, size_t,
                                   vector[vector[pair[int, float]]]&) nogil except +
-        void BatchSearchByIds(const vector[int]&, size_t, size_t, int,
+        void BatchSearchByIds(const vector[int]&, size_t, size_t, size_t,
                               vector[vector[int]]&) nogil except +
-        void BatchSearchByIds(const vector[int]&, size_t, size_t, int,
+        void BatchSearchByIds(const vector[int]&, size_t, size_t, size_t,
                               vector[vector[pair[int, float]]]&) nogil except +
         void PrintDegreeDist() nogil except +
         void PrintConfigs() nogil except +
