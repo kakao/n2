@@ -21,5 +21,8 @@ metrics = {
     },
     'angular': {
         'distance': lambda a, b: pdist(a, b, "cosine")
+    },
+    'dot': {
+        'distance': lambda a, b: - sum([a[i] * b[i] for i in range(len(a))])
     }
 }

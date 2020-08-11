@@ -58,6 +58,8 @@ unique_ptr<HnswBuild> HnswBuild::GenerateBuilder(int dim, DistanceKind metric) {
         return make_unique<HnswBuildAngular>(dim, metric);
     } else if (metric == DistanceKind::L2) {
         return make_unique<HnswBuildL2>(dim, metric);
+    } else if (metric == DistanceKind::DOT) {
+        return make_unique<HnswBuildDot>(dim, metric);
     } else {
         throw runtime_error("[Error] Invalid configuration value for DistanceMethod");
     }
@@ -443,5 +445,6 @@ void HnswBuildImpl<DistFuncType>::MergeEdgesOfTwoGraphs(const vector<HnswNode*>&
 
 template class HnswBuildImpl<AngularDistance>;
 template class HnswBuildImpl<L2Distance>;
+template class HnswBuildImpl<DotDistance>;
 
 } // namespace n2

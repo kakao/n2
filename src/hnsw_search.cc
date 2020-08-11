@@ -36,6 +36,8 @@ unique_ptr<HnswSearch> HnswSearch::GenerateSearcher(shared_ptr<const HnswModel> 
         return make_unique<HnswSearchAngular>(model, data_dim, metric);
     } else if (metric == DistanceKind::L2) {
         return make_unique<HnswSearchL2>(model, data_dim, metric);
+    } else if (metric == DistanceKind::DOT) {
+        return make_unique<HnswSearchDot>(model, data_dim, metric);
     } else {
         throw runtime_error("[Error] Invalid configuration value for DistanceMethod");
     }
@@ -364,9 +366,15 @@ void HnswSearchImpl<DistFuncType>::MakeSearchResult(size_t k, IdDistancePairMinH
         }
     }
 
+    if (metric_ == DistanceKind::DOT) {
+        for (auto& id_distance : result)
+            id_distance.second *= -1.;
+    }
+
 }
 
 template class HnswSearchImpl<AngularDistance>;
 template class HnswSearchImpl<L2Distance>;
+template class HnswSearchImpl<DotDistance>;
 
 } // namespace n2

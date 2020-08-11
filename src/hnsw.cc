@@ -29,6 +29,8 @@ Hnsw::Hnsw(int dim, string metric) : data_dim_(dim) {
         metric_ = DistanceKind::L2;
     } else if (metric == "angular") {
         metric_ = DistanceKind::ANGULAR;
+    } else if (metric == "dot") {
+        metric_ = DistanceKind::DOT;
     } else {
         throw runtime_error("[Error] Invalid configuration value for DistanceMethod: " + metric);
     }
