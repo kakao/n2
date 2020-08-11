@@ -82,6 +82,8 @@ class N2(BaseANN):
     def fit(self, X):
         if self._metric == 'euclidean':
             self._n2 = HnswIndex(X.shape[1], 'L2')
+        elif self._metric == 'dot':
+            self._n2 = HnswIndex(X.shape[1], 'dot')
         else:
             self._n2 = HnswIndex(X.shape[1])
 
@@ -122,7 +124,7 @@ class NmslibHNSW(BaseANN):
         self._index_name = os.path.join(CACHE_DIR, "index_nmslib_%s_M%d_efCon%d_n_thread%s"
                                         % (args.dataset, m, ef_construction, n_threads))
         self._n_threads = n_threads
-        self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2'}[metric]
+        self._metric = {'angular': 'cosinesimil', 'euclidean': 'l2', 'dot': None}[metric]
 
     def fit(self, X):
         self._index = nmslib.init(self._metric, [], "hnsw", nmslib.DataType.DENSE_VECTOR, nmslib.DistType.FLOAT)
@@ -271,7 +273,7 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--distance', help='Distance metric', default='angular', choices=['angular', 'euclidean'])
+    parser.add_argument('--distance', help='Distance metric', default='angular', choices=['angular', 'euclidean', 'dot'])
     parser.add_argument('--count', '-k', help="the number of nn to search for", type=int, default=100)
     parser.add_argument('--try_count', help='Number of test attempts', type=int, default=3)
     parser.add_argument('--dataset', help='Which dataset',  default='glove-100-angular', choices=DATASETS)

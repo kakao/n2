@@ -134,5 +134,6 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
 
 template class HeuristicNeighborSelectingPolicies<AngularDistance>;
 template class HeuristicNeighborSelectingPolicies<L2Distance>;
+template class HeuristicNeighborSelectingPolicies<DotDistance>;
 
 } // namespace n2

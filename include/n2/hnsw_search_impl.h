@@ -121,5 +121,6 @@ protected:
 
 using HnswSearchAngular = HnswSearchImpl<AngularDistance>;
 using HnswSearchL2 = HnswSearchImpl<L2Distance>;
+using HnswSearchDot = HnswSearchImpl<DotDistance>;
 
 } // namespace n2
