@@ -46,6 +46,12 @@ public:
     HeuristicNeighborSelectingPolicies(bool save_remain) : save_remains_(save_remain) {}
     ~HeuristicNeighborSelectingPolicies() override {}
     void Select(size_t m, size_t dim, bool select_nn, std::priority_queue<FurtherFirst>& result) override;
+    /**
+     * Returns selected neighbors to result
+     * (analagous to SELECT-NEIGHBORS-HEURISTIC in Yu. A. Malkov's paper.)
+     *
+     * select_nn: if true, select 0.25 * m nearest neighbors to result without applying the heuristic algorithm
+     */
 private:
     bool save_remains_;
     DistFuncType dist_func_;
