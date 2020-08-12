@@ -39,11 +39,11 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
                                                               priority_queue<FurtherFirst>& result) {
     if (result.size() <= m) return;
   
-    size_t nn_num = 0;
+    size_t nn_num = 0;  // # of nearest neighbors
     if (select_nn) {
         nn_num = (size_t)(m * 0.25);
     }
-    size_t nn_picked_num = 0;
+    size_t nn_picked_num = 0;  // # of nearest neighbors also picked by the heuristic algorithm
 
     vector<FurtherFirst> neighbors, picked;
     MinHeap<float, HnswNode*> skipped;
@@ -83,6 +83,7 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         }
             
         if (picked.size() - nn_picked_num == m - nn_num)
+            // check if # of neighbors purely picked by the heuristic algorithm equals m - nn_num
             break;
     }
 
