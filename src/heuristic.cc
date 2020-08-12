@@ -42,8 +42,8 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
     size_t nn_num = 0;
     if (select_nn) {
         nn_num = (size_t)(m * 0.25);
-        m -= nn_num;
     }
+    size_t nn_picked_num = 0;
 
     vector<FurtherFirst> neighbors, picked;
     MinHeap<float, HnswNode*> skipped;
@@ -52,12 +52,12 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         result.pop();
     }
 
-    int cur_index = static_cast<int>(neighbors.size())-1;
-    for (; cur_index >= 0; --cur_index) {
+    for (size_t i = 0; i < neighbors.size()-1; ++i) {
+        int cur_index = neighbors.size() - 1 - i;
         float cur_dist = neighbors[cur_index].GetDistance();
         HnswNode* cur_node = neighbors[cur_index].GetNode();
         _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
-        if (result.size() < nn_num) {
+        if (i < nn_num) {
             result.emplace(neighbors[cur_index]);
         }
 
@@ -75,15 +75,18 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
 
         if (!skip) {
             picked.push_back(neighbors[cur_index]);
+            if (i < nn_num) {
+                ++nn_picked_num;
+            }
         } else if (save_remains_) {
             skipped.push(cur_dist, cur_node);
         }
             
-        if (picked.size() == m)
+        if (picked.size() - nn_picked_num == m - nn_num)
             break;
     }
 
-    for (size_t i = nn_num; i < picked.size(); ++i) {
+    for (size_t i = nn_picked_num; i < picked.size(); ++i) {
         result.emplace(picked[i]);
     }
 
@@ -98,4 +101,5 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
 template class HeuristicNeighborSelectingPolicies<AngularDistance>;
 template class HeuristicNeighborSelectingPolicies<L2Distance>;
 template class HeuristicNeighborSelectingPolicies<DotDistance>;
+
 } // namespace n2
