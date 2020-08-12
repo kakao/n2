@@ -86,7 +86,7 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         }
             
         if (picked.size() - nn_picked_num == m - nn_num)
-            // check if # of neighbors purely picked by the heuristic algorithm equals m - nn_num
+            // check if # of neighbors exclusively picked by the heuristic algorithm equals m - nn_num
             break;
     }
 
