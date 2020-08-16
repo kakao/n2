@@ -176,9 +176,11 @@ class HnswIndex(object):
         """
         Adds vector v.
 
-        :param v : a vector with dimension.
-        :return self.model.add_data(v): return boolean value whether
-        adding is succeeded or not.
+        :param v: a vector with dimension.
+        :type v: list
+        :returns: return boolean value whether
+            adding is succeeded or not.
+        :rtype: bool
         """
         return self.model.add_data(v)
 
@@ -187,8 +189,10 @@ class HnswIndex(object):
         Saves the index to disk.
 
         :param fname: a file destination where the index will be saved.
-        :return self.model.save(fname): return boolean value whether
-        model saving is succeeded or not.
+        :type fname: str
+        :returns: return boolean value whether
+            model saving is succeeded or not.
+        :rtype: bool
         """
         return self.model.save(fname)
 
@@ -197,9 +201,12 @@ class HnswIndex(object):
         Load the index from dixk
 
         :param fname: a index file name.
+        :type fname: str
         :param use_mmap: a flag which designate using mmap() or not.
-        :return self.model.load(fname, use_mmap): return boolean value
-        whether model loading is succeeded or not.
+        :type use_mmap: bool
+        :returns: return boolean value
+            whether model loading is succeeded or not.
+        :rtype: bool
         """
         return self.model.load(fname, use_mmap)
 
@@ -232,12 +239,17 @@ class HnswIndex(object):
         Returns k nearest items by vector.
 
         :param v: A query vector
+        :type v: list
         :param k: k value
+        :type k: int
         :param ef_search: ef_search metric
+        :type ef_search: int
         :param include_distances: If you set this argument to True,
-        it will return a list of tuples((item_id, distance)).
+            it will return a list of tuples((item_id, distance)).
+        :type include_distances: bool
 
-        :return ret: a list of k nearest items.
+        :returns: a list of k nearest items.
+        :rtype: list
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -251,12 +263,17 @@ class HnswIndex(object):
         Returns k nearest items by id.
 
         :param item_id: A query id
+        :type item_id: list
         :param k: k value
+        :type k: int
         :param ef_search: ef_search metric
+        :type ef_search: int
         :param include_distances: If you set this argument to True,
-        it will return a list of tuples((item_id, distance)).
+            it will return a list of tuples((item_id, distance)).
+        :type include_distances: bool
 
-        :return ret: a list of k nearest items.
+        :returns: a list of k nearest items.
+        :rtype: list
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -273,13 +290,19 @@ class HnswIndex(object):
         See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE
 
         :param vs: query vectors
+        :type vs: list
         :param k: k value
+        :type k: int
         :param ef_search: ef_search metric
+        :type ef_search: int
         :param num_threads: number of threads for searching
+        :type num_threads: int
         :param include_distances: If you set this argument to True,
-        it will return a list of tuples((item_id, distance)).
+            it will return a list of tuples((item_id, distance)).
+        :type include_distances: bool
 
-        :return ret: a list of list of k nearest items for each query in the same order.
+        :returns: a list of list of k nearest items for each query in the same order.
+        :rtype: list
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -296,13 +319,19 @@ class HnswIndex(object):
         See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE
 
         :param item_ids: query ids
+        :type item_ids: list
         :param k: k value
+        :type k: int
         :param ef_search: ef_search metric
+        :type ef_search: int
         :param num_threads: number of threads for searching
+        :type num_threads: int
         :param include_distances: If you set this argument to True,
-        it will return a list of tuples((item_id, distance)).
+            it will return a list of tuples((item_id, distance)).
+        :type include_distances: bool
 
-        :return ret: a list of list of k nearest items for each query in the same order.
+        :returns: a list of list of k nearest items for each query in the same order.
+        :rtype: list
         """
         if ef_search == -1:
             ef_search = k * 10

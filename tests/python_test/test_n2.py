@@ -168,12 +168,13 @@ class L2Test(TestCase):
 
 class BasicTest(TestCase):
     dim = 100
+    data_num = 1000
     model_fname = 'dummy.hnsw'
 
     @classmethod
     def setUpClass(self):
         index = HnswIndex(self.dim)
-        for i in xrange(1000):
+        for i in xrange(self.data_num):
             v = [random.gauss(0, 1) for z in xrange(self.dim)]
             index.add_data(v)
         index.build(n_threads=12)
@@ -221,3 +222,19 @@ class BasicTest(TestCase):
         finally:
             del index
         self.assertFalse(this_is_abnormal)
+
+    def test04_batch_search_by_vectors(self):
+        index = HnswIndex(self.dim)
+        index.load(self.model_fname)
+        T = [[random.gauss(0, 1) for z in xrange(self.dim)] for y in xrange(100)]
+        batch_res = index.batch_search_by_vectors(T, 10, num_threads=12, include_distances=True)
+        normal_res = [index.search_by_vector(t, 10, include_distances=True) for t in T]
+        self.assertEqual(batch_res, normal_res)
+
+    def test04_batch_search_by_ids(self):
+        index = HnswIndex(self.dim)
+        index.load(self.model_fname)
+        T = [random.randrange(0, self.data_num) for y in xrange(100)]
+        batch_res = index.batch_search_by_ids(T, 10, num_threads=12, include_distances=True)
+        normal_res = [index.search_by_id(t, 10, include_distances=True) for t in T]
+        self.assertEqual(batch_res, normal_res)

@@ -16,7 +16,6 @@
 
 #include <omp.h>
 
-#include <deque>
 #include <memory>
 #include <string>
 #include <utility>
