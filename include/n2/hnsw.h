@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <omp.h>
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -68,15 +70,73 @@ public:
         searcher_->SearchById(id, k, ef_search, ensure_k_, result);
     }
 
+    inline void BatchSearchByVectors(const std::vector<std::vector<float>>& qvecs, size_t k, 
+                                     size_t ef_search, size_t n_threads, std::vector<std::vector<int>>& results) {
+        BatchSearchByVectors_(qvecs, k, ef_search, n_threads, results);
+    }
+    inline void BatchSearchByVectors(const std::vector<std::vector<float>>& qvecs, size_t k, 
+                                     size_t ef_search, size_t n_threads, 
+                                     std::vector<std::vector<std::pair<int, float>>>& results) {
+        BatchSearchByVectors_(qvecs, k, ef_search, n_threads, results);
+    }
+    inline void BatchSearchByIds(const std::vector<int> ids, size_t k, size_t ef_search, size_t n_threads,
+                                 std::vector<std::vector<int>>& results) {
+        BatchSearchByIds_(ids, k, ef_search, n_threads, results);
+    }
+    inline void BatchSearchByIds(const std::vector<int> ids, size_t k, size_t ef_search, size_t n_threads,
+                                 std::vector<std::vector<std::pair<int, float>>>& results) {
+        BatchSearchByIds_(ids, k, ef_search, n_threads, results);
+    }
+
     ////////////////////////////////////////////
     // Build(Misc)
     void PrintDegreeDist() const;
     void PrintConfigs() const;
 
 private:
+    void InitSearcherAndSearcherPool_();
+
+    template<typename ResultType>
+    void BatchSearchByVectors_(const std::vector<std::vector<float>>& qvecs, size_t k, 
+                               size_t ef_search, size_t n_threads, ResultType& results) {
+        results.resize(qvecs.size());
+        while (searcher_pool_.size() < n_threads) {
+            searcher_pool_.push_back(HnswSearch::GenerateSearcher(model_, data_dim_, metric_));
+        }
+
+        #pragma omp parallel num_threads(n_threads)
+        {
+            #pragma omp for schedule(runtime)
+            for (size_t i = 0; i < qvecs.size(); ++i) {
+                auto& s = searcher_pool_[omp_get_thread_num()];
+                s->SearchByVector(qvecs[i], k, ef_search, ensure_k_, results[i]);
+            }
+        }
+    }
+
+    template<typename ResultType>
+    void BatchSearchByIds_(const std::vector<int> ids, size_t k, size_t ef_search, size_t n_threads,
+                           ResultType& results) {
+        results.resize(ids.size());
+        while (searcher_pool_.size() < n_threads) {
+            searcher_pool_.push_back(HnswSearch::GenerateSearcher(model_, data_dim_, metric_));
+        }
+
+        #pragma omp parallel num_threads(n_threads)
+        {
+            #pragma omp for schedule(runtime)
+            for (size_t i = 0; i < ids.size(); ++i) {
+                auto& s = searcher_pool_[omp_get_thread_num()];
+                s->SearchById(ids[i], k, ef_search, ensure_k_, results[i]);
+            }
+        }
+    }
+
+private:
     std::unique_ptr<HnswBuild> builder_;
     std::shared_ptr<const HnswModel> model_;
-    std::unique_ptr<HnswSearch> searcher_;
+    std::shared_ptr<HnswSearch> searcher_;                      // for single-thread search
+    std::vector<std::shared_ptr<HnswSearch>> searcher_pool_;    // for multi-threads batch search
 
     size_t data_dim_;
     DistanceKind metric_;
