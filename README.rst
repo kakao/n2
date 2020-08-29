@@ -123,10 +123,10 @@ limitations under the License.
 .. _annoy: https://github.com/spotify/annoy
 .. _nmslib: https://github.com/searchivarius/nmslib
 .. _the benchmark: docs/benchmark.rst
-.. _the installation: INSTALL.rst
-.. _Python: docs/Python_API.rst
-.. _C++: docs/Cpp_API.rst
-.. _Go: docs/Go_API.rst
+.. _the installation: docs/install.rst
+.. _Python: docs/python_api.rst
+.. _C++: docs/cpp_api.rst
+.. _Go: docs/go_api.rst
 .. _Apache 2 license: LICENSE.txt
 
 .. |image0| image:: docs/imgs/build_time/build_time_threads.png

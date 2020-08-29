@@ -1,5 +1,8 @@
+Go API
+======
+
 Go code example
-===============
+---------------
 
 .. code:: go
 
@@ -31,8 +34,6 @@ Go code example
          fmt.Println(distance)
     }
 
-Go API
-======
 
 **Note that if a user passes a negative value it, will be set to a
 default value when the metric has the default value.**

@@ -1,5 +1,8 @@
+Python API
+==========
+
 Python code example
-===================
+-------------------
 
 .. code:: python
 
@@ -19,8 +22,11 @@ Python code example
     u.load('test.hnsw')
     print(u.search_by_id(0, 1000))
 
-Python API
-==========
+HnswIndex
+---------
+
+.. autoclass:: n2.HnswIndex
+   :members:
 
 **Note that if a user passes a negative value, it will be set to a
 default value when the metric has the default value.**

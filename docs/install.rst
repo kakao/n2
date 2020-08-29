@@ -8,7 +8,10 @@ sub modules ``git submodule update --init``.
 Python
 ------
 
-The easiest way is to use pip. Simply do ``sudo pip install n2`` to
+Install using pip
+*****************
+
+The easiest way is to use pip. Simply do ``pip install n2`` to
 fetch the package from `Python Package
 Index <https://pypi.org/>`__\ (PyPI). This will also install cython
 dependency.
@@ -20,8 +23,18 @@ For MacOS users, please install gcc >= 7.0 with `brew <https://brew.sh/index.htm
     $> brew install gcc
     $> sudo pip install n2
 
-You can also build from source by ``python setup.py install``. You may
-want to run unit-test by issue the following command:
+Install from source
+*******************
+
+You can also build from source by running the following commands.
+
+::
+
+   $> pip install Cython
+   $> git submodule update --init
+   $> python setup.py install
+   
+You may want to run unit-test by issuing the following command:
 ``make test_python``.
 
 C++

@@ -1,5 +1,8 @@
+C++ API
+=======
+
 C++ code example
-================
+----------------
 
 .. code:: cpp
 
@@ -24,8 +27,6 @@ C++ code example
     }
         
 
-C++ API
-=======
 
 **Note that if a user passes a negative value, it will be set to a
 default value when the metric has the default value.**
