@@ -54,13 +54,14 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         result.pop();
     }
 
-    for (size_t i = 0; i < neighbors.size()-1; ++i) {
-        int cur_index = neighbors.size() - 1 - i;
-        float cur_dist = neighbors[cur_index].GetDistance();
-        HnswNode* cur_node = neighbors[cur_index].GetNode();
+    for (auto it = neighbors.rbegin(); it != neighbors.rend(); it++) {
+        float cur_dist = it->GetDistance();
+        HnswNode* cur_node = it->GetNode();
         _mm_prefetch(cur_node->GetData(), _MM_HINT_T0);
-        if (i < nn_num) {
-            result.emplace(neighbors[cur_index]);
+        bool nn_selected = false;
+        if (result.size() < nn_num) {
+            result.emplace(*it);
+            nn_selected = true;
         }
 
         bool skip = false;
@@ -76,12 +77,12 @@ void HeuristicNeighborSelectingPolicies<DistFuncType>::Select(size_t m, size_t d
         }
 
         if (!skip) {
-            picked.push_back(neighbors[cur_index]);
-            if (i < nn_num) {
+            picked.push_back(*it);
+            if (nn_selected) {
                 // nearest neighbors included in result & picked by the heuristic algorithm
                 ++nn_picked_num;
             }
-        } else if (save_remains_) {
+        } else if (!nn_selected && save_remains_) {
             skipped.push(cur_dist, cur_node);
         }
             
