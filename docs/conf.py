@@ -33,8 +33,8 @@ release = '0.16.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc'
-    # 'sphinx.ext.napoleon'
+    'sphinx.ext.autodoc',  # support pulling documentation from docsrings
+    'sphinx.ext.napoleon'  # support Google style docstrings
 ]
 
 # Add any paths that contain templates here, relative to this directory.

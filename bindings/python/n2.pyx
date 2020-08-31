@@ -173,40 +173,36 @@ class HnswIndex(object):
         self.model = _HnswIndex(dimension, metric)
 
     def add_data(self, v):
-        """
-        Adds vector v.
+        """Adds vector v.
 
-        :param v: a vector with dimension.
-        :type v: list
-        :returns: return boolean value whether
-            adding is succeeded or not.
-        :rtype: bool
+        Args:
+            v (list): a vector with dimension.
+        
+        Returns:
+            bool: boolean value indicating whether data addition succeeded or not.
         """
         return self.model.add_data(v)
 
     def save(self, fname):
-        """
-        Saves the index to disk.
+        """Saves the index to disk.
 
-        :param fname: a file destination where the index will be saved.
-        :type fname: str
-        :returns: return boolean value whether
-            model saving is succeeded or not.
-        :rtype: bool
+        Args:
+            fname (str): a file destination where the index will be saved.
+
+        Returns:
+            bool: boolean value indicating whether model save succeeded or not.
         """
         return self.model.save(fname)
 
     def load(self, fname, use_mmap=True):
-        """
-        Load the index from dixk
+        """Load the index from disk.
 
-        :param fname: a index file name.
-        :type fname: str
-        :param use_mmap: a flag which designate using mmap() or not.
-        :type use_mmap: bool
-        :returns: return boolean value
-            whether model loading is succeeded or not.
-        :rtype: bool
+        Args:
+            fname (str): an index file name.
+            use_mmap (bool): a flag indicating whether to use mmap() or not.
+
+        Returns:
+            bool: boolean value indicating whether model load succeeded or not.
         """
         return self.model.load(fname, use_mmap)
 
@@ -214,8 +210,8 @@ class HnswIndex(object):
         self.model.unload()
 
     def build(self, m=None, max_m0=None, ef_construction=None, n_threads=None, mult=None, neighbor_selecting=None, graph_merging=None):
-        """
-        Builds a hnsw graph with given configurations
+        """Builds a hnsw graph with given configurations
+        TODO
         """
         configs = []
         if m is not None:
@@ -235,21 +231,17 @@ class HnswIndex(object):
         return self.model.build(configs)
 
     def search_by_vector(self, v, k, ef_search=-1, include_distances=False):
-        """
-        Returns k nearest items by vector.
+        """Returns k nearest items by vector.
 
-        :param v: A query vector
-        :type v: list
-        :param k: k value
-        :type k: int
-        :param ef_search: ef_search metric
-        :type ef_search: int
-        :param include_distances: If you set this argument to True,
+        Args:
+            v (list): a query vector
+            k (int): k value
+            ef_search (int): ef_search metric
+            include_distances (bool): If you set this argument to True,
             it will return a list of tuples((item_id, distance)).
-        :type include_distances: bool
 
-        :returns: a list of k nearest items.
-        :rtype: list
+        Returns:
+            list: a list of k nearest items.
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -259,21 +251,17 @@ class HnswIndex(object):
             return self.model.search_by_vector(v, k, ef_search)
 
     def search_by_id(self, item_id, k, ef_search=-1, include_distances=False):
-        """
-        Returns k nearest items by id.
+        """Returns k nearest items by id.
 
-        :param item_id: A query id
-        :type item_id: list
-        :param k: k value
-        :type k: int
-        :param ef_search: ef_search metric
-        :type ef_search: int
-        :param include_distances: If you set this argument to True,
+        Args:
+            item_id (list): a query id
+            k (int): k value
+            ef_search (int): ef_search metric
+            include_distances (bool): If you set this argument to True,
             it will return a list of tuples((item_id, distance)).
-        :type include_distances: bool
 
-        :returns: a list of k nearest items.
-        :rtype: list
+        Returns:
+            list: a list of k nearest items.
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -283,26 +271,21 @@ class HnswIndex(object):
             return self.model.search_by_id(item_id, k, ef_search)
 
     def batch_search_by_vectors(self, vs, k, ef_search=-1, num_threads=4, include_distances=False):
-        """
-        Returns k nearest items by each vector (batch search with multi-threads).
+        """Returns k nearest items by each vector (batch search with multi-threads).
 
         How threads are scheduled can be set through the OMP_SCHEDULE environment variable.
         See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE
 
-        :param vs: query vectors
-        :type vs: list
-        :param k: k value
-        :type k: int
-        :param ef_search: ef_search metric
-        :type ef_search: int
-        :param num_threads: number of threads for searching
-        :type num_threads: int
-        :param include_distances: If you set this argument to True,
+        Args:
+            vs (list): query vectors
+            k (int): k value
+            ef_search (int): ef_search metric
+            num_threads (int): number of threads for searching
+            include_distances (bool): If you set this argument to True,
             it will return a list of tuples((item_id, distance)).
-        :type include_distances: bool
 
-        :returns: a list of list of k nearest items for each query in the same order.
-        :rtype: list
+        Returns:
+            list: a list of list of k nearest items for each query in the same order.
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -318,20 +301,16 @@ class HnswIndex(object):
         How threads are scheduled can be set through the OMP_SCHEDULE environment variable.
         See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE
 
-        :param item_ids: query ids
-        :type item_ids: list
-        :param k: k value
-        :type k: int
-        :param ef_search: ef_search metric
-        :type ef_search: int
-        :param num_threads: number of threads for searching
-        :type num_threads: int
-        :param include_distances: If you set this argument to True,
+        Args:
+            item_ids (list): query ids
+            k (int): k value
+            ef_search (int): ef_search metric
+            num_threads (int): number of threads for searching
+            include_distances (bool): If you set this argument to True,
             it will return a list of tuples((item_id, distance)).
-        :type include_distances: bool
 
-        :returns: a list of list of k nearest items for each query in the same order.
-        :rtype: list
+        Returns:
+            list: a list of list of k nearest items for each query in the same order.
         """
         if ef_search == -1:
             ef_search = k * 10
@@ -341,13 +320,11 @@ class HnswIndex(object):
             return self.model.batch_search_by_ids(item_ids, k, ef_search, num_threads)
 
     def print_degree_dist(self):
-        """
-        Print degree distributions.
+        """Print degree distributions.
         """
         self.model.print_degree_dist()
 
     def print_configs(self):
-        """
-        Print configurations
+        """Print configurations.
         """
         self.model.print_configs()
