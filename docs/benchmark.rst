@@ -51,7 +51,7 @@ Test Environment
 
 - CPU: Intel(R) Xeon(R) CPU E5-2620 v4
 - Memory: 64GB
-- Storage: HDD
+- Storage: SSD
 - Dataset: Youtube(5.4GB)
 - N2 version: 0.1.5
 - nmslib version: 2.0.4
