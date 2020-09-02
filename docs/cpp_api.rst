@@ -25,8 +25,11 @@ C++ code example
         index.SearchByVector(std::vector<float>{3, 2, 1}, 3, ef_search, result);
         return 0;
     }
-        
 
+.. toctree::
+   :maxdepth: 2
+   
+   api/cpp_library_root
 
 **Note that if a user passes a negative value, it will be set to a
 default value when the metric has the default value.**

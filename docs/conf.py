@@ -35,9 +35,32 @@ release = '0.16.2'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',  # support pulling documentation from docsrings
-    'sphinx.ext.napoleon'  # support Google style docstrings
+    'sphinx.ext.autodoc',  # Include documentation from docstrings
+    'sphinx.ext.napoleon',  # Support for NumPy and Google style docstrings
+    'breathe',  # support cpp documentation
+    'exhale'  # Support cpp documentation
 ]
+
+# Setup the breathe extension
+breathe_projects = {
+    "N2": "./doxyoutput/xml"  # tell breathe that doxygen xml output file can be found here.
+}
+breathe_default_project = "N2"
+
+# Setup the exhale extension
+exhale_args = {
+    # These arguments are required
+    "containmentFolder":     "./api",  # exhale will produce docs/api folder
+    "rootFileName":          "cpp_library_root.rst", # exhale will produce docs/api/library_root.rst 
+    "rootFileTitle":         "CPP API",
+    "doxygenStripFromPath":  "..",
+    # Suggested optional arguments
+    "createTreeView":        True,
+    # TIP: if using the sphinx-bootstrap-theme, you need
+    # "treeViewIsBootstrap": True,
+    "exhaleExecutesDoxygen": True,
+    "exhaleDoxygenStdin":    "INPUT = ../include"  # it would use doxygen to parse ../include and save the output to docs/doxyoutput
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -15,3 +15,5 @@ GPATH
 *.un~
 .vscode/
 _build/
+docs/api/
+docs/doxyoutput/
