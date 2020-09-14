@@ -286,7 +286,7 @@ if __name__ == '__main__':
     parser.add_argument('--random_state', help='Random seed', type=int, default=3)
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
     parser.add_argument('--batch', help='Batch search mode with multi-threading', action='store_true')
-    parser.add_argument('--build_only', help='Benchmark only buil time and memory usage', action='store_true')
+    parser.add_argument('--build_only', help='Benchmark only build time and memory usage', action='store_true')
     parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
