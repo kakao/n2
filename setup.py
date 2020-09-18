@@ -34,8 +34,8 @@ def long_description():
 def set_binary_mac():
     gcc_dir = subprocess.check_output("brew --prefix gcc", shell=True).decode().strip()
     gcc_dir = os.path.join(gcc_dir, 'bin')
-    gpp_binaries = glob.glob(os.path.join(gcc_dir, 'g++-[0-9]'))
-    gcc_binaries = glob.glob(os.path.join(gcc_dir, 'gcc-[0-9]'))
+    gpp_binaries = glob.glob(os.path.join(gcc_dir, 'g++-[0-9]*'))
+    gcc_binaries = glob.glob(os.path.join(gcc_dir, 'gcc-[0-9]*'))
     binaries = [gcc_binaries, gpp_binaries]
     targets = ["CC", "CXX"]
     fail = False
@@ -48,7 +48,7 @@ def set_binary_mac():
             break
 
     if fail:
-        raise AttributeError('No GCC available. Install gcc from Homebrew using brew install gcc.')
+        raise AttributeError('No GCC available. Install gcc from Homebrew using `brew install gcc`.')
 
 
 def define_extensions(**kwargs):
