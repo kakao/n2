@@ -41,6 +41,9 @@ extensions = [
     'exhale'  # Support cpp documentation
 ]
 
+# Napoleon settings
+napoleon_include_init_with_doc = True
+
 # Setup the breathe extension
 breathe_projects = {
     "N2": "./doxyoutput/xml"  # tell breathe that doxygen xml output file can be found here.
