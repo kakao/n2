@@ -30,7 +30,12 @@ namespace n2 {
 class Hnsw {
 public:
     Hnsw();
-    Hnsw(int dim, std::string metric="angular");
+    
+    /** @brief Makes an Hnsw Index instance.
+     * @return a new Hnsw index
+     */
+    Hnsw(int dim, /**< dimenstion of vectors. */
+         std::string metric="angular" /**< an optional parameter for choosing a metric of distance. ('L2'\|;'euclidean'\|'angular'). A default metric is 'angular'. */);
     Hnsw(const Hnsw& other);
     Hnsw(Hnsw&& other) noexcept;
     ~Hnsw();
@@ -40,17 +45,41 @@ public:
 
     ////////////////////////////////////////////
     // Build
-    void AddData(const std::vector<float>& data);
+
+    /** @brief Adds vector v. */
+    void AddData(const std::vector<float>& data /**< A vector with dimension ``dim``. */);
+
+    /** @brief Set configurations by key/value configures. */
     void SetConfigs(const std::vector<std::pair<std::string, std::string>>& configs);
-    void Build(int m=-1, int max_m0=-1, int ef_construction=-1, int n_threads=-1, float mult=-1, 
-               NeighborSelectingPolicy neighbor_selecting=NeighborSelectingPolicy::HEURISTIC, 
-               GraphPostProcessing graph_merging=GraphPostProcessing::SKIP, bool ensure_k=false);
+    
+    /**
+     * @brief Builds a hnsw graph with given configurations.
+     * @note Refer to `common.h` to see other available values for neighbor_selecting and graph_merging.
+     * @see Fit(), SetConfigs()
+     */
+    void Build(int m=-1, /**< Max number of edges for nodes at level > 0 (default = 12) */
+               int max_m0=-1, /**< Max number of edges for nodes at level == 0 (default = 24). */
+               int ef_construction=-1, /**< Refer to HNSW paper for its role(default = 150). */
+               int n_threads=-1, /**< Number of threads for building index. */
+               float mult=-1, /**< Level multiplier (default value recommended) (default = 1/log(1.0*M)). */
+               NeighborSelectingPolicy neighbor_selecting=NeighborSelectingPolicy::HEURISTIC, /**< Neighbor selecting policy (default = NeighborSelectingPolicy::HEURISTIC). */
+               GraphPostProcessing graph_merging=GraphPostProcessing::SKIP, /**< Graph merging heuristic (default = GraphPostProcessing::SKIP). */
+               bool ensure_k=false);
+
+    /** @brief Builds a hnsw graph with given configurations. */
     void Fit();
 
     ////////////////////////////////////////////
     // Model
-    bool SaveModel(const std::string& fname) const;
-    bool LoadModel(const std::string& fname, const bool use_mmap=true);
+    /** @brief Saves the index to disk. */
+    bool SaveModel(const std::string& fname /**< An index file name. */) const;
+
+    /** @brief Loads an index from disk. */
+    bool LoadModel(const std::string& fname, /**< An index file name. */ 
+                   const bool use_mmap=true /**< An optional parameter (default = true). If this parameter is set, N2 loads model through mmap. */
+                  );
+
+    /** @brief Unloads the loaded index file. */
     void UnloadModel();
  
     ////////////////////////////////////////////
@@ -59,14 +88,24 @@ public:
                                std::vector<int>& result) {
         searcher_->SearchByVector(qvec, k, ef_search, ensure_k_, result);
     }
-    inline void SearchByVector(const std::vector<float>& qvec, size_t k, size_t ef_search,
+
+    /** 
+     * @return ``k`` nearest items which are searched by vector.
+     */
+    inline void SearchByVector(const std::vector<float>& qvec, size_t k, 
+                               size_t ef_search, /**< (default = 50 * k) */
                                std::vector<std::pair<int, float>>& result) {
         searcher_->SearchByVector(qvec, k, ef_search, ensure_k_, result);
     }
     inline void SearchById(int id, size_t k, size_t ef_search, std::vector<int>& result) {
         searcher_->SearchById(id, k, ef_search, ensure_k_, result);
     }
-    inline void SearchById(int id, size_t k, size_t ef_search, std::vector<std::pair<int, float>>& result) {
+
+    /**
+     * @return ``k`` nearest items which are searched by Id.
+     */
+    inline void SearchById(int id, size_t k, size_t ef_search, /**< (default = 50 * k). */
+        std::vector<std::pair<int, float>>& result) {
         searcher_->SearchById(id, k, ef_search, ensure_k_, result);
     }
 
@@ -90,7 +129,10 @@ public:
 
     ////////////////////////////////////////////
     // Build(Misc)
+    /** @brief Prints degree distributions. */
     void PrintDegreeDist() const;
+
+    /** @brief Prints index configurations. */
     void PrintConfigs() const;
 
 private:

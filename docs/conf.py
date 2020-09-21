@@ -54,8 +54,8 @@ breathe_default_project = "N2"
 exhale_args = {
     # These arguments are required
     "containmentFolder":     "./api",  # exhale will produce docs/api folder
-    "rootFileName":          "cpp_library_root.rst", # exhale will produce docs/api/library_root.rst 
-    "rootFileTitle":         "CPP API",
+    "rootFileName":          "cpp_reference_root.rst",  # exhale will produce docs/api/library_root.rst
+    "rootFileTitle":         "CPP Reference",
     "doxygenStripFromPath":  "..",
     # Suggested optional arguments
     "createTreeView":        True,
