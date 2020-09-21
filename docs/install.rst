@@ -20,8 +20,8 @@ For MacOS users, please install gcc >= 7.0 with `brew <https://brew.sh/index.htm
 
 ::
 
-    $> brew install gcc
-    $> sudo pip install n2
+    $ brew install gcc
+    $ sudo pip install n2
 
 Install from source
 *******************
@@ -30,9 +30,9 @@ You can also build from source by running the following commands.
 
 ::
 
-   $> pip install Cython
-   $> git submodule update --init
-   $> python setup.py install
+   $ pip install Cython
+   $ git submodule update --init
+   $ python setup.py install
    
 You may want to run unit-test by issuing the following command:
 ``make test_python``.

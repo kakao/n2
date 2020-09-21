@@ -7,22 +7,22 @@ N2: Approximate Nearest Neighbor
 ================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Getting Started
 
    Installation <install>
    Quickstart <quickstart>
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: API Guide
 
-   Python API <python_api>
-   Cpp API <cpp_api>
-   Go API <go_api>
+   Python Interface <python_api>
+   CPP Interface <cpp_api>
+   Go Interface <go_api>
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Benchmark
 
    Benchmark <benchmark>
