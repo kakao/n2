@@ -4,18 +4,29 @@
    contain the root `toctree` directive.
 
 N2: Approximate Nearest Neighbor
-================================
+=====================================================================
+
+.. include:: ../README.rst
+   :start-after: begin_intro
+   :end-before: end_intro
+
+.. include:: ../README.rst
+   :start-after: begin_background
+   :end-before: end_background
+
+.. include:: ../README.rst
+   :start-after: begin_features
+   :end-before: end_features
 
 .. toctree::
    :maxdepth: 1
    :caption: Getting Started
 
    Installation <install>
-   Quickstart <quickstart>
 
 .. toctree::
    :maxdepth: 1
-   :caption: API Guide
+   :caption: User Guide
 
    Python Interface <python_api>
    CPP Interface <cpp_api>
@@ -27,10 +38,9 @@ N2: Approximate Nearest Neighbor
 
    Benchmark <benchmark>
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. include:: ../README.rst
+   :start-after: begin_footnote
+   :end-before: end_footnote
+   
+.. _annoy: https://github.com/spotify/annoy
+.. _nmslib: https://github.com/searchivarius/nmslib

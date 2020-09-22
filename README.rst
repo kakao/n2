@@ -1,13 +1,49 @@
 N2
-== 
+=====================================================================
+|pypi| |docs| |travis| |license|
 
-.. image:: https://travis-ci.org/kakao/n2.svg?branch=master
-   :target: https://travis-ci.org/kakao/n2
+.. begin_badges
 
-.. image:: https://img.shields.io/pypi/v/n2.svg?style=flat
+.. |docs| image:: https://readthedocs.org/projects/n2/badge/?version=latest
+   :target: https://n2.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+.. |pypi| image:: https://img.shields.io/pypi/v/n2.svg?style=flat
    :target: https://pypi.python.org/pypi/n2
-   
-N2 - approximate **N**\ earest **N**\ eighbor
+   :alt: Latest Version
+
+.. |travis| image:: https://travis-ci.org/kakao/n2.svg?branch=master
+   :target: https://travis-ci.org/kakao/n2
+   :alt: Build Status
+
+.. |license| image:: https://img.shields.io/github/license/kakao/n2
+   :target: https://github.com/kakao/n2/blob/dev/LICENSE
+   :alt: Apache-License 2.0
+
+.. end_badges
+
+.. begin_intro
+
+Approximate **N**\ earest **N**\ eighbor algorithm library written 
+in C++ (with Python/Go bindings).
+
+N2 stands for two N's, which comes from \'Approximate ``N``\ earest 
+``N``\ eighbor algorithm\'. N2 provides a much faster search speed than 
+other implementations when modeling large dataset. 
+Also, N2 supports multi-core CPUs for index building.
+
+.. end_intro
+
+Quickstart
+---------------------------------------------------------------------
+
+1. Install N2 with pip.
+
+.. code:: bash
+
+   $ pip install n2
+
+2. Here is a python code snippet demonstrating how to use N2.
 
 .. code:: python
 
@@ -24,87 +60,77 @@ N2 - approximate **N**\ earest **N**\ eighbor
     print(index.search_by_id(0, 10))
     # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-Install
--------
+See the `full documentation`_ for more information. 
+The documentation explains the following contents in detail.
 
-To install:
+- `Installation Guide`_
+   - how to build from source, etc.
+- User Guide with Basic Examples
+   - `Python Interface`_
+   - `C++ Interface`_
+   - `Go Interface`_
 
-.. code:: bash
+.. begin_background
 
-    sudo pip install n2
+Why N2 Was Made
+---------------------------------------------------------------------
+Before N2, there has been other great approximate nearest neighbor 
+libraries such as `annoy`_ and `nmslib`_. However, each of them had 
+different strengths and weaknesses regarding usability, performance, 
+and etc. So, N2 has been developed aiming to bring the strengths of 
+existing aKNN libraries and supplement their weaknesses.
 
-For more detail, see `the installation`_ for instruction on how to build N2 from source.
+.. end_background
 
-Introduce
----------
-
-N2 is an approximate nearest neighborhoods algorithm library written in
-C++ (including Python/Go bindings). N2 provides a much faster search
-speed than other implementations when modeling large dataset. Also, N2
-supports multi-core CPUs for index building.
-
-Background
-----------
-
-There are great approximate nearest neighborhoods libraries such as
-`annoy`_ and `nmslib`_, but they did not fully meet the requirments to
-handle Kakao’s dataset. Therefore, we decided to implement a library
-that improves usability and performs better based on `nmslib`_. And
-finally, we release N2 to the world.
+.. begin_features
 
 Features
---------
+---------------------------------------------------------------------
+- N2 is a lightweight library which runs fast with large datasets.
+- Improved usability over `nmslib`_.
+- Good performance in terms of index build time, search speed, 
+  and memory usage.
+- Efficient implementation.
+- Supports multi-core CPUs for index building.
+- Supports a mmap feature by default to efficiently process large 
+  index files.
+- Supports Python/Go bindings.
 
--  Efficient implementations. N2 is a lightweight library which runs faster even with large datasets.
--  Support multi-core CPUs for index building.
--  Support a mmap feature by default for handling large index files
-   efficiently.
--  Support Python/Go bindings.
+.. end_features
 
-Performance
------------
-
-If you want to read about detail benchmark explanation. See `the
-benchmark`_ for more experiments.
-
-Index build times
-~~~~~~~~~~~~~~~~~
-
+N2 Performance
+---------------------------------------------------------------------
+Index Build Time
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |image0|
 
-Search speed
-~~~~~~~~~~~~
+Search Speed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |image1|
 
-Memory usage
-~~~~~~~~~~~~
+Memory Usage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |image2|
 
-.. install-1:
+See the `benchmark`_ for more information on detailed explanation 
+of benchmark experiments.
 
-Bindings
---------
-
-The following guides explain how to use N2 with basic examples and API.
-
--  `Python`_
--  `C++`_
--  `Go`_
+.. begin_footnote
 
 References
-----------
+---------------------------------------------------------------------
 
--  “Efficient and robust approximate nearest neighbor search using
-   Hierarchical Navigable Small World graphs” by Yu. A. Malkov, D. A.
-   Yashunin (available on arxiv: http://arxiv.org/abs/1603.09320)
+- Y\. A. Malkov and D. A. Yashunin, "Efficient and robust approximate 
+  nearest neighbor search using hierarchical navigable small world 
+  graphs," CoRR, vol. abs/1603.09320, 2016. [Online]. 
+  Available: http://arxiv.org/abs/1603.09320
 -  nmslib: https://github.com/searchivarius/NMSLIB
 -  annoy: https://github.com/spotify/annoy
 
 License
--------
-
+---------------------------------------------------------------------
 This software is licensed under the `Apache 2 license`_, quoted below.
 
 Copyright 2017 Kakao Corp. http://www.kakaocorp.com
@@ -120,15 +146,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
+.. _Apache 2 license: LICENSE.txt
 .. _annoy: https://github.com/spotify/annoy
 .. _nmslib: https://github.com/searchivarius/nmslib
-.. _the benchmark: docs/benchmark.rst
-.. _the installation: docs/install.rst
-.. _Python: docs/python_api.rst
-.. _C++: docs/cpp_api.rst
-.. _Go: docs/go_api.rst
-.. _Apache 2 license: LICENSE.txt
+.. _full documentation: https://n2.readthedocs.io/en/latest/
+.. _Installation Guide: https://n2.readthedocs.io/en/latest/install.html
+.. _Python Interface: https://n2.readthedocs.io/en/latest/python_api.html
+.. _C++ Interface: https://n2.readthedocs.io/en/latest/cpp_api.html
+.. _Go Interface: https://n2.readthedocs.io/en/latest/go_api.html
+.. _benchmark: https://n2.readthedocs.io/en/latest/benchmark.html
 
 .. |image0| image:: docs/imgs/build_time/build_time_threads.png
 .. |image1| image:: docs/imgs/search_time/search_time.png
 .. |image2| image:: docs/imgs/mem/memory_usage.png
+
+.. end_footnote

@@ -1,8 +1,8 @@
 CPP Interface
-=============
+=====================================================================
 
 Basic Usage
------------
+---------------------------------------------------------------------
 
 .. code:: cpp
 
@@ -30,14 +30,14 @@ Basic Usage
 default value when the metric has the default value.**
 
 Main Interface
---------------
+---------------------------------------------------------------------
 .. doxygenclass:: n2::Hnsw
    :members: Hnsw, AddData, SetConfigs, Fit, Build, SaveModel, LoadModel, UnloadModel, SearchById, SearchByVector, PrintDegreeDist, PrintConfigs
    :undoc-members:
 
 
 Full Interface
---------------
+---------------------------------------------------------------------
 This is a full documentation of c++ implementation auto-generated from code comments.
 
 .. toctree::

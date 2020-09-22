@@ -1,8 +1,8 @@
 Go Interface
-============
+=====================================================================
 
 Basic Usage
------------
+---------------------------------------------------------------------
 
 .. code:: go
 
@@ -36,24 +36,24 @@ Basic Usage
 
 
 Main Interface
---------------
+---------------------------------------------------------------------
 **Note that if a user passes a negative value it, will be set to a
 default value when the metric has the default value.**
 
 HnswIndex(dim, metric)
-**********************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Returns a new Hnsw index.
 -  ``dim`` (int): Dimension of vectors.
 -  ``metric`` (string): An optional parameter for choosing a metric
       of distance ('L2'\|'euclidean'\|'angular').
 
 index.AddData(v)
-****************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Adds vector ``v``.
 -  ``v`` (list of float): A vector with dimension ``dim``.
 
 index.Build(M, Max_M0, ef_construction, n_threads, mult, neighbor_selecting, graph_merging)
-******************************************************************************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Builds a hnsw graph with given configurations.
 
 -  ``M`` (int): Max number of edges for nodes at level>0 (default = 12).
@@ -80,28 +80,28 @@ index.Build(M, Max_M0, ef_construction, n_threads, mult, neighbor_selecting, gra
       -  ``"merge_level0"``: Builds another graph in reverse order, and then merge edges of level0 (recommended for data under 10M scale)
 
 index.SaveModel(fname)
-**********************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Saves the index to disk.
 -  ``fname`` (string)
 
 index.LoadModel(fname, use_mmap)
-********************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Loads an index from disk with mmap.
 -  ``fname`` (string)
 -  ``use_mmap`` (bool): An optional parameter (default = true).
       If this parameter is set, N2 loads model through mmap.
 
 index.UnloadModel()
-*******************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Unloads (unmap).
 
 index.SearchByVector(item_id, k, ef_serach=-1, vectors, distances)
-******************************************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Returns ``k`` nearest items.
 -  ``ef_search`` (int): (default = 50 \* k).
 
 index.SearchById(v, k, ef_serach=-1, vectors, distances)
-********************************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 - Returns ``k`` nearest items.
 -  ``v`` (list of float): A query vector.
 -  ``k`` (int)
