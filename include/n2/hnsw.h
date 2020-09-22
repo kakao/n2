@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #pragma once
-
+/** @file */
 #include <omp.h>
 
 #include <memory>
@@ -54,7 +54,8 @@ public:
     
     /**
      * @brief Builds a hnsw graph with given configurations.
-     * @note Refer to `common.h` to see other available values for neighbor_selecting and graph_merging.
+     *
+     * Refer to NeighborSelectingPolicy() and GraphPostProcessing() to see other available values for ``neighbor_selecting`` and ``graph_merging``.
      * @see Fit(), SetConfigs()
      */
     void Build(int m=-1, /**< Max number of edges for nodes at level > 0 (default = 12) */
@@ -62,8 +63,8 @@ public:
                int ef_construction=-1, /**< Refer to HNSW paper for its role(default = 150). */
                int n_threads=-1, /**< Number of threads for building index. */
                float mult=-1, /**< Level multiplier (default value recommended) (default = 1/log(1.0*M)). */
-               NeighborSelectingPolicy neighbor_selecting=NeighborSelectingPolicy::HEURISTIC, /**< Neighbor selecting policy (default = NeighborSelectingPolicy::HEURISTIC). */
-               GraphPostProcessing graph_merging=GraphPostProcessing::SKIP, /**< Graph merging heuristic (default = GraphPostProcessing::SKIP). */
+               NeighborSelectingPolicy neighbor_selecting=NeighborSelectingPolicy::HEURISTIC, /**< Neighbor selecting policy. */
+               GraphPostProcessing graph_merging=GraphPostProcessing::SKIP, /**< Graph merging heuristic. */
                bool ensure_k=false);
 
     /** @brief Builds a hnsw graph with given configurations. */
