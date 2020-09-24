@@ -18,7 +18,6 @@ import glob
 import platform
 import subprocess
 
-from Cython.Build import cythonize
 from setuptools import Extension, setup
 
 NAME = 'n2'
@@ -73,14 +72,13 @@ def define_extensions(**kwargs):
     include_dirs = ['./include/', './third_party/spdlog/include/', './third_party/eigen']
     include_dirs.extend(['third_party/boost/' + b + '/include/' for b in boost_dirs])
 
-    client_ext = Extension(name='n2',
-                           sources=sources,
-                           extra_compile_args=extra_compile_args,
-                           libraries=libraries,
-                           extra_link_args=extra_link_args,
-                           include_dirs=include_dirs,
-                           language="c++",)
-    return cythonize(client_ext)
+    return Extension(name='n2',
+                     sources=sources,
+                     extra_compile_args=extra_compile_args,
+                     libraries=libraries,
+                     extra_link_args=extra_link_args,
+                     include_dirs=include_dirs,
+                     language="c++",)
 
 
 setup(
@@ -91,8 +89,12 @@ setup(
     author='Kakao.corp',
     author_email='recotech.kakao@gmail.com',
     license='Apache License 2.0',
-    install_requires=[
+    setup_requires=[
+        "setuptools>=18",
         "cython",
+    ],
+    install_requires=[
+        "cython"
     ],
     classifiers=[
         'Programming Language :: Python',
@@ -102,5 +104,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'],
 
     keywords='Approximate Nearest Neighbor',
-    ext_modules=define_extensions(),
+    ext_modules=[
+        define_extensions(),
+    ]
 )

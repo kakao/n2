@@ -12,7 +12,7 @@ before_install:
   - git submodule update --init --recursive
 
 script:
-  - "pip install nose cython"
+  - "pip install nose"
   - "python setup.py install"
   - "make test_all"
 
