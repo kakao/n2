@@ -31,7 +31,8 @@ def long_description():
     image_directive = 'image:: '
     for i in range(len(lines)):
         directive_start = lines[i].find(image_directive)
-        if directive_start != -1 and 'https://' not in lines[i]:
+        is_absolute_url = any(x in lines[i] for x in ['https://', 'http://'])
+        if directive_start != -1 and not is_absolute_url:
             directive_end = directive_start + len(image_directive)
             lines[i] = lines[i][:directive_end] + 'https://raw.githubusercontent.com/kakao/n2/master/' + lines[i][directive_end:]
     readme = ''.join(lines)
