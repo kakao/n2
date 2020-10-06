@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 N2: Approximate Nearest Neighbor
-=====================================================================
+==============================================================================
 
 .. include:: ../README.rst
    :start-after: begin_intro

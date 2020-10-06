@@ -16,16 +16,21 @@
 /** @file */
 namespace n2 {
 
-/** Graph merging heuristic. */
+/**
+ * Graph merging heuristic.
+ */
 enum class GraphPostProcessing {
-    SKIP = 0, /**< Do not merge (recommended for large scale of data (over 10M)) */
-    MERGE_LEVEL0 = 1 /**< Build another graph in reverse order, and then merge edges of level0 (recommended for data under 10M scale). */
+    SKIP = 0, /**< Do not merge (recommended for large scale of data (over 10M)). */
+    MERGE_LEVEL0 = 1 /**< Build another graph in reverse order, and then merge edges of level0
+                          (recommended for data under 10M scale). */
 };
 
-/** Neighbor selecting policy. */
+/**
+ * Neighbor selecting policy.
+ */
 enum class NeighborSelectingPolicy {
-    NAIVE = 0, /**< Select closest neighbors (not recommended) */
-    HEURISTIC = 1, /**< Select neighbors using algorithm4 on HNSW paper (recommended) */
+    NAIVE = 0, /**< Select closest neighbors (not recommended). */
+    HEURISTIC = 1, /**< Select neighbors using algorithm4 on HNSW paper (recommended). */
     HEURISTIC_SAVE_REMAINS = 2, /**< Explanation is needed. */
 };
 

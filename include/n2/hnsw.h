@@ -30,12 +30,15 @@ namespace n2 {
 class Hnsw {
 public:
     Hnsw();
-    
-    /** @brief Makes an Hnsw Index instance.
-     * @return a new Hnsw index
+
+    /**
+     * @brief Makes an Hnsw Index instance.
+     * @param dim: Dimension of vectors.
+     * @param metric: An optional parameter to choosed a distance metric.
+     *                ('L2'|'euclidean'|'angular') (default = 'angular').
+     * @return A new Hnsw index.
      */
-    Hnsw(int dim, /**< dimenstion of vectors. */
-         std::string metric="angular" /**< an optional parameter for choosing a metric of distance. ('L2'\|;'euclidean'\|'angular'). A default metric is 'angular'. */);
+    Hnsw(int dim,std::string metric="angular");
     Hnsw(const Hnsw& other);
     Hnsw(Hnsw&& other) noexcept;
     ~Hnsw();
@@ -46,41 +49,63 @@ public:
     ////////////////////////////////////////////
     // Build
 
-    /** @brief Adds vector v. */
-    void AddData(const std::vector<float>& data /**< A vector with dimension ``dim``. */);
+    /**
+     * @brief Adds vector v.
+     * @param data: A vector with dimension ``dim``.
+     */
+    void AddData(const std::vector<float>& data);
 
-    /** @brief Set configurations by key/value configures. */
+    /**
+     * @brief Set configurations by key/value pairs.
+     *
+     * To set configurations as default values, pass negative values to configuration parameters.
+     */
     void SetConfigs(const std::vector<std::pair<std::string, std::string>>& configs);
     
     /**
      * @brief Builds a hnsw graph with given configurations.
+     * @param m: Max number of edges for nodes at level > 0 (default = 12).
+     * @param max_m0: Max number of edges for nodes at level == 0 (default = 24).
+     * @param ef_construction: Refer to HNSW paper for its role(default = 150).
+     * @param n_threads: Number of threads for building index.
+     * @param mult: Level multiplier (default value recommended) (default = 1/log(1.0*M)).
+     * @param NeighborSelectingPolicy: Neighbor selecting policy.
+     * @param GraphPostProcessing: Graph merging heuristic.
      *
-     * Refer to NeighborSelectingPolicy() and GraphPostProcessing() to see other available values for ``neighbor_selecting`` and ``graph_merging``.
+     * Refer to NeighborSelectingPolicy() and GraphPostProcessing() to see
+     * other available values for ``neighbor_selecting`` and ``graph_merging``.
      * @see Fit(), SetConfigs()
      */
-    void Build(int m=-1, /**< Max number of edges for nodes at level > 0 (default = 12) */
-               int max_m0=-1, /**< Max number of edges for nodes at level == 0 (default = 24). */
-               int ef_construction=-1, /**< Refer to HNSW paper for its role(default = 150). */
-               int n_threads=-1, /**< Number of threads for building index. */
-               float mult=-1, /**< Level multiplier (default value recommended) (default = 1/log(1.0*M)). */
-               NeighborSelectingPolicy neighbor_selecting=NeighborSelectingPolicy::HEURISTIC, /**< Neighbor selecting policy. */
-               GraphPostProcessing graph_merging=GraphPostProcessing::SKIP, /**< Graph merging heuristic. */
+    void Build(int m=-1, int max_m0=-1, int ef_construction=-1,
+               int n_threads=-1, float mult=-1,
+               NeighborSelectingPolicy neighbor_selecting=NeighborSelectingPolicy::HEURISTIC,
+               GraphPostProcessing graph_merging=GraphPostProcessing::SKIP,
                bool ensure_k=false);
 
-    /** @brief Builds a hnsw graph with given configurations. */
+    /**
+     * @brief Builds a hnsw graph with given configurations.
+     */
     void Fit();
 
     ////////////////////////////////////////////
     // Model
-    /** @brief Saves the index to disk. */
-    bool SaveModel(const std::string& fname /**< An index file name. */) const;
+    /**
+     * @brief Saves the index to disk.
+     * @param fname: An index file name.
+     */
+    bool SaveModel(const std::string& fname) const;
 
-    /** @brief Loads an index from disk. */
-    bool LoadModel(const std::string& fname, /**< An index file name. */ 
-                   const bool use_mmap=true /**< An optional parameter (default = true). If this parameter is set, N2 loads model through mmap. */
-                  );
+    /**
+     * @brief Loads an index from disk.
+     * @param fname: An index file name.
+     * @param use_mmap: An optional parameter (default = true).
+     *                  If this parameter is set, N2 loads model through mmap.
+     */
+    bool LoadModel(const std::string& fname, const bool use_mmap=true);
 
-    /** @brief Unloads the loaded index file. */
+    /**
+     * @brief Unloads the loaded index file.
+     */
     void UnloadModel();
  
     ////////////////////////////////////////////
@@ -90,11 +115,13 @@ public:
         searcher_->SearchByVector(qvec, k, ef_search, ensure_k_, result);
     }
 
-    /** 
+    /**
+     * @param ef_search: (default = 50 * k). If you pass a negative value to ef_search,
+     *                   ef_search will be set as the default value.
      * @return ``k`` nearest items which are searched by vector.
      */
     inline void SearchByVector(const std::vector<float>& qvec, size_t k, 
-                               size_t ef_search, /**< (default = 50 * k) */
+                               size_t ef_search,
                                std::vector<std::pair<int, float>>& result) {
         searcher_->SearchByVector(qvec, k, ef_search, ensure_k_, result);
     }
@@ -103,9 +130,11 @@ public:
     }
 
     /**
+     * @param ef_search: (default = 50 * k). If you pass a negative value to ef_search,
+     *                   ef_search will be set as the default value.
      * @return ``k`` nearest items which are searched by Id.
      */
-    inline void SearchById(int id, size_t k, size_t ef_search, /**< (default = 50 * k). */
+    inline void SearchById(int id, size_t k, size_t ef_search,
         std::vector<std::pair<int, float>>& result) {
         searcher_->SearchById(id, k, ef_search, ensure_k_, result);
     }
@@ -130,10 +159,14 @@ public:
 
     ////////////////////////////////////////////
     // Build(Misc)
-    /** @brief Prints degree distributions. */
+    /**
+     * @brief Prints degree distributions.
+     */
     void PrintDegreeDist() const;
 
-    /** @brief Prints index configurations. */
+    /**
+     * @brief Prints index configurations.
+     */
     void PrintConfigs() const;
 
 private:

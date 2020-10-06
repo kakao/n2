@@ -1,8 +1,8 @@
 CPP Interface
-=====================================================================
+==============================================================================
 
 Basic Usage
----------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 .. code:: cpp
 
@@ -26,21 +26,25 @@ Basic Usage
         return 0;
     }
 
-**Note that if a user passes a negative value, it will be set to a
-default value when the metric has the default value.**
+You can see more code examples at `examples/cpp`_.
 
 Main Interface
----------------------------------------------------------------------
+------------------------------------------------------------------------------
+
 .. doxygenclass:: n2::Hnsw
-   :members: Hnsw, AddData, SetConfigs, Fit, Build, SaveModel, LoadModel, UnloadModel, SearchById, SearchByVector, PrintDegreeDist, PrintConfigs
+   :members: Hnsw, AddData, SetConfigs, Fit, Build, SaveModel, LoadModel,
+             UnloadModel, SearchById, SearchByVector,
+             PrintDegreeDist, PrintConfigs
    :undoc-members:
 
 
-Full Interface
----------------------------------------------------------------------
-This is a full documentation of c++ implementation auto-generated from code comments.
+Full Reference
+------------------------------------------------------------------------------
+This is a full documentation of C++ implementation auto-generated from code comments.
 
 .. toctree::
    :maxdepth: 2
    
    api/cpp_reference_root
+
+.. _examples/cpp: https://github.com/kakao/n2/tree/dev/examples/cpp

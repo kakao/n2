@@ -1,5 +1,5 @@
 N2
-=====================================================================
+==============================================================================
 |pypi| |docs| |travis| |license|
 
 .. begin_badges
@@ -17,25 +17,51 @@ N2
    :alt: Build Status
 
 .. |license| image:: https://img.shields.io/github/license/kakao/n2
-   :target: https://github.com/kakao/n2/blob/dev/LICENSE
+   :target: https://github.com/kakao/n2/blob/master/LICENSE
    :alt: Apache-License 2.0
 
 .. end_badges
 
 .. begin_intro
 
-Approximate **N**\ earest **N**\ eighbor algorithm library written 
+Lightweight approximate **N**\ earest **N**\ eighbor algorithm library written
 in C++ (with Python/Go bindings).
 
 N2 stands for two N's, which comes from \'Approximate ``N``\ earest 
-``N``\ eighbor algorithm\'. N2 provides a much faster search speed than 
-other implementations when modeling large dataset. 
-Also, N2 supports multi-core CPUs for index building.
+``N``\ eighbor algorithm\'.
 
 .. end_intro
 
+.. begin_background
+
+Why N2 Was Made
+------------------------------------------------------------------------------
+Before N2, there has been other great approximate nearest neighbor
+libraries such as `annoy`_ and `nmslib`_. However, each of them had
+different strengths and weaknesses regarding usability, performance,
+and etc. So, N2 has been developed aiming to bring the strengths of
+existing aKNN libraries and supplement their weaknesses.
+
+.. end_background
+
+.. begin_features
+
+Features
+------------------------------------------------------------------------------
+- N2 is a lightweight library which runs fast with large datasets.
+- Improved usability over `nmslib`_.
+- Good performance in terms of index build time, search speed,
+  and memory usage.
+- Efficient implementation.
+- Supports multi-core CPUs for index building.
+- Supports a mmap feature by default to efficiently process large
+  index files.
+- Supports Python/Go bindings.
+
+.. end_features
+
 Quickstart
----------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 1. Install N2 with pip.
 
@@ -60,8 +86,11 @@ Quickstart
     print(index.search_by_id(0, 10))
     # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-See the `full documentation`_ for more information. 
-The documentation explains the following contents in detail.
+Full Documentation
+------------------------------------------------------------------------------
+
+Visit https://n2.readthedocs.io/en/latest/ for full documentation.
+The documentation site explains the following contents in detail.
 
 - `Installation Guide`_
    - how to build from source, etc.
@@ -69,58 +98,35 @@ The documentation explains the following contents in detail.
    - `Python Interface`_
    - `C++ Interface`_
    - `Go Interface`_
+- `Benchmark`_
+   - detailed explanation of how we performed benchmark experiemnts.
 
-.. begin_background
 
-Why N2 Was Made
----------------------------------------------------------------------
-Before N2, there has been other great approximate nearest neighbor 
-libraries such as `annoy`_ and `nmslib`_. However, each of them had 
-different strengths and weaknesses regarding usability, performance, 
-and etc. So, N2 has been developed aiming to bring the strengths of 
-existing aKNN libraries and supplement their weaknesses.
+Performance
+------------------------------------------------------------------------------
+- You can also see benchmarks of various ANN libraries in Python at
+https://github.com/erikbern/ann-benchmarks.
 
-.. end_background
 
-.. begin_features
-
-Features
----------------------------------------------------------------------
-- N2 is a lightweight library which runs fast with large datasets.
-- Improved usability over `nmslib`_.
-- Good performance in terms of index build time, search speed, 
-  and memory usage.
-- Efficient implementation.
-- Supports multi-core CPUs for index building.
-- Supports a mmap feature by default to efficiently process large 
-  index files.
-- Supports Python/Go bindings.
-
-.. end_features
-
-N2 Performance
----------------------------------------------------------------------
 Index Build Time
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |image0|
 
 Search Speed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |image1|
 
 Memory Usage
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |image2|
 
-See the `benchmark`_ for more information on detailed explanation 
-of benchmark experiments.
 
 .. begin_footnote
 
 References
----------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 - Y\. A. Malkov and D. A. Yashunin, "Efficient and robust approximate 
   nearest neighbor search using hierarchical navigable small world 
@@ -130,7 +136,7 @@ References
 -  annoy: https://github.com/spotify/annoy
 
 License
----------------------------------------------------------------------
+------------------------------------------------------------------------------
 This software is licensed under the `Apache 2 license`_, quoted below.
 
 Copyright 2017 Kakao Corp. http://www.kakaocorp.com
@@ -149,12 +155,11 @@ limitations under the License.
 .. _Apache 2 license: LICENSE.txt
 .. _annoy: https://github.com/spotify/annoy
 .. _nmslib: https://github.com/searchivarius/nmslib
-.. _full documentation: https://n2.readthedocs.io/en/latest/
 .. _Installation Guide: https://n2.readthedocs.io/en/latest/install.html
 .. _Python Interface: https://n2.readthedocs.io/en/latest/python_api.html
 .. _C++ Interface: https://n2.readthedocs.io/en/latest/cpp_api.html
 .. _Go Interface: https://n2.readthedocs.io/en/latest/go_api.html
-.. _benchmark: https://n2.readthedocs.io/en/latest/benchmark.html
+.. _Benchmark: https://n2.readthedocs.io/en/latest/benchmark.html
 
 .. |image0| image:: docs/imgs/build_time/build_time_threads.png
 .. |image1| image:: docs/imgs/search_time/search_time.png

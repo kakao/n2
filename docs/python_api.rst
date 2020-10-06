@@ -1,8 +1,8 @@
 Python Interface
-=====================================================================
+==============================================================================
 
 Basic Usage
----------------------------------------------------------------------
+------------------------------------------------------------------------------
 
 .. code:: python
 
@@ -22,11 +22,13 @@ Basic Usage
     u.load('test.hnsw')
     print(u.search_by_id(0, 1000))
 
+You can see more code examples at `examples/python`_.
+
 Main Interface
 ---------------------------------------------------------------------
 
-**Note that if a user passes a negative value, it will be set to a
-default value when the metric has the default value.**
 
 .. autoclass:: n2.HnswIndex
    :members:
+
+.. _examples/python: https://github.com/kakao/n2/tree/dev/examples/python

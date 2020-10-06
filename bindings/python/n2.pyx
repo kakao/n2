@@ -171,11 +171,11 @@ cdef class _HnswIndex:
 class HnswIndex(object):
     def __init__(self, dimension, metric='angular'):
         """
-        
+
         Args:
             dimension (int): Dimension of vectors.
             metric (string): An optional parameter to choose a distance metric.
-                            ('L2\|'euclidean'\|'angular')
+                            ('L2'|'euclidean'|'angular')
 
         Returns:
             An instance of Hnsw index.
@@ -188,7 +188,7 @@ class HnswIndex(object):
 
         Args:
             v (list(float)): A vector with dimension ``dimension`` set in __init__().
-        
+
         Returns:
             bool: Boolean value indicating whether data addition succeeded or not.
 
@@ -212,7 +212,7 @@ class HnswIndex(object):
 
         Args:
             fname (str): An index file name.
-            use_mmap (bool): An optional parameter indicating whether to use mmap() or not. (default=True).
+            use_mmap (bool): An optional parameter indicating whether to use mmap() or not. (default = True).
                 If this parameter is set, N2 loads model through mmap.
 
         Returns:
@@ -226,27 +226,29 @@ class HnswIndex(object):
         """
         self.model.unload()
 
-    def build(self, m=None, max_m0=None, ef_construction=None, n_threads=None, mult=None, neighbor_selecting=None, graph_merging=None):
+    def build(self, m=None, max_m0=None, ef_construction=None, n_threads=None,
+              mult=None, neighbor_selecting=None, graph_merging=None):
         """Builds a hnsw graph with given configurations.
 
         Args:
-            m (int): Max number of edges for nodes at level>0 (default=12).
-            max_m0 (int): Max number of edges for nodes at level==0 (default=24).
-            ef_construction (int): Refer to HNSW paper (default=150).
+            m (int): Max number of edges for nodes at level > 0 (default = 12).
+            max_m0 (int): Max number of edges for nodes at level == 0 (default = 24).
+            ef_construction (int): Refer to HNSW paper (default = 150).
             n_threads (int): Number of threads for building index.
-            mult (float): Level multiplier. Recommended to use the default value (default=1/log(1.0*M)).
+            mult (float): Level multiplier. Recommended to use the default value (default = 1 / log(1.0 * M)).
             neighbor_selecting (string): Neighbor selecting policy.
-                
+
                 - Available values
                     - ``"heuristic"`` (default): Select neighbors using algorithm4 on HNSW paper (recommended).
                     -  ``"naive"``: Select closest neighbors (not recommended).
 
             graph_merging (string): Graph merging heuristic.
-                
+
                 - Available values
                     -  ``"skip"`` (default): Do not merge (recommended for large scale of data(over 10M)).
-                    -  ``"merge_level0"``: Build another graph in reverse order, then merge edges of level0 (recommended for under 10M scale data).
-        
+                    -  ``"merge_level0"``: Build another graph in reverse order, then merge edges of level0\
+                        (recommended for data under 10M scale).
+
         """
         configs = []
         if m is not None:
@@ -271,16 +273,17 @@ class HnswIndex(object):
         Args:
             v (list(float)): A query vector.
             k (int): k value.
-            ef_search (int): ef_search metric (default=50 \* k).
+            ef_search (int): ef_search metric (default = 50 * k).
+                If you pass -1 to ef_search, ef_search will be set as the default value.
             include_distances (bool): If you set this argument to True,
-            it will return a list of tuples((item_id, distance)).
+                it will return a list of tuples((item_id, distance)).
 
         Returns:
             list: A list of k nearest items.
 
         """
         if ef_search == -1:
-            ef_search = k * 10
+            ef_search = k * 50
         if include_distances:
             return self.model.search_by_vector_incl_dist(v, k, ef_search)
         else:
@@ -292,16 +295,17 @@ class HnswIndex(object):
         Args:
             item_id (int): A query id.
             k (int): k value.
-            ef_search (int): ef_search metric (default=50 \* k).
+            ef_search (int): ef_search metric (default = 50 * k). If you pass -1 to ef_search,
+                ef_search will be set as the default value.
             include_distances (bool): If you set this argument to True,
-            it will return a list of tuples((item_id, distance)).
+                it will return a list of tuples((item_id, distance)).
 
         Returns:
             list: A list of k nearest items.
 
         """
         if ef_search == -1:
-            ef_search = k * 10
+            ef_search = k * 50
         if include_distances:
             return self.model.search_by_id_incl_dist(item_id, k, ef_search)
         else:
@@ -317,7 +321,8 @@ class HnswIndex(object):
         Args:
             vs (list): Query vectors.
             k (int): k value.
-            ef_search (int): ef_search metric.
+            ef_search (int): ef_search metric (default = 50 * k). If you pass -1 to ef_search,
+                ef_search will be set as the default value.
             num_threads (int): Number of threads for searching.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
@@ -327,7 +332,7 @@ class HnswIndex(object):
 
         """
         if ef_search == -1:
-            ef_search = k * 10
+            ef_search = k * 50
         if include_distances:
             return self.model.batch_search_by_vectors_incl_dist(vs, k, ef_search, num_threads)
         else:
@@ -343,7 +348,8 @@ class HnswIndex(object):
         Args:
             item_ids (list): Query ids.
             k (int): k value.
-            ef_search (int): ef_search metric.
+            ef_search (int): ef_search metric (default = 50 * k). If you pass -1 to ef_search,
+                ef_search will be set as the default value.
             num_threads (int): Number of threads for searching.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
@@ -353,7 +359,7 @@ class HnswIndex(object):
 
         """
         if ef_search == -1:
-            ef_search = k * 10
+            ef_search = k * 50
         if include_distances:
             return self.model.batch_search_by_ids_incl_dist(item_ids, k, ef_search, num_threads)
         else:

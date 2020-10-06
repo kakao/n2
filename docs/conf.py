@@ -37,8 +37,9 @@ release = '0.16.2'
 extensions = [
     'sphinx.ext.autodoc',  # Include documentation from docstrings
     'sphinx.ext.napoleon',  # Support for NumPy and Google style docstrings
-    'breathe',  # support cpp documentation
-    'exhale'  # Support cpp documentation
+    'breathe',  # Support cpp documentation
+    'exhale',  # Support cpp documentation
+    'sphinx.ext.autosummary'
 ]
 
 # Napoleon settings
@@ -53,16 +54,17 @@ breathe_default_project = "N2"
 # Setup the exhale extension
 exhale_args = {
     # These arguments are required
-    "containmentFolder":     "./api",  # exhale will produce docs/api folder
-    "rootFileName":          "cpp_reference_root.rst",  # exhale will produce docs/api/library_root.rst
-    "rootFileTitle":         "CPP Reference",
-    "doxygenStripFromPath":  "..",
+    "containmentFolder": "./api",  # exhale will produce docs/api folder
+    "rootFileName": "cpp_reference_root.rst",  # exhale will produce docs/api/library_root.rst
+    "rootFileTitle": "CPP Reference",
+    "doxygenStripFromPath": "..",
     # Suggested optional arguments
-    "createTreeView":        True,
+    "createTreeView": True,
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../include"  # it would use doxygen to parse ../include and save the output to docs/doxyoutput
+    "exhaleDoxygenStdin": "INPUT = ../include"
+    # it would use doxygen to parse ../include and save the output to docs/doxyoutput
 }
 
 # Add any paths that contain templates here, relative to this directory.
