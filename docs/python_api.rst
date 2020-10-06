@@ -25,7 +25,22 @@ Basic Usage
 You can see more code examples at `examples/python`_.
 
 Main Interface
----------------------------------------------------------------------
+------------------------------------------------------------------------------
+
+.. autosummary::
+    :nosignatures:
+
+    n2.HnswIndex.add_data
+    n2.HnswIndex.save
+    n2.HnswIndex.load
+    n2.HnswIndex.unload
+    n2.HnswIndex.build
+    n2.HnswIndex.search_by_vector
+    n2.HnswIndex.search_by_id
+    n2.HnswIndex.batch_search_by_vectors
+    n2.HnswIndex.batch_search_by_ids
+    n2.HnswIndex.print_degree_dist
+    n2.HnswIndex.print_configs
 
 
 .. autoclass:: n2.HnswIndex
