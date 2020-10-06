@@ -26,7 +26,17 @@ VERSION = '0.1.6'
 
 def long_description():
     with io.open('README.rst', 'r', encoding='utf-8') as f:
-        readme = f.read()
+        lines = f.readlines()
+
+    image_directive = 'image:: '
+    for i in range(len(lines)):
+        directive_start = lines[i].find(image_directive)
+        is_absolute_url = any(x in lines[i] for x in ['https://', 'http://'])
+        if directive_start != -1 and not is_absolute_url:
+            directive_end = directive_start + len(image_directive)
+            lines[i] = lines[i][:directive_end] + 'https://raw.githubusercontent.com/kakao/n2/master/' + lines[i][directive_end:]
+    readme = ''.join(lines)
+
     return readme
 
 
