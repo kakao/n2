@@ -26,7 +26,7 @@ author = 'Kakao Recommendation Team'
 master_doc = 'index'
 
 # The full version, including alpha/beta/rc tags
-release = '0.16.2'
+release = '0.1.6'
 
 
 # -- General configuration ---------------------------------------------------
@@ -75,6 +75,7 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.rst']
 
+smartquotes = False  # deactivate smartquotes
 
 # -- Options for HTML output -------------------------------------------------
 
