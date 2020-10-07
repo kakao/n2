@@ -48,11 +48,9 @@ existing aKNN libraries and supplement their weaknesses.
 
 Features
 ------------------------------------------------------------------------------
-- N2 is a lightweight library which runs fast with large datasets.
-- Improved usability over `nmslib`_.
+- Lightweight library which runs fast with large datasets.
 - Good performance in terms of index build time, search speed,
   and memory usage.
-- Efficient implementation.
 - Supports multi-core CPUs for index building.
 - Supports a mmap feature by default to efficiently process large
   index files.
@@ -89,7 +87,7 @@ Quickstart
 Full Documentation
 ------------------------------------------------------------------------------
 
-Visit https://n2.readthedocs.io/en/latest/ for full documentation.
+Visit `n2.readthedocs.io`_ for full documentation.
 The documentation site explains the following contents in detail.
 
 - `Installation Guide`_
@@ -104,8 +102,7 @@ The documentation site explains the following contents in detail.
 
 Performance
 ------------------------------------------------------------------------------
-- You can also see benchmarks of various ANN libraries in Python at
-https://github.com/erikbern/ann-benchmarks.
+- You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_.
 
 
 Index Build Time
@@ -132,7 +129,7 @@ References
   nearest neighbor search using hierarchical navigable small world 
   graphs," CoRR, vol. abs/1603.09320, 2016. [Online]. 
   Available: http://arxiv.org/abs/1603.09320
--  nmslib: https://github.com/searchivarius/NMSLIB
+-  nmslib: https://github.com/nmslib/nmslib
 -  annoy: https://github.com/spotify/annoy
 
 License
@@ -154,12 +151,14 @@ limitations under the License.
 
 .. _Apache 2 license: LICENSE.txt
 .. _annoy: https://github.com/spotify/annoy
-.. _nmslib: https://github.com/searchivarius/nmslib
+.. _nmslib: https://github.com/nmslib/nmslib
 .. _Installation Guide: https://n2.readthedocs.io/en/latest/install.html
 .. _Python Interface: https://n2.readthedocs.io/en/latest/python_api.html
 .. _C++ Interface: https://n2.readthedocs.io/en/latest/cpp_api.html
 .. _Go Interface: https://n2.readthedocs.io/en/latest/go_api.html
 .. _Benchmark: https://n2.readthedocs.io/en/latest/benchmark.html
+.. _n2.readthedocs.io: https://n2.readthedocs.io/en/latest/
+.. _ann-benchmarks.com: http://ann-benchmarks.com/
 
 .. |image0| image:: docs/imgs/build_time/build_time_threads.png
 .. |image1| image:: docs/imgs/search_time/search_time.png

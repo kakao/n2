@@ -21,23 +21,20 @@ Python
 You can install using pip or install directly from source.
 
 1. Install using pip
+   - The easiest way to install N2 is to use `pip`. This will automatically install Cython dependency.
 
-The easiest way to install N2 is to use `pip`. This will automatically install Cython
-dependency.
+   .. code:: bash
 
-.. code:: bash
-
-   $ pip install n2
+      $ pip install n2
 
 2. Install from source
+   - Or you can build from source by running the following commands.
 
-Or you can build from source by running the following commands.
+   .. code:: bash
 
-.. code:: bash
-
-   $ git clone https://github.com/kakao/n2.git
-   $ git submodule update --init  # update submodules
-   $ python setup.py install
+      $ git clone https://github.com/kakao/n2.git
+      $ git submodule update --init  # update submodules
+      $ python setup.py install
    
 3. You can run unit test with: ``make test_python``.
 
@@ -46,7 +43,7 @@ C++
 You can install from source.
 
 1. ``make shared_lib`` (if you need shared library) or
-``make static_lib`` (if you need static library)
+   ``make static_lib`` (if you need static library)
 
 2. ``make install``
    - This installs N2 library built by ``make shared_lib`` into user-defined

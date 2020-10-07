@@ -67,6 +67,9 @@ Test Environment
 Index Build Time
 ------------------------------------------------------------------------------
 
+Data below shows a comparison of index build times with change in number of threads.
+N2 is 19~27% faster than nmslib to build index file.
+
 |image0|
 
 +----------------+-------------+-------------+-------------+-------------+------------+
@@ -77,11 +80,12 @@ Index Build Time
 | nmslib (3.9GB) | 6368.85 sec | 3865.73 sec | 2081.81 sec | 1092.89 sec | 666.20 sec |
 +----------------+-------------+-------------+-------------+-------------+------------+
 
-The above data shows a comparison of index build times with change in number of threads.
-N2 is 19~27% faster than nmslib to build index file.
 
 Search Speed
 ------------------------------------------------------------------------------
+
+Data below shows QPS(Queries Per Second) values for each accuracy values.
+Both N2 and nmslib shows similar search performance.
 
 |image1|
 
@@ -141,11 +145,12 @@ Search Speed
 | nmslib (efCon = 100, efSearch = 100000) | 0.144999783     | 0.946819 |
 +-----------------------------------------+-----------------+----------+
 
-The above data shows QPS(Queries Per Second) values for each accuracy values.
-Both N2 and nmslib shows similar search performance.
 
 Memory Usage
 ------------------------------------------------------------------------------
+
+Data below shows the difference in memory usage before and after the index file is built.
+N2 uses 14% less memory than nmslib.
 
 |image2|
 
@@ -157,8 +162,6 @@ Memory Usage
 | nmslib    | 13006.2 MB     |
 +-----------+----------------+
 
-The above data shows the difference in memory usage before and after the index file is built.
-N2 uses 14% less memory than nmslib.
 
 Conclusion
 ------------------------------------------------------------------------------

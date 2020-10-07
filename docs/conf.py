@@ -35,10 +35,10 @@ release = '0.1.6'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',  # Include documentation from docstrings
-    'sphinx.ext.napoleon',  # Support for NumPy and Google style docstrings
-    'breathe',  # Support cpp documentation
-    'exhale',  # Support cpp documentation
+    'sphinx.ext.autodoc',  # include documentation from docstrings
+    'sphinx.ext.napoleon',  # support NumPy and Google style docstrings
+    'breathe',  # support cpp documentation
+    'exhale',  # support cpp documentation
     'sphinx.ext.autosummary'
 ]
 

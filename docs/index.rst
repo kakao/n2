@@ -43,4 +43,4 @@ N2: Approximate Nearest Neighbor
    :end-before: end_footnote
    
 .. _annoy: https://github.com/spotify/annoy
-.. _nmslib: https://github.com/searchivarius/nmslib
+.. _nmslib: https://github.com/nmslib/nmslib
