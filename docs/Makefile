@@ -24,4 +24,4 @@ clean:
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 n2:
-	cd .. && CC=gcc-10 CXX=g++-10 python setup.py build_ext --inplace && cd docs
+	cd .. && python setup.py build_ext --inplace && cd docs
