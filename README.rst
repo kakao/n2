@@ -122,13 +122,18 @@ Full Documentation
 Visit `n2.readthedocs.io`_ for full documentation.
 The documentation site explains the following contents in detail.
 
-- `Installation Guide`_
+-  `Installation Guide`_
+
    - how to build from source, etc.
-- User Guide with Basic Examples
+
+-  User Guide with Basic Examples
+
    - `Python Interface`_
    - `C++ Interface`_
    - `Go Interface`_
-- `Benchmark`_
+
+-  `Benchmark`_
+
    - detailed explanation of how we performed benchmark experiemnts.
 
 
