@@ -113,7 +113,7 @@ class N2(BaseANN):
 
 class NmslibHNSW(BaseANN):
     def __init__(self, m, ef_construction, n_threads, ef_search, metric, batch):
-        self.name = "nmslib_M%d_efCon%d_n_thread%s_efSearch%d%s" % (m, ef_construction, n_threads, ef_search,
+        self.name = "NMSLIB_M%d_efCon%d_n_thread%s_efSearch%d%s" % (m, ef_construction, n_threads, ef_search,
                                                                     '_batch' if batch else '')
         self._index_param = [
             'M=%d' % m,
