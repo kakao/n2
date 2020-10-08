@@ -175,7 +175,7 @@ class HnswIndex(object):
         Args:
             dimension (int): Dimension of vectors.
             metric (string): An optional parameter to choose a distance metric.
-                            ('L2'|'euclidean'|'angular')
+                            ('angular' | 'L2' | 'dot')
 
         Returns:
             An instance of Hnsw index.
@@ -212,7 +212,7 @@ class HnswIndex(object):
 
         Args:
             fname (str): An index file name.
-            use_mmap (bool): An optional parameter indicating whether to use mmap() or not. (default = True).
+            use_mmap (bool): An optional parameter indicating whether to use mmap() or not. (default: True).
                 If this parameter is set, N2 loads model through mmap.
 
         Returns:
@@ -222,7 +222,7 @@ class HnswIndex(object):
         return self.model.load(fname, use_mmap)
 
     def unload(self):
-        """Unloads (unmap)
+        """Unloads (unmap).
         """
         self.model.unload()
 
@@ -231,22 +231,24 @@ class HnswIndex(object):
         """Builds a hnsw graph with given configurations.
 
         Args:
-            m (int): Max number of edges for nodes at level > 0 (default = 12).
-            max_m0 (int): Max number of edges for nodes at level == 0 (default = 24).
-            ef_construction (int): Refer to HNSW paper (default = 150).
+            m (int): Max number of edges for nodes at level > 0 (default: 12).
+            max_m0 (int): Max number of edges for nodes at level == 0 (default: 24).
+            ef_construction (int): Refer to HNSW paper (default: 150).
             n_threads (int): Number of threads for building index.
-            mult (float): Level multiplier. Recommended to use the default value (default = 1 / log(1.0 * M)).
+            mult (float): Level multiplier. Recommended to use the default value (default: 1 / log(1.0 * M)).
             neighbor_selecting (string): Neighbor selecting policy.
 
                 - Available values
                     - ``"heuristic"`` (default): Select neighbors using algorithm4 on HNSW paper (recommended).
-                    -  ``"naive"``: Select closest neighbors (not recommended).
+                    - ``"naive"``: Select closest neighbors (not recommended).
 
             graph_merging (string): Graph merging heuristic.
 
                 - Available values
-                    -  ``"skip"`` (default): Do not merge (recommended for large scale of data(over 10M)).
-                    -  ``"merge_level0"``: Build another graph in reverse order, then merge edges of level0\
+                    - ``"skip"`` (default): Do not merge (recommended for large-scale data (over 10M)).
+                    - ``"merge_level0"``: Performs an additional graph build in reverse order,
+                        then merges edges at level 0. So, it takes twice the build time
+                        compared to ``"skip"`` but shows slightly higher accuracy.
                         (recommended for data under 10M scale).
 
         """
@@ -273,13 +275,13 @@ class HnswIndex(object):
         Args:
             v (list(float)): A query vector.
             k (int): k value.
-            ef_search (int): ef_search metric (default = 50 * k).
+            ef_search (int): ef_search metric (default: 50 * k).
                 If you pass -1 to ef_search, ef_search will be set as the default value.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
 
         Returns:
-            list: A list of k nearest items.
+            list(int) or list(tuple(int, float)): A list of k nearest items.
 
         """
         if ef_search == -1:
@@ -295,13 +297,13 @@ class HnswIndex(object):
         Args:
             item_id (int): A query id.
             k (int): k value.
-            ef_search (int): ef_search metric (default = 50 * k). If you pass -1 to ef_search,
+            ef_search (int): ef_search metric (default: 50 * k). If you pass -1 to ef_search,
                 ef_search will be set as the default value.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
 
         Returns:
-            list: A list of k nearest items.
+            list(int) or list(tuple(int, float)): A list of k nearest items.
 
         """
         if ef_search == -1:
@@ -315,20 +317,21 @@ class HnswIndex(object):
         """Returns k nearest items by each vector (batch search with multi-threads).
 
         Note:
-            How threads are scheduled can be set through the OMP_SCHEDULE environment variable.
-            See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE.
+            With OMP_SCHEDULE environment variable, you can set how threads are scheduled.
+            Refer to `GNU libgomp <https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE>`_.
 
         Args:
-            vs (list): Query vectors.
+            vs (list(list(float))): Query vectors.
             k (int): k value.
-            ef_search (int): ef_search metric (default = 50 * k). If you pass -1 to ef_search,
+            ef_search (int): ef_search metric (default: 50 * k). If you pass -1 to ef_search,
                 ef_search will be set as the default value.
-            num_threads (int): Number of threads for searching.
+            num_threads (int): Number of threads to use for search.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
 
         Returns:
-            list: A list of list of k nearest items for each query in the same order.
+            list(list(int) or list(list(tuple(int, float))): A list of list of
+            k nearest items for each input query in the order passed to parameter ``vs``.
 
         """
         if ef_search == -1:
@@ -342,20 +345,21 @@ class HnswIndex(object):
         """Returns k nearest items by each id (batch search with multi-threads).
 
         Note:
-            How threads are scheduled can be set through the OMP_SCHEDULE environment variable.
-            See https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE.
+            With OMP_SCHEDULE environment variable, you can set how threads are scheduled.
+            Refer to `GNU libgomp <https://gcc.gnu.org/onlinedocs/libgomp/OMP_005fSCHEDULE.html#OMP_005fSCHEDULE>`_.
 
         Args:
-            item_ids (list): Query ids.
+            item_ids (list(int)): Query ids.
             k (int): k value.
-            ef_search (int): ef_search metric (default = 50 * k). If you pass -1 to ef_search,
+            ef_search (int): ef_search metric (default: 50 * k). If you pass -1 to ef_search,
                 ef_search will be set as the default value.
-            num_threads (int): Number of threads for searching.
+            num_threads (int): Number of threads to use for search.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
 
         Returns:
-            list: A list of list of k nearest items for each query in the same order.
+            list(list(int) or list(list(tuple(int, float))): A list of list of
+            k nearest items for each input query in the order passed to parameter ``item_ids``.
 
         """
         if ef_search == -1:

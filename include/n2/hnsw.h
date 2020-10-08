@@ -34,8 +34,8 @@ public:
     /**
      * @brief Makes an Hnsw Index instance.
      * @param dim: Dimension of vectors.
-     * @param metric: An optional parameter to choosed a distance metric.
-     *                ('L2'|'euclidean'|'angular') (default = 'angular').
+     * @param metric: An optional parameter to choose a distance metric.
+     *        ('angular' | 'L2' | 'dot') (default: 'angular').
      * @return A new Hnsw index.
      */
     Hnsw(int dim,std::string metric="angular");
@@ -50,7 +50,7 @@ public:
     // Build
 
     /**
-     * @brief Adds vector v.
+     * @brief Adds vector to Hnsw index.
      * @param data: A vector with dimension ``dim``.
      */
     void AddData(const std::vector<float>& data);
@@ -64,16 +64,16 @@ public:
     
     /**
      * @brief Builds a hnsw graph with given configurations.
-     * @param m: Max number of edges for nodes at level > 0 (default = 12).
-     * @param max_m0: Max number of edges for nodes at level == 0 (default = 24).
-     * @param ef_construction: Refer to HNSW paper for its role(default = 150).
+     * @param m: Max number of edges for nodes at level > 0 (default: 12).
+     * @param max_m0: Max number of edges for nodes at level == 0 (default: 24).
+     * @param ef_construction: Refer to HNSW paper for its role (default: 150).
      * @param n_threads: Number of threads for building index.
-     * @param mult: Level multiplier (default value recommended) (default = 1/log(1.0*M)).
+     * @param mult: Level multiplier (default value recommended) (default: 1/log(1.0*M)).
      * @param NeighborSelectingPolicy: Neighbor selecting policy.
      * @param GraphPostProcessing: Graph merging heuristic.
      *
-     * Refer to NeighborSelectingPolicy() and GraphPostProcessing() to see
-     * other available values for ``neighbor_selecting`` and ``graph_merging``.
+     * To see other available values for ``neighbor_selecting`` and ``graph_merging``,
+     * refer to NeighborSelectingPolicy() and GraphPostProcessing().
      * @see Fit(), SetConfigs()
      */
     void Build(int m=-1, int max_m0=-1, int ef_construction=-1,
@@ -98,8 +98,8 @@ public:
     /**
      * @brief Loads an index from disk.
      * @param fname: An index file name.
-     * @param use_mmap: An optional parameter (default = true).
-     *                  If this parameter is set, N2 loads model through mmap.
+     * @param use_mmap: An optional parameter (default: true).
+     *        If this parameter is set, N2 loads model through mmap.
      */
     bool LoadModel(const std::string& fname, const bool use_mmap=true);
 
@@ -116,9 +116,12 @@ public:
     }
 
     /**
-     * @param ef_search: (default = 50 * k). If you pass a negative value to ef_search,
-     *                   ef_search will be set as the default value.
-     * @return ``k`` nearest items which are searched by vector.
+     * @brief Search k nearest items by vector.
+     * @param qvec: A query vector.
+     * @param k: k value.
+     * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
+     *        ef_search will be set as the default value.
+     * @param[out] result: ``k`` nearest items.
      */
     inline void SearchByVector(const std::vector<float>& qvec, size_t k, 
                                size_t ef_search,
@@ -130,9 +133,12 @@ public:
     }
 
     /**
-     * @param ef_search: (default = 50 * k). If you pass a negative value to ef_search,
-     *                   ef_search will be set as the default value.
-     * @return ``k`` nearest items which are searched by Id.
+     * @brief Search k nearest items by id.
+     * @param id: A query id.
+     * @param k: k value.
+     * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
+     *        ef_search will be set as the default value.
+     * @param[out] result: ``k`` nearest items.
      */
     inline void SearchById(int id, size_t k, size_t ef_search,
         std::vector<std::pair<int, float>>& result) {
@@ -143,6 +149,17 @@ public:
                                      size_t ef_search, size_t n_threads, std::vector<std::vector<int>>& results) {
         BatchSearchByVectors_(qvecs, k, ef_search, n_threads, results);
     }
+
+    /**
+     * @brief Search k nearest items by each vector (batch search with multi-threads).
+     * @param qvecs: Query vectors.
+     * @param k: k value.
+     * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
+     *        ef_search will be set as the default value.
+     * @param n_threads: Number of threads to use for search.
+     * @param[out] result: vector of ``k`` nearest items for each input query
+     *             in the order passed to parameter ``qvecs``.
+     */
     inline void BatchSearchByVectors(const std::vector<std::vector<float>>& qvecs, size_t k, 
                                      size_t ef_search, size_t n_threads, 
                                      std::vector<std::vector<std::pair<int, float>>>& results) {
@@ -152,6 +169,17 @@ public:
                                  std::vector<std::vector<int>>& results) {
         BatchSearchByIds_(ids, k, ef_search, n_threads, results);
     }
+
+    /**
+     * @brief Search k nearest items by each id (batch search with multi-threads).
+     * @param ids: Query ids.
+     * @param k: k value.
+     * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
+     *        ef_search will be set as the default value.
+     * @param n_threads: Number of threads to use for search.
+     * @param[out] result: vector of ``k`` nearest items for each input query
+     *             in the order passed to parameter ``ids``.
+     */
     inline void BatchSearchByIds(const std::vector<int> ids, size_t k, size_t ef_search, size_t n_threads,
                                  std::vector<std::vector<std::pair<int, float>>>& results) {
         BatchSearchByIds_(ids, k, ef_search, n_threads, results);

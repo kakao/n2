@@ -20,9 +20,10 @@ namespace n2 {
  * Graph merging heuristic.
  */
 enum class GraphPostProcessing {
-    SKIP = 0, /**< Do not merge (recommended for large scale of data (over 10M)). */
-    MERGE_LEVEL0 = 1 /**< Build another graph in reverse order, and then merge edges of level0
-                          (recommended for data under 10M scale). */
+    SKIP = 0, /**< Do not merge (recommended for large-scale data (over 10M)). */
+    MERGE_LEVEL0 = 1 /**< Performs an additional graph build in reverse order,
+    then merges edges at level 0. So, it takes twice the build time compared to
+    ``"skip"`` but shows slightly higher accuracy. (recommended for data under 10M scale). */
 };
 
 /**
