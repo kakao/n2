@@ -212,7 +212,8 @@ class HnswIndex(object):
 
         Args:
             fname (str): An index file name.
-            use_mmap (bool): An optional parameter indicating whether to use mmap() or not. (default: True).
+            use_mmap (bool): An optional parameter indicating whether to use
+                mmap() or not. (default: True).
                 If this parameter is set, N2 loads model through mmap.
 
         Returns:
@@ -235,7 +236,8 @@ class HnswIndex(object):
             max_m0 (int): Max number of edges for nodes at level == 0 (default: 24).
             ef_construction (int): Refer to HNSW paper (default: 150).
             n_threads (int): Number of threads for building index.
-            mult (float): Level multiplier. Recommended to use the default value (default: 1 / log(1.0 * M)).
+            mult (float): Level multiplier. Recommended to use the default value
+                (default: 1 / log(1.0 * M)).
             neighbor_selecting (string): Neighbor selecting policy.
 
                 - Available values
@@ -297,8 +299,8 @@ class HnswIndex(object):
         Args:
             item_id (int): A query id.
             k (int): k value.
-            ef_search (int): ef_search metric (default: 50 * k). If you pass -1 to ef_search,
-                ef_search will be set as the default value.
+            ef_search (int): ef_search metric (default: 50 * k).
+                If you pass -1 to ef_search, ef_search will be set as the default value.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
 
@@ -323,8 +325,8 @@ class HnswIndex(object):
         Args:
             vs (list(list(float))): Query vectors.
             k (int): k value.
-            ef_search (int): ef_search metric (default: 50 * k). If you pass -1 to ef_search,
-                ef_search will be set as the default value.
+            ef_search (int): ef_search metric (default: 50 * k).
+                If you pass -1 to ef_search, ef_search will be set as the default value.
             num_threads (int): Number of threads to use for search.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).
@@ -351,8 +353,8 @@ class HnswIndex(object):
         Args:
             item_ids (list(int)): Query ids.
             k (int): k value.
-            ef_search (int): ef_search metric (default: 50 * k). If you pass -1 to ef_search,
-                ef_search will be set as the default value.
+            ef_search (int): ef_search metric (default: 50 * k).
+                If you pass -1 to ef_search, ef_search will be set as the default value.
             num_threads (int): Number of threads to use for search.
             include_distances (bool): If you set this argument to True,
                 it will return a list of tuples((item_id, distance)).

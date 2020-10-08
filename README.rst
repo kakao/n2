@@ -1,5 +1,6 @@
 N2
 ==============================================================================
+
 |pypi| |docs| |travis| |license|
 
 .. begin_badges
@@ -36,6 +37,7 @@ N2 stands for two N's, which comes from \'Approximate ``N``\ earest
 
 Why N2 Was Made
 ------------------------------------------------------------------------------
+
 Before N2, there has been other great approximate nearest neighbor
 libraries such as `annoy`_ and `nmslib`_. However, each of them had
 different strengths and weaknesses regarding usability, performance,
@@ -48,6 +50,7 @@ existing aKNN libraries and supplement their weaknesses.
 
 Features
 ------------------------------------------------------------------------------
+
 - Lightweight library which runs fast with large datasets.
 - Good performance in terms of index build time, search speed,
   and memory usage.
@@ -57,6 +60,34 @@ Features
 - Supports Python/Go bindings.
 
 .. end_features
+
+Supported Distance Metrics
+------------------------------------------------------------------------------
+
+.. Please manually sync the table below with that of docs/index.rst.
+
++-----------+-------------+--------------------------------------------------------------------+
+| Metric    | Definition  | d(**p**, **q**)                                                    |
++-----------+-------------+--------------------------------------------------------------------+
+| "angular" | 1 - cosθ    | 1 - {sum(p :sub:`i` · q :sub:`i`) /                                |
+|           |             | sqrt(sum(p :sub:`i` · p :sub:`i`) · sum(q :sub:`i` · q :sub:`i`))} |
++-----------+-------------+--------------------------------------------------------------------+
+| "L2"      | squared L2  | sum{(p :sub:`i` - q :sub:`i`) :sup:`2`}                            |
++-----------+-------------+--------------------------------------------------------------------+
+| "dot"     | dot product | sum(p :sub:`i` · q :sub:`i`)                                       |
++-----------+-------------+--------------------------------------------------------------------+
+
+.. begin_metric_detail
+
+N2 supports three distance metrics.
+For "angular" and "L2", **d** (distance) is defined such that the closer the vectors are,
+the smaller **d** is. However for "dot", **d** is defined such that the closer
+the vectors are, the larger **d** is. You may be wondering why we defined
+and implemented "dot" metric as *plain dot product* and not as *(1 - dot product)*.
+The rationale for this decision was to allow users to directly interpret the **d** value
+returned from Hnsw search function as a dot product value.
+
+.. end_metric_detail
 
 Quickstart
 ------------------------------------------------------------------------------
@@ -102,11 +133,13 @@ The documentation site explains the following contents in detail.
 
 Performance
 ------------------------------------------------------------------------------
+
 - You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_.
 
 
 Index Build Time
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 |image0|
 
 Search Speed
@@ -134,6 +167,7 @@ References
 
 License
 ------------------------------------------------------------------------------
+
 This software is licensed under the `Apache 2 license`_, quoted below.
 
 Copyright 2017 Kakao Corp. http://www.kakaocorp.com
@@ -149,7 +183,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-.. _Apache 2 license: LICENSE.txt
+.. _Apache 2 license: https://github.com/kakao/n2/blob/master/LICENSE
 .. _annoy: https://github.com/spotify/annoy
 .. _nmslib: https://github.com/nmslib/nmslib
 .. _Installation Guide: https://n2.readthedocs.io/en/latest/install.html

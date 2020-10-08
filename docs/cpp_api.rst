@@ -1,4 +1,4 @@
-CPP Interface
+C++ Interface
 ==============================================================================
 
 Basic Usage
@@ -7,21 +7,23 @@ Basic Usage
 .. code:: cpp
 
     #include "hnsw.h"
+
+    #include <utility>
     #include <vector>
-    #include <map>
 
     int main() {
         n2::Hnsw index(3, "angular");
         index.AddData(std::vector<float>{0, 0, 1});
         index.AddData(std::vector<float>{0, 1, 0});
         index.AddData(std::vector<float>{0, 0, 1});
-        std::vector<std::pair<std::string, std::string>> configs;
-        int n_threads = 10;
-        int M = 5;
-        int MaxM0 = 10;
-        index.Build(M, MaxM0, -1, n_threads);
-        std::vector<std::pair<int, float> > result;
-        int ef_search = 3*10;
+
+        int n_threads = 4;
+        int m = 5;
+        int max_m0 = 10;
+        int ef_construction = 50;
+        index.Build(m, max_m0, ef_construction, n_threads);
+        std::vector<std::pair<int, float>> result;
+        int ef_search = 30;
         index.SearchByVector(std::vector<float>{3, 2, 1}, 3, ef_search, result);
         return 0;
     }
@@ -32,9 +34,8 @@ Main Interface
 ------------------------------------------------------------------------------
 
 .. doxygenclass:: n2::Hnsw
-   :members: Hnsw, AddData, SetConfigs, Fit, Build, SaveModel, LoadModel,
-             UnloadModel, SearchById, SearchByVector,
-             PrintDegreeDist, PrintConfigs
+   :members: Hnsw, AddData, SaveModel, LoadModel, UnloadModel, Build, Fit, SetConfigs,
+             SearchByVector, SearchById, BatchSearchByVectors, BatchSearchByIds
    :undoc-members:
 
 
@@ -47,4 +48,4 @@ This is a full documentation of C++ implementation auto-generated from code comm
    
    api/cpp_reference_root
 
-.. _examples/cpp: https://github.com/kakao/n2/tree/dev/examples/cpp
+.. _examples/cpp: https://github.com/kakao/n2/tree/master/examples/cpp

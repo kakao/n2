@@ -10,7 +10,8 @@ Sphinx Local Build
     # install doxygen
     $ git submodule update --init
 
-    # 1-2. Build n2. You can use either of the following commands. (Note that you need to use gcc that supports C++14.)
+    # 1-2. Build n2. You can use either of the following commands.
+    # (Note that you need to use gcc that supports C++14.)
     $ pip install .
     $ python setup.py build_ext --inplace
     

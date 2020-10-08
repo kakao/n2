@@ -1,7 +1,7 @@
 N2 Benchmark
 ==============================================================================
 This page is a detailed explanation of how we performed benchmark experiments.
-You can also see benchmarks of ANN libraries in Python at https://github.com/erikbern/ann-benchmarks.
+You can also see benchmarks of ANN libraries in Python at `ann-benchmarks.com`_.
 
 
 Benchmark Focus
@@ -67,8 +67,8 @@ Test Environment
 Index Build Time
 ------------------------------------------------------------------------------
 
-Data below shows a comparison of index build times with change in number of threads.
-N2 is 19~27% faster than nmslib to build index file.
+The following is a comparison of index build times with change in number of threads.
+N2 builds index file 19~27% faster than nmslib.
 
 |image0|
 
@@ -84,7 +84,7 @@ N2 is 19~27% faster than nmslib to build index file.
 Search Speed
 ------------------------------------------------------------------------------
 
-Data below shows QPS(Queries Per Second) values for each accuracy values.
+The data below shows tradeoff between QPS(Queries Per Second) and accuracy.
 Both N2 and nmslib shows similar search performance.
 
 |image1|
@@ -149,8 +149,9 @@ Both N2 and nmslib shows similar search performance.
 Memory Usage
 ------------------------------------------------------------------------------
 
-Data below shows the difference in memory usage before and after the index file is built.
-N2 uses 14% less memory than nmslib.
+The data below shows the amount of memory used to build the index file,
+which is measured as the difference between memory usage before and after
+building the index file. N2 uses 14% less memory than nmslib.
 
 |image2|
 
@@ -175,7 +176,8 @@ concurrent searches by multiple processes or multiple threads. N2 allows you
 to search simultaneously using multiple processes. With mmap support in N2,
 it works much more efficiently than other libraries, including nmslib.
 
-.. _Download dataset: ../benchmarks/README.md#1-download-dataset
+.. _Download dataset: https://github.com/kakao/n2/tree/master/benchmarks#1-download-dataset
+.. _ann-benchmarks.com: http://ann-benchmarks.com/
 
 .. |image0| image:: imgs/build_time/build_time_threads.png
 .. |image1| image:: imgs/search_time/search_time.png

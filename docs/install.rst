@@ -1,7 +1,8 @@
 Installation
 ==============================================================================
 
-``master`` branch is always the latest release version of N2.
+``master`` branch is always the latest release version of N2 and
+``dev`` branch is the development branch for the next release.
 
 Requirements
 ------------------------------------------------------------------------------
@@ -16,48 +17,82 @@ Requirements
    `brew <https://brew.sh/index.html>`__.
    Currently, N2 build is not supported for gcc linked to Clang.
 
-Python
-------------------------------------------------------------------------------
-You can install using pip or install directly from source.
+.. note::
 
-1. Install using pip
-   - The easiest way to install N2 is to use `pip`. This will automatically install Cython dependency.
-
-   .. code:: bash
-
-      $ pip install n2
-
-2. Install from source
-   - Or you can build from source by running the following commands.
+   Regardless of your language choice (Python, C++, Go), any command described
+   in the section ``Install from source`` should be run from the root of n2 folder,
+   assumming that you have successfully run the following commands.
 
    .. code:: bash
 
       $ git clone https://github.com/kakao/n2.git
+      $ cd n2
       $ git submodule update --init  # update submodules
-      $ python setup.py install
+
+Python
+------------------------------------------------------------------------------
+You can install using pip or install directly from source.
+
+Install using pip
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The easiest way to install N2 is to use `pip`.
+This will automatically install Cython dependency.
+
+.. code:: bash
+
+   $ pip install n2
+
+Install from source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Or you can build from source by running the following commands.
+
+.. code:: bash
+
+   $ python setup.py install
+
+You can run unit test with:
+
+.. code:: bash
    
-3. You can run unit test with: ``make test_python``.
+   $ make test_python
 
 C++
 ------------------------------------------------------------------------------
-You can install from source.
+Install from source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. ``make shared_lib`` (if you need shared library) or
-   ``make static_lib`` (if you need static library)
+1. Depending on what you want, run either of the following commands:
 
-2. ``make install``
-   - This installs N2 library built by ``make shared_lib`` into user-defined
-   location set by PREFIX environment variable.
-   - Default installation path is ``/usr/local/``.
+   .. code:: bash
 
-3. You can run unit test with: ``make test_cpp``
+      $ make shared_lib  # If you need shared library
+
+   .. code:: bash
+
+      $ make static_lib  # If you need static library
+
+2. You can install N2 shared library (built with ``make shared_lib``)
+into user-defined location set by PREFIX environment variable with the following command:
+
+   .. code:: bash
+
+      $ make install  # Default installation path is /usr/local/.
+
+3. You can run unit test with:
+
+   .. code:: bash
+
+      $ make test_cpp
 
 Go
 ------------------------------------------------------------------------------
-You can install from source.
+Install from source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Set GOPATH first!
-2. ``make go``
+.. code:: bash
+
+   # Set GOPATH first!
+   $ make go
 
 Installation FAQ
 ------------------------------------------------------------------------------
@@ -85,7 +120,11 @@ But ``make shared_lib`` or ``make static_lib`` can still produce errors similar 
    make[1]: *** [hnsw.o] Error 1
    make: *** [shared_lib] Error 2
 
-In this case, possible reason is that you have not properly set symbolic links or environment variables to point to brew-installed gcc. Thus, please make sure that gcc/g++ symbolic links are linked to brew-installed gcc, or CC/CXX environment variables are set as brew-installed gcc/g++. There may be other solutions and here is one possible fix to this problem.
+In this case, possible reason is that you have not properly set symbolic links
+or environment variables to point to brew-installed gcc.
+Thus, please make sure that gcc/g++ symbolic links are linked to
+brew-installed gcc, or CC/CXX environment variables are set as brew-installed gcc/g++.
+There may be other solutions and here is one possible fix to this problem.
 
 .. code:: bash
 

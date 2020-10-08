@@ -39,7 +39,8 @@ extensions = [
     'sphinx.ext.napoleon',  # support NumPy and Google style docstrings
     'breathe',  # support cpp documentation
     'exhale',  # support cpp documentation
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx.ext.mathjax'
 ]
 
 # Napoleon settings
