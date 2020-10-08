@@ -32,7 +32,7 @@ public:
     Hnsw();
 
     /**
-     * @brief Makes an Hnsw Index instance.
+     * @brief Makes an instance of Hnsw Index.
      * @param dim: Dimension of vectors.
      * @param metric: An optional parameter to choose a distance metric.
      *        ('angular' | 'L2' | 'dot') (default: 'angular').
@@ -116,7 +116,7 @@ public:
     }
 
     /**
-     * @brief Search k nearest items by vector.
+     * @brief Search k nearest items (as vectors) to a query item.
      * @param qvec: A query vector.
      * @param k: k value.
      * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
@@ -133,7 +133,7 @@ public:
     }
 
     /**
-     * @brief Search k nearest items by id.
+     * @brief Search k nearest items (as ids) to a query item.
      * @param id: A query id.
      * @param k: k value.
      * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
@@ -151,13 +151,13 @@ public:
     }
 
     /**
-     * @brief Search k nearest items by each vector (batch search with multi-threads).
+     * @brief Search k nearest items (as vectors) to each query item (batch search with multi-threads).
      * @param qvecs: Query vectors.
      * @param k: k value.
      * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
      *        ef_search will be set as the default value.
      * @param n_threads: Number of threads to use for search.
-     * @param[out] result: vector of ``k`` nearest items for each input query
+     * @param[out] result: vector of ``k`` nearest items for each input query item
      *             in the order passed to parameter ``qvecs``.
      */
     inline void BatchSearchByVectors(const std::vector<std::vector<float>>& qvecs, size_t k, 
@@ -171,13 +171,13 @@ public:
     }
 
     /**
-     * @brief Search k nearest items by each id (batch search with multi-threads).
+     * @brief Search k nearest items (as ids) to each query item (batch search with multi-threads).
      * @param ids: Query ids.
      * @param k: k value.
      * @param ef_search: (default: 50 * k). If you pass a negative value to ef_search,
      *        ef_search will be set as the default value.
      * @param n_threads: Number of threads to use for search.
-     * @param[out] result: vector of ``k`` nearest items for each input query
+     * @param[out] result: vector of ``k`` nearest items for each input query item
      *             in the order passed to parameter ``ids``.
      */
     inline void BatchSearchByIds(const std::vector<int> ids, size_t k, size_t ef_search, size_t n_threads,

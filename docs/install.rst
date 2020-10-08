@@ -31,11 +31,11 @@ Requirements
 
 Python
 ------------------------------------------------------------------------------
-You can install using pip or install directly from source.
+You can install N2 using pip or directly from source.
 
 Install using pip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The easiest way to install N2 is to use `pip`.
+The easiest way to install N2 is to use pip.
 This will automatically install Cython dependency.
 
 .. code:: bash
@@ -44,7 +44,7 @@ This will automatically install Cython dependency.
 
 Install from source
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Or you can build from source by running the following commands.
+Or you can build from source by running the following command.
 
 .. code:: bash
 

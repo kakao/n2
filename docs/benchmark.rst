@@ -11,7 +11,7 @@ and we are continuing our efforts to improve N2 performance.
 Benchmark Focus
 ------------------------------------------------------------------------------
 
-These are some factors that we focus when developing N2.
+These are some factors that we focus on when developing N2.
 
 1. Our ANN algorithm should run fast even when dealing with large-scale datasets.
 2. Our ANN algorithm should minimize the time required to build an index file
@@ -66,7 +66,7 @@ Test Environment
 - Dataset: Youtube (5.4GB)
 - N2 version: 0.1.5
 - NMSLIB version: 2.0.4
-- g++(gcc) 7.3.1
+- g++ (gcc): 7.3.1
 
 Index Build Time
 ------------------------------------------------------------------------------

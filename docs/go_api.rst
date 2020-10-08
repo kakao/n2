@@ -96,16 +96,16 @@ index.LoadModel(fname, use_mmap)
 
 index.UnloadModel()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--  Unloads (unmap).
+-  Unloads (unmap) the index.
 
-index.SearchByVector(item_id, k, ef_serach=-1, vectors, distances)
+index.SearchByVector(item_id, k, ef_search=-1, vectors, distances)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--  Returns ``k`` nearest items.
+-  Returns ``k`` nearest items (as vectors) to a query item.
 -  ``ef_search`` (int): (default: 50 * k).
 
-index.SearchById(v, k, ef_serach=-1, vectors, distances)
+index.SearchById(v, k, ef_search=-1, vectors, distances)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--  Returns ``k`` nearest items.
+-  Returns ``k`` nearest items (as ids) to a query item.
 -  ``v`` (list of float): A query vector.
 -  ``k`` (int)
 -  ``ef_search`` (int): (default: 50 * k).

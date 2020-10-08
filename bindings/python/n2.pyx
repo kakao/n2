@@ -213,7 +213,7 @@ class HnswIndex(object):
         Args:
             fname (str): An index file name.
             use_mmap (bool): An optional parameter indicating whether to use
-                mmap() or not. (default: True).
+                mmap() or not (default: True).
                 If this parameter is set, N2 loads model through mmap.
 
         Returns:
@@ -223,7 +223,7 @@ class HnswIndex(object):
         return self.model.load(fname, use_mmap)
 
     def unload(self):
-        """Unloads (unmap).
+        """Unloads (unmap) the index.
         """
         self.model.unload()
 
@@ -271,7 +271,7 @@ class HnswIndex(object):
         return self.model.build(configs)
 
     def search_by_vector(self, v, k, ef_search=-1, include_distances=False):
-        """Returns k nearest items by vector.
+        """Returns k nearest items (as vectors) to a query item.
 
         Args:
             v (list(float)): A query vector.
@@ -293,7 +293,7 @@ class HnswIndex(object):
             return self.model.search_by_vector(v, k, ef_search)
 
     def search_by_id(self, item_id, k, ef_search=-1, include_distances=False):
-        """Returns k nearest items by id.
+        """Returns k nearest items (as ids) to a query item.
 
         Args:
             item_id (int): A query id.
@@ -315,7 +315,7 @@ class HnswIndex(object):
             return self.model.search_by_id(item_id, k, ef_search)
 
     def batch_search_by_vectors(self, vs, k, ef_search=-1, num_threads=4, include_distances=False):
-        """Returns k nearest items by each vector (batch search with multi-threads).
+        """Returns k nearest items (as vectors) to each query item (batch search with multi-threads).
 
         Note:
             With OMP_SCHEDULE environment variable, you can set how threads are scheduled.
@@ -332,7 +332,7 @@ class HnswIndex(object):
 
         Returns:
             list(list(int) or list(list(tuple(int, float))): A list of list of
-            k nearest items for each input query in the order passed to parameter ``vs``.
+            k nearest items for each input query item in the order passed to parameter ``vs``.
 
         """
         if ef_search == -1:
@@ -343,7 +343,7 @@ class HnswIndex(object):
             return self.model.batch_search_by_vectors(vs, k, ef_search, num_threads)
 
     def batch_search_by_ids(self, item_ids, k, ef_search=-1, num_threads=4, include_distances=False):
-        """Returns k nearest items by each id (batch search with multi-threads).
+        """Returns k nearest items (as ids) to each query item (batch search with multi-threads).
 
         Note:
             With OMP_SCHEDULE environment variable, you can set how threads are scheduled.
@@ -360,7 +360,7 @@ class HnswIndex(object):
 
         Returns:
             list(list(int) or list(list(tuple(int, float))): A list of list of
-            k nearest items for each input query in the order passed to parameter ``item_ids``.
+            k nearest items for each input query item in the order passed to parameter ``item_ids``.
 
         """
         if ef_search == -1:
