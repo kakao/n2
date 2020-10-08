@@ -32,7 +32,7 @@ enum class GraphPostProcessing {
 enum class NeighborSelectingPolicy {
     NAIVE = 0, /**< Select closest neighbors (not recommended). */
     HEURISTIC = 1, /**< Select neighbors using algorithm4 on HNSW paper (recommended). */
-    HEURISTIC_SAVE_REMAINS = 2, /**< Explanation is needed. */
+    HEURISTIC_SAVE_REMAINS = 2, /**< Experimental. */
 };
 
 enum class DistanceKind {

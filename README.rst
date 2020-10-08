@@ -103,6 +103,7 @@ Quickstart
 .. code:: python
 
     import numpy as np
+
     from n2 import HnswIndex
 
     N, dim = 10240, 20
@@ -134,9 +135,9 @@ The documentation site explains the following contents in detail.
 Performance
 ------------------------------------------------------------------------------
 
-- You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_
-Note that as of Oct 8, 2020, N2 v0.1.6 is used in that benchmark,
-and we are continuing our efforts to improve N2 performance.
+- You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_.
+  Note that N2 v0.1.6 is used in `ann-benchmarks.com`_ (last checked on October 8th, 2020)
+  and we are continuing our efforts to improve N2 performance.
 
 
 Index Build Time

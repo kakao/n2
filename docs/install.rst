@@ -20,7 +20,7 @@ Requirements
 .. note::
 
    Regardless of your language choice (Python, C++, Go), any command described
-   in the section ``Install from source`` should be run from the root of N2 folder,
+   in the section ``Install from source`` should be run from the root of N2 directory,
    assumming that you have successfully run the following commands.
 
    .. code:: bash

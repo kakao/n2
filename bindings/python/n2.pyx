@@ -241,17 +241,16 @@ class HnswIndex(object):
             neighbor_selecting (string): Neighbor selecting policy.
 
                 - Available values
-                    - ``"heuristic"`` (default): Select neighbors using algorithm4 on HNSW paper (recommended).
-                    - ``"naive"``: Select closest neighbors (not recommended).
+                    -  ``"heuristic"`` (default): Select neighbors using algorithm4 on HNSW paper (recommended).
+                    -  ``"naive"``: Select closest neighbors (not recommended).
 
             graph_merging (string): Graph merging heuristic.
 
                 - Available values
-                    - ``"skip"`` (default): Do not merge (recommended for large-scale data (over 10M)).
-                    - ``"merge_level0"``: Performs an additional graph build in reverse order,
-                        then merges edges at level 0. So, it takes twice the build time
-                        compared to ``"skip"`` but shows slightly higher accuracy.
-                        (recommended for data under 10M scale).
+                    -  ``"skip"`` (default): Do not merge (recommended for large-scale data (over 10M)).
+                    -  ``"merge_level0"``: Performs an additional graph build in reverse order,
+                       then merges edges at level 0. So, it takes twice the build time compared to
+                       ``"skip"`` but shows slightly higher accuracy. (recommended for data under 10M scale).
 
         """
         configs = []
