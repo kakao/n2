@@ -248,10 +248,9 @@ def run(args):
     results_fn = get_fn('result', args, base=RESULT_DIR) + '.txt'
 
     index_params = [(12, 100)]
+    query_params = args.ef_searches or [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000]
     if args.build_only:
-        query_params = [25]
-    else:
-        query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000]
+        query_params = query_params[:1]
 
     algos = {
         'n2': [N2(M, ef_con, args.n_threads, ef_search, args.distance, args.batch)
@@ -287,6 +286,7 @@ if __name__ == '__main__':
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
     parser.add_argument('--batch', help='Batch search mode with multi-threading', action='store_true')
     parser.add_argument('--build_only', help='Benchmark only build time and memory usage', action='store_true')
+    parser.add_argument('--ef_searches', help='Custom ef_search query parameters', type=int, nargs='*')
     parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
