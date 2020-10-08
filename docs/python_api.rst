@@ -43,6 +43,7 @@ Main Interface
 
 .. autoclass:: n2.HnswIndex
    :members: __init__, add_data, save, load, unload, build,
-   search_by_vector, search_by_id, batch_search_by_vectors, batch_search_by_ids
+             search_by_vector, search_by_id,
+             batch_search_by_vectors, batch_search_by_ids
 
 .. _examples/python: https://github.com/kakao/n2/tree/master/examples/python

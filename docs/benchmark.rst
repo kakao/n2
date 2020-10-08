@@ -1,7 +1,10 @@
 N2 Benchmark
 ==============================================================================
+
 This page is a detailed explanation of how we performed benchmark experiments.
 You can also see benchmarks of ANN libraries in Python at `ann-benchmarks.com`_.
+Note that as of Oct 8, 2020, N2 v0.1.6 is used in that benchmark,
+and we are continuing our efforts to improve N2 performance.
 
 
 Benchmark Focus
@@ -59,16 +62,16 @@ Test Environment
 - CPU: Intel(R) Xeon(R) CPU E5-2620 v4
 - Memory: 64GB
 - Storage: HDD
-- Dataset: Youtube(5.4GB)
+- Dataset: Youtube (5.4GB)
 - N2 version: 0.1.5
-- nmslib version: 2.0.4
+- NMSLIB version: 2.0.4
 - g++(gcc) 7.3.1
 
 Index Build Time
 ------------------------------------------------------------------------------
 
-The following is a comparison of index build times with change in number of threads.
-N2 builds index file 19~27% faster than nmslib.
+The following is a comparison of the index build times taken when using
+different numbers of threads. N2 builds index file 19~27% faster than NMSLIB.
 
 |image0|
 
@@ -85,7 +88,7 @@ Search Speed
 ------------------------------------------------------------------------------
 
 The data below shows tradeoff between QPS(Queries Per Second) and accuracy.
-Both N2 and nmslib shows similar search performance.
+Both N2 and NMSLIB shows similar search performance.
 
 |image1|
 
@@ -151,7 +154,7 @@ Memory Usage
 
 The data below shows the amount of memory used to build the index file,
 which is measured as the difference between memory usage before and after
-building the index file. N2 uses 14% less memory than nmslib.
+building the index file. N2 uses 14% less memory than NMSLIB.
 
 |image2|
 
@@ -167,14 +170,14 @@ building the index file. N2 uses 14% less memory than nmslib.
 Conclusion
 ------------------------------------------------------------------------------
 
-N2 builds index file faster and uses less memory than nmslib,
+N2 builds index file faster and uses less memory than NMSLIB,
 while having a similar search speed performance.
 
 The benchmark environment uses multiple threads for index builds but a single
 thread for searching. In a real production environment, you will need to run
 concurrent searches by multiple processes or multiple threads. N2 allows you
 to search simultaneously using multiple processes. With mmap support in N2,
-it works much more efficiently than other libraries, including nmslib.
+it works much more efficiently than other libraries, including NMSLIB.
 
 .. _Download dataset: https://github.com/kakao/n2/tree/master/benchmarks#1-download-dataset
 .. _ann-benchmarks.com: http://ann-benchmarks.com/

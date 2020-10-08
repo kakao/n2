@@ -39,7 +39,7 @@ Why N2 Was Made
 ------------------------------------------------------------------------------
 
 Before N2, there has been other great approximate nearest neighbor
-libraries such as `annoy`_ and `nmslib`_. However, each of them had
+libraries such as `Annoy`_ and `NMSLIB`_. However, each of them had
 different strengths and weaknesses regarding usability, performance,
 and etc. So, N2 has been developed aiming to bring the strengths of
 existing aKNN libraries and supplement their weaknesses.
@@ -134,7 +134,9 @@ The documentation site explains the following contents in detail.
 Performance
 ------------------------------------------------------------------------------
 
-- You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_.
+- You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_
+Note that as of Oct 8, 2020, N2 v0.1.6 is used in that benchmark,
+and we are continuing our efforts to improve N2 performance.
 
 
 Index Build Time
@@ -162,8 +164,8 @@ References
   nearest neighbor search using hierarchical navigable small world 
   graphs," CoRR, vol. abs/1603.09320, 2016. [Online]. 
   Available: http://arxiv.org/abs/1603.09320
--  nmslib: https://github.com/nmslib/nmslib
--  annoy: https://github.com/spotify/annoy
+-  NMSLIB: https://github.com/nmslib/nmslib
+-  Annoy: https://github.com/spotify/annoy
 
 License
 ------------------------------------------------------------------------------
@@ -184,8 +186,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 .. _Apache 2 license: https://github.com/kakao/n2/blob/master/LICENSE
-.. _annoy: https://github.com/spotify/annoy
-.. _nmslib: https://github.com/nmslib/nmslib
+.. _Annoy: https://github.com/spotify/annoy
+.. _NMSLIB: https://github.com/nmslib/nmslib
 .. _Installation Guide: https://n2.readthedocs.io/en/latest/install.html
 .. _Python Interface: https://n2.readthedocs.io/en/latest/python_api.html
 .. _C++ Interface: https://n2.readthedocs.io/en/latest/cpp_api.html

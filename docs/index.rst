@@ -63,5 +63,5 @@ Supported Distance Metrics
    :start-after: begin_footnote
    :end-before: end_footnote
    
-.. _annoy: https://github.com/spotify/annoy
-.. _nmslib: https://github.com/nmslib/nmslib
+.. _Annoy: https://github.com/spotify/annoy
+.. _NMSLIB: https://github.com/nmslib/nmslib
