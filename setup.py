@@ -57,8 +57,20 @@ def set_binary_mac():
             break
 
     if fail:
-        raise AttributeError('No GCC available. Install gcc from Homebrew using `brew install gcc`.')
+        raise AttributeError('No gcc available. Install gcc from Homebrew using `brew install gcc`.')
 
+def openmp_buildable():
+    try:
+        cmds = ['gcc', 'g++']
+        macros = ['CC', 'CXX']
+        for cmd, macro in zip(cmds, macros):
+            cmd = os.environ.get(macro) or cmd
+            test_cmd = 'echo "main(){}" | ' + cmd + ' -fsyntax-only -std=c++14 -fopenmp -xc++ -'
+            subprocess.check_call(test_cmd, shell=True)
+    except:
+        raise AttributeError('No gcc available. '
+                             'Check gcc which supporting c++14 '
+                             'and assign CC, CXX environ as suitable gcc')
 
 def define_extensions(**kwargs):
     system = platform.system().lower()
@@ -66,6 +78,8 @@ def define_extensions(**kwargs):
         raise AttributeError("Installation on Windows is not supported yet.")
     elif "darwin" in system:  # osx
         set_binary_mac()
+
+    openmp_buildable()
 
     libraries = []
     extra_link_args = []
