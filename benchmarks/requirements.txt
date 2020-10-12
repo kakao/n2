@@ -5,3 +5,4 @@ nmslib
 h5py
 psutil
 matplotlib
+tabulate
