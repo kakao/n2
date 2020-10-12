@@ -70,7 +70,7 @@ def is_buildable():
             subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as err:
         return False, ('Compiler is not suitable. Assign CC, CXX environ as suitable gcc.\n'
-                       'Especially, check this: \"' + err.output[:-1] + '\"')
+                       'Especially, check this: \"' + err.output.decode("utf-8")[:-1] + '\"')
     return True, None
 
 
