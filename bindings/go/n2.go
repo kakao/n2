@@ -303,5 +303,3 @@ type HnswIndex interface {
 	PrintDegreeDist()
 	PrintConfigs()
 }
-
-

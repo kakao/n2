@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "n2/hnsw.h"
+
+#include <algorithm>
+#include <iostream>
+#include <random>
 #include <string>
 #include <vector>
-#include <random>
-#include <iostream>
-#include <algorithm>
-
-#include "n2/hnsw.h"
 
 using namespace std;
 

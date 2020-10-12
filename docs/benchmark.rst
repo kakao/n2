@@ -1,27 +1,37 @@
-N2 Benchmark explanation
-========================
+N2 Benchmark
+==============================================================================
+
+This page is a detailed explanation of how we performed benchmark experiments.
+
+You can also see benchmarks of ANN libraries in Python at `ann-benchmarks.com`_.
+Note that N2 v0.1.6 is used in `ann-benchmarks.com`_ (last checked on October 8th, 2020)
+and we are continuing our efforts to improve N2 performance.
+
 
 Benchmark Focus
----------------
+------------------------------------------------------------------------------
 
-First, the new approximate nearest neighborhoods algorithm should run
-faster for large datasets. Second, online content services like news
-portal, where dataset is frequently updated(e.g. create/update/delete),
-building the index file should be done in minimum time. Therefore, these
-are our main criteria:
+These are some factors that we focus on when developing N2.
+
+1. Our ANN algorithm should run fast even when dealing with large-scale datasets.
+2. Our ANN algorithm should minimize the time required to build an index file
+   - in order to be applied to real-world scenario where dataset changes frequently
+   (e.g. create/update/delete), such as in online content services like news portal.
+
+Therefore, our main criteria for benchmark are set as below:
 
 -  How long does it take to build the index file?
 -  How long does it take to get results from the large dataset?
 -  How large memory does it take to run large dataset?
 
-Test dataset
-------------
+Test Dataset
+------------------------------------------------------------------------------
 
-Dataset description
-~~~~~~~~~~~~~~~~~~~
+Dataset Description
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To test large amounts of data, we use ``youtube`` dataset that 
-contains 14520986 samples, each sample has 40 data points.
+contains 14520986 samples, where each sample has 40 data points.
 
 +-------------------+-------------------+----+-------------------+--------------------+
 | feature1(float32) | feature2(float32) | …… | feature2(float32) | feature40(float32) |
@@ -29,16 +39,17 @@ contains 14520986 samples, each sample has 40 data points.
 |     -0.167898     |     0.160478      | …… |    0.104421       |    0.0503584       |
 +-------------------+-------------------+----+-------------------+--------------------+
 
-How to get it
-~~~~~~~~~~~~~
+How to Download the Benchmark Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For benchmark, you can download it using our script. see `Download dataset`_.
+You can download benchmark dataset with the script we provide in `Download dataset`_.
 
 We also share ``youtube`` dataset through `google
 drive <https://drive.google.com/open?id=1B3PWRTb8xol9fEkawVbpfitOsuwXkqss>`__.
 It consists of two plain text files, ``youtube.txt`` and ``youtube.txt.vids``.
-``youtube.txt`` contains samples, ``youtube.txt.vids`` is a metadata informations of the dataset. Each
-line is the metadata corresponding to each sample of ``youtube.txt``.
+``youtube.txt`` is a file containing the information of dataset samples 
+and ``youtube.txt.vids`` is a file containing the dataset metadata information.
+Each line is the metadata corresponding to each sample in ``youtube.txt``.
 
 +------------------+-------------+-------------------------------------------+
 |       DSID       |     VID     |              Youtube link                 |
@@ -47,18 +58,21 @@ line is the metadata corresponding to each sample of ``youtube.txt``.
 +------------------+-------------+-------------------------------------------+
 
 Test Environment
-----------------
+------------------------------------------------------------------------------
 
 - CPU: Intel(R) Xeon(R) CPU E5-2620 v4
 - Memory: 64GB
 - Storage: SSD
 - Dataset: Youtube(5.4GB)
 - N2 version: 0.1.5
-- nmslib version: 2.0.4
-- g++(gcc) 7.3.1
+- NMSLIB version: 2.0.4
+- g++ (gcc): 7.3.1
 
-Index build times
------------------
+Index Build Time
+------------------------------------------------------------------------------
+
+The following is a comparison of the index build times taken when using
+different numbers of threads. N2 builds index file 19~27% faster than NMSLIB.
 
 |image0|
 
@@ -70,11 +84,12 @@ Index build times
 | nmslib (3.9GB) | 6368.85 sec | 3865.73 sec | 2081.81 sec | 1092.89 sec | 666.20 sec |
 +----------------+-------------+-------------+-------------+-------------+------------+
 
-The above data shows a comparison of index build times with thread changes. 
-N2 is 19~27% faster than the nmslib to build index file. 
 
-Search speed
-------------
+Search Speed
+------------------------------------------------------------------------------
+
+The data below shows tradeoff between QPS(Queries Per Second) and accuracy.
+Both N2 and NMSLIB shows similar search performance.
 
 |image1|
 
@@ -134,10 +149,13 @@ Search speed
 | nmslib (efCon = 100, efSearch = 100000) | 0.144999783     | 0.946819 |
 +-----------------------------------------+-----------------+----------+
 
-The above data shows QPS(Queries Per Second) values according to accuracy change. N2 and nmslib both libraries have similar search performance.
 
-Memory usage
-------------
+Memory Usage
+------------------------------------------------------------------------------
+
+The data below shows the amount of memory used to build the index file,
+which is measured as the difference between memory usage before and after
+building the index file. N2 uses 14% less memory than NMSLIB.
 
 |image2|
 
@@ -149,19 +167,21 @@ Memory usage
 | nmslib    | 13006.2 MB     |
 +-----------+----------------+
 
-The above data shows the difference in memory usage before and after index file build.
-N2 uses 14% less memory than nmslib.
 
 Conclusion
-----------
+------------------------------------------------------------------------------
 
-N2 builds index file faster and uses less memory than nmslib, but has similar search performance.
+N2 builds index file faster and uses less memory than NMSLIB,
+while having a similar search speed performance.
 
-The benchmark environment uses multiple threads for index builds but a single thread for searching.
-In a real production environment, you will need concurrent searches (by multiple processes or multiple threads).
-N2 allows you to search simultaneously using multiple processes. With mmap support in N2, It works much more efficiently than other libraries, including the nmslib.
+The benchmark environment uses multiple threads for index builds but a single
+thread for searching. In a real production environment, you will need to run
+concurrent searches by multiple processes or multiple threads. N2 allows you
+to search simultaneously using multiple processes. With mmap support in N2,
+it works much more efficiently than other libraries, including NMSLIB.
 
-.. _Download dataset: ../benchmarks/README.md#1-download-dataset
+.. _Download dataset: https://github.com/kakao/n2/tree/master/benchmarks#1-download-dataset
+.. _ann-benchmarks.com: http://ann-benchmarks.com/
 
 .. |image0| image:: imgs/build_time/build_time_threads.png
 .. |image1| image:: imgs/search_time/search_time.png
