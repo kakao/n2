@@ -69,9 +69,9 @@ def is_buildable():
             test_cmd = 'echo "main(){}" | ' + cmd + ' -fsyntax-only -std=c++14 -fopenmp -xc++ -'
             subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError as err:
-        raise AttributeError(f'Compiler is not suitable: \"{err.stdout.decode("utf-8")}\"'
-                             'Check gcc which supporting c++14 and openmp. '
-                             'Assign CC, CXX environ as suitable gcc')
+        return False, ('Compiler is not suitable. Assign CC, CXX environ as suitable gcc.\n'
+                       'Especially, check this: \"' + err.output.decode("utf-8")[:-1] + '\"')
+    return True, None
 
 
 def define_extensions(**kwargs):
@@ -81,7 +81,9 @@ def define_extensions(**kwargs):
     elif "darwin" in system:  # osx
         set_binary_mac()
 
-    is_buildable()
+    able, fail_msg = is_buildable()
+    if not able:
+        raise AttributeError(fail_msg)
 
     libraries = []
     extra_link_args = []
