@@ -29,7 +29,7 @@ Lightweight approximate **N**\ earest **N**\ eighbor algorithm library written
 in C++ (with Python/Go bindings).
 
 N2 stands for two N's, which comes from \'Approximate ``N``\ earest 
-``N``\ eighbor algorithm\'.
+``N``\ eighbor Algorithm\'.
 
 .. end_intro
 
