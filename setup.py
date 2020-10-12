@@ -67,9 +67,9 @@ def is_buildable():
         for cmd, macro in zip(cmds, macros):
             cmd = os.environ.get(macro) or cmd
             test_cmd = 'echo "main(){}" | ' + cmd + ' -fsyntax-only -std=c++14 -fopenmp -xc++ -'
-            subprocess.check_call(test_cmd, shell=True)
-    except subprocess.SubprocessError:
-        raise AttributeError('No gcc available. '
+            subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
+    except subprocess.CalledProcessError as err:
+        raise AttributeError(f'Compiler is not suitable: \"{err.stdout.decode("utf-8")}\"'
                              'Check gcc which supporting c++14 and openmp. '
                              'Assign CC, CXX environ as suitable gcc')
 
