@@ -26,7 +26,7 @@ author = 'Kakao Recommendation Team'
 master_doc = 'index'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.6'
+release = '0.1.7'
 
 
 # -- General configuration ---------------------------------------------------

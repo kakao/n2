@@ -21,7 +21,7 @@ import subprocess
 from setuptools import Extension, setup
 
 NAME = 'n2'
-VERSION = '0.1.6'
+VERSION = '0.1.7b0'
 
 
 def long_description():
