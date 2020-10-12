@@ -113,7 +113,7 @@ class N2(BaseANN):
 
 class NmslibHNSW(BaseANN):
     def __init__(self, m, ef_construction, n_threads, ef_search, metric, batch):
-        self.name = "nmslib_M%d_efCon%d_n_thread%s_efSearch%d%s" % (m, ef_construction, n_threads, ef_search,
+        self.name = "NMSLIB_M%d_efCon%d_n_thread%s_efSearch%d%s" % (m, ef_construction, n_threads, ef_search,
                                                                     '_batch' if batch else '')
         self._index_param = [
             'M=%d' % m,
@@ -176,37 +176,39 @@ def run_algo(args, library, algo, results_fn):
 
     best_search_time = float('inf')
     best_recall = 0.0  # should be deterministic but paranoid
-    try_count = args.try_count
-    for i in xrange(try_count):  # Do multiple times to warm up page cache, use fastest
-        if args.batch:
-            t0 = time.time()
-            algo.batch_query(X_test, args.count)
-            search_time = (time.time() - t0)
-            b_found = algo.get_batch_results()
-            b_found_dists = [[float(metrics[args.distance]['distance'](v, X_train[k]))
-                              for k in found]
-                             for v, found in zip(X_test, b_found)]
-            recall = sum(knn_recall(dists, found_dists, args.count)
-                         for dists, found_dists in zip(nn_dists, b_found_dists))
-        else:
-            recall = 0.0
-            search_time = 0.0
-            for j, v in enumerate(X_test):
-                sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r"
-                                 % (i+1, try_count, str(algo), j+1, len(X_test)))
-                t0 = time.time()
-                found = algo.query(v, args.count)
-                search_time += (time.time() - t0)
-                found_dists = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
-                recall += knn_recall(nn_dists[j], found_dists, args.count)
-            sys.stderr.write("\n")
 
-        search_time /= len(X_test)
-        recall /= len(X_test)
-        best_search_time = min(best_search_time, search_time)
-        best_recall = max(best_recall, recall)
-        n2_logger.info('[%d/%d][algo: %s] search time: %s, recall: %.5f'
-                       % (i+1, try_count, str(algo), str(search_time), recall))
+    if not args.build_only:
+        try_count = args.try_count
+        for i in xrange(try_count):  # Do multiple times to warm up page cache, use fastest
+            if args.batch:
+                t0 = time.time()
+                algo.batch_query(X_test, args.count)
+                search_time = (time.time() - t0)
+                b_found = algo.get_batch_results()
+                b_found_dists = [[float(metrics[args.distance]['distance'](v, X_train[k]))
+                                  for k in found]
+                                 for v, found in zip(X_test, b_found)]
+                recall = sum(knn_recall(dists, found_dists, args.count)
+                             for dists, found_dists in zip(nn_dists, b_found_dists))
+            else:
+                recall = 0.0
+                search_time = 0.0
+                for j, v in enumerate(X_test):
+                    sys.stderr.write("[%d/%d][algo: %s] Querying: %d / %d \r"
+                                     % (i+1, try_count, str(algo), j+1, len(X_test)))
+                    t0 = time.time()
+                    found = algo.query(v, args.count)
+                    search_time += (time.time() - t0)
+                    found_dists = [float(metrics[args.distance]['distance'](v, X_train[k])) for k in found]
+                    recall += knn_recall(nn_dists[j], found_dists, args.count)
+                sys.stderr.write("\n")
+
+            search_time /= len(X_test)
+            recall /= len(X_test)
+            best_search_time = min(best_search_time, search_time)
+            best_recall = max(best_recall, recall)
+            n2_logger.info('[%d/%d][algo: %s] search time: %s, recall: %.5f'
+                           % (i+1, try_count, str(algo), str(search_time), recall))
 
     db.close()
     output = '\t'.join(map(str, [library, algo.name, build_time, best_search_time, best_recall, index_size_kb]))
@@ -246,7 +248,9 @@ def run(args):
     results_fn = get_fn('result', args, base=RESULT_DIR) + '.txt'
 
     index_params = [(12, 100)]
-    query_params = [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000]
+    query_params = args.ef_searches or [25, 50, 100, 250, 500, 750, 1000, 1500, 2500, 5000]
+    if args.build_only:
+        query_params = query_params[:1]
 
     algos = {
         'n2': [N2(M, ef_con, args.n_threads, ef_search, args.distance, args.batch)
@@ -281,6 +285,8 @@ if __name__ == '__main__':
     parser.add_argument('--random_state', help='Random seed', type=int, default=3)
     parser.add_argument('--algo', help='Algorithm', type=str, choices=['n2', 'nmslib'])
     parser.add_argument('--batch', help='Batch search mode with multi-threading', action='store_true')
+    parser.add_argument('--build_only', help='Benchmark only build time and memory usage', action='store_true')
+    parser.add_argument('--ef_searches', help='Custom ef_search query parameters', type=int, nargs='*')
     parser.add_argument('--verbose', '-v', help='Print verbose log', action='store_true')
     args = parser.parse_args()
 
