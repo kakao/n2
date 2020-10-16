@@ -8,7 +8,7 @@ def parse(args):
     data = defaultdict(dict)
     for line in open(args.fname):
         library, algo, _, search_elapsed, accuracy, _ = line.strip().split('\t')
-        data[library][algo] = float(search_elapsed), float(accuracy)
+        data[library.split(' ')[0]][algo] = float(search_elapsed), float(accuracy)
     return data[args.base_lib], data[args.target_lib]
 
 
