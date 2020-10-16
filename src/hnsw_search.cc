@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "n2/hnsw_search.h"
+#include "n2/hnsw_search_impl.h"
 
 #include <xmmintrin.h>
 
@@ -22,6 +22,7 @@
 
 namespace n2 {
 
+using std::numeric_limits;
 using std::make_unique;
 using std::pair;
 using std::runtime_error;
@@ -35,6 +36,8 @@ unique_ptr<HnswSearch> HnswSearch::GenerateSearcher(shared_ptr<const HnswModel> 
         return make_unique<HnswSearchAngular>(model, data_dim, metric);
     } else if (metric == DistanceKind::L2) {
         return make_unique<HnswSearchL2>(model, data_dim, metric);
+    } else if (metric == DistanceKind::DOT) {
+        return make_unique<HnswSearchDot>(model, data_dim, metric);
     } else {
         throw runtime_error("[Error] Invalid configuration value for DistanceMethod");
     }
@@ -54,7 +57,20 @@ HnswSearchImpl<DistFuncType>::HnswSearchImpl(shared_ptr<const HnswModel> model, 
 
 template<typename DistFuncType>
 void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, size_t k, int ef_search, 
+                                                  bool ensure_k, vector<int>& result) {
+    SearchByVector_(qvec, k, ef_search, ensure_k, result);
+}
+
+template<typename DistFuncType>
+void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, size_t k, int ef_search, 
                                                   bool ensure_k, vector<pair<int, float>>& result) {
+    SearchByVector_(qvec, k, ef_search, ensure_k, result);
+}
+
+template<typename DistFuncType>
+template<typename ResultType>
+void HnswSearchImpl<DistFuncType>::SearchByVector_(const vector<float>& qvec, size_t k, int ef_search, 
+                                                   bool ensure_k, ResultType& result) {
     if (ef_search < 0)
         ef_search = 50 * k;
 
@@ -116,17 +132,18 @@ void HnswSearchImpl<DistFuncType>::SearchByVector(const vector<float>& qvec, siz
         }
     }
 
-    if (ensure_k) {
-        while (result.size() < k && !ensure_k_path_.empty()) {
-            cur_node_id = ensure_k_path_.back().first;
-            cur_dist = ensure_k_path_.back().second;
-            ensure_k_path_.pop_back();
-            SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
-        }
-    } else {
-        SearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
-    }
+    CallSearchById_(cur_node_id, cur_dist, qraw, k, ef_search, ensure_k, result);
+}
 
+template<typename DistFuncType>
+void HnswSearchImpl<DistFuncType>::SearchById(int id, size_t k, int ef_search, bool ensure_k, 
+                                              vector<int>& result) {
+    if (ef_search < 0) {
+        ef_search = 50 * k;
+    }
+    // ensure_k is not yet support in SearchById function
+    SearchById_(id, 0.0, (const float*)(model_level0_node_base_offset_ + id * memory_per_node_level0_), 
+                k, ef_search, false, result);
 }
 
 template<typename DistFuncType>
@@ -135,13 +152,15 @@ void HnswSearchImpl<DistFuncType>::SearchById(int id, size_t k, int ef_search, b
     if (ef_search < 0) {
         ef_search = 50 * k;
     }
+    // ensure_k is not yet support in SearchById function
     SearchById_(id, 0.0, (const float*)(model_level0_node_base_offset_ + id * memory_per_node_level0_), 
-                k, ef_search, ensure_k, result);
+                k, ef_search, false, result);
 }
 
 template<typename DistFuncType>
-void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, const float* qraw, size_t k, 
-                                               size_t ef_search, bool ensure_k, vector<pair<int, float>>& result) {
+template<typename ResultType>
+void HnswSearchImpl<DistFuncType>::SearchByIdV1_(int cur_node_id, float cur_dist, const float* qraw, size_t k, 
+                                                 size_t ef_search, bool ensure_k, ResultType& result) {
     IdDistancePairMinHeap candidates;
     IdDistancePairMinHeap visited_nodes;
 
@@ -150,27 +169,23 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
     visited_list_->Reset();
     unsigned int visited_mark = visited_list_->GetVisitMark();
     unsigned int* visited = visited_list_->GetVisited();
-
-    size_t already_visited_for_ensure_k = 0;
-    if (ensure_k && !result.empty()) {
-        already_visited_for_ensure_k = result.size();
-        for (size_t i = 0; i < result.size(); ++i) {
-            if (result[i].first == cur_node_id) {
-                return ;
-            }
-            visited[result[i].first] = visited_mark;
-            visited_nodes.emplace(std::move(result[i]));
-        }
-        result.clear();
-    }
     visited[cur_node_id] = visited_mark;
 
+    if (ensure_k and !result.empty()) {
+        if (not PrepareEnsureKSearch(cur_node_id, result, visited_nodes)) {
+            return ;
+        }
+    }
+
     float farthest_distance = cur_dist;
-    size_t total_size = 1;
-    while (!candidates.empty() && visited_nodes.size() < ef_search+already_visited_for_ensure_k) {
+    size_t candidate_found_cnt = 1;
+    size_t visited_cnt = 0;
+
+    while (!candidates.empty() and visited_cnt < ef_search) {
         const IdDistancePair& c = candidates.top();
         cur_node_id = c.first;
         visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));
+        ++visited_cnt;
         candidates.pop();
 
         float minimum_distance = farthest_distance;
@@ -191,17 +206,142 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
                 _mm_prefetch(vec, _MM_HINT_NTA);
                 visited[node_id] = visited_mark;
                 float d = dist_func_(qraw, vec, data_dim_);
-                if (d < minimum_distance || total_size < ef_search) {
+                if (d < minimum_distance || candidate_found_cnt < ef_search) {
                     candidates.emplace(node_id, d);
                     if (d > farthest_distance) {
                         farthest_distance = d;
                     }
-                    ++total_size;
+                    ++candidate_found_cnt;
                 }
             }
         }
     }
 
+    MakeSearchResult(k, candidates, visited_nodes, result);
+}
+
+template<typename DistFuncType>
+template<typename ResultType>
+void HnswSearchImpl<DistFuncType>::SearchByIdV2_(int cur_node_id, float cur_dist, const float* qraw, size_t k, 
+                                                 size_t ef_search, bool ensure_k, ResultType& result) {
+    IdDistancePairMinHeap candidates;
+    IdDistancePairMinHeap visited_nodes;
+    DistanceMaxHeap found_distances;
+
+    candidates.emplace(cur_node_id, cur_dist);
+    found_distances.emplace(cur_dist);
+
+    visited_list_->Reset();
+    unsigned int visited_mark = visited_list_->GetVisitMark();
+    unsigned int* visited = visited_list_->GetVisited();
+    visited[cur_node_id] = visited_mark;
+
+    if (ensure_k and !result.empty()) {
+        if (not PrepareEnsureKSearch(cur_node_id, result, visited_nodes)) {
+            return ;
+        }
+    }
+
+    while (!candidates.empty()) {
+        const IdDistancePair& c = candidates.top();
+        if (c.second > found_distances.top()) {
+            break;
+        }
+
+        cur_node_id = c.first;
+        visited_nodes.emplace(std::move(const_cast<IdDistancePair&>(c)));
+        candidates.pop();
+
+        const int* friends_with_size = (const int*)(model_level0_ 
+                                        + cur_node_id * memory_per_node_level0_ + sizeof(int));
+        _mm_prefetch(friends_with_size, _MM_HINT_T0);
+        int size = friends_with_size[0];
+
+        for (auto j = 1; j <= size; ++j) {
+            _mm_prefetch(visited + friends_with_size[j], _MM_HINT_T0);
+        }
+        for (auto j = 1; j <= size; ++j) {
+            int node_id = friends_with_size[j];
+            if (visited[node_id] != visited_mark) {
+                _mm_prefetch(qraw, _MM_HINT_T0);
+                const float* vec = (const float*)(model_level0_node_base_offset_ 
+                                   + node_id * memory_per_node_level0_);
+                _mm_prefetch(vec, _MM_HINT_NTA);
+                visited[node_id] = visited_mark;
+                float d = dist_func_(qraw, vec, data_dim_);
+                if (d < found_distances.top() || found_distances.size() < ef_search) {
+                    candidates.emplace(node_id, d);
+					found_distances.emplace(d);
+                    if (found_distances.size() > ef_search) {
+                        found_distances.pop();
+                    }
+                }
+            }
+        }
+    }
+
+    MakeSearchResult(k, candidates, visited_nodes, result);
+}
+
+template<typename DistFuncType>
+bool HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<int>& result, 
+                                                        IdDistancePairMinHeap& visited_nodes) {
+    // this code should never be called.
+    result.clear();
+    return false;
+}
+
+template<typename DistFuncType>
+bool HnswSearchImpl<DistFuncType>::PrepareEnsureKSearch(int cur_node_id, vector<pair<int, float>>& result, 
+                                                        IdDistancePairMinHeap& visited_nodes) {
+    unsigned int visited_mark = visited_list_->GetVisitMark();
+    unsigned int* visited = visited_list_->GetVisited();
+
+    for (size_t i = 0; i < result.size(); ++i) {
+        if (result[i].first == cur_node_id) {
+            return false;
+        }
+        visited[result[i].first] = visited_mark;
+        visited_nodes.emplace(std::move(result[i]));
+    }
+    result.clear();
+    
+    return true;
+}
+
+template<typename DistFuncType>
+void HnswSearchImpl<DistFuncType>::MakeSearchResult(size_t k, IdDistancePairMinHeap& candidates, 
+                                                    IdDistancePairMinHeap& visited_nodes, vector<int>& result) {
+
+    while (result.size() < k) {
+        if (!candidates.empty() and !visited_nodes.empty()) {
+            const IdDistancePair& c = candidates.top();
+            const IdDistancePair& v = visited_nodes.top();
+            if (c.second < v.second) {
+                result.emplace_back(c.first);
+                candidates.pop();
+            } else {
+                result.emplace_back(v.first);
+                visited_nodes.pop();
+            }
+        } else if (!candidates.empty()) {
+            const IdDistancePair& c = candidates.top();
+            result.emplace_back(c.first);
+            candidates.pop();
+        } else if (!visited_nodes.empty()) {
+            const IdDistancePair& v = visited_nodes.top();
+            result.emplace_back(v.first);
+            visited_nodes.pop();
+        } else {
+            break;
+        }
+    }
+}
+
+template<typename DistFuncType>
+void HnswSearchImpl<DistFuncType>::MakeSearchResult(size_t k, IdDistancePairMinHeap& candidates, 
+                                                    IdDistancePairMinHeap& visited_nodes, 
+                                                    vector<pair<int, float>>& result) {
     while (result.size() < k) {
         if (!candidates.empty() && !visited_nodes.empty()) {
             const IdDistancePair& c = candidates.top();
@@ -225,9 +365,16 @@ void HnswSearchImpl<DistFuncType>::SearchById_(int cur_node_id, float cur_dist, 
             break;
         }
     }
+
+    if (metric_ == DistanceKind::DOT) {
+        for (auto& id_distance : result)
+            id_distance.second *= -1.;
+    }
+
 }
 
 template class HnswSearchImpl<AngularDistance>;
 template class HnswSearchImpl<L2Distance>;
+template class HnswSearchImpl<DotDistance>;
 
 } // namespace n2

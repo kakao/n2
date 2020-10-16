@@ -1,0 +1,21 @@
+div.wy-side-nav-search, .wy-nav-top {
+    /* side bar & top bar for mobile */
+    background: #fcd411;
+}
+a.icon.icon-home, .wy-body-for-nav .wy-nav-top a {
+    /* website title & top bar title for mobile */
+    color: #404040;
+}
+div.wy-side-nav-search div.version {
+    /* version */
+    color: #404040;
+}
+div.wy-menu-vertical span.caption-text {
+    /* section titles on the side bar */
+    color: #fcd411;
+}
+.wy-menu-vertical a.reference.internal:active {
+    /* when side bar section is clicked */
+    background: #fcd411;
+    color: #404040;
+}

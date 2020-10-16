@@ -8,7 +8,12 @@ build/
 dist/
 .eggs/
 n2.egg-info/
+*.so
 GTAGS
 GRTAGS
 GPATH
 *.un~
+.vscode/
+_build/
+docs/api/
+docs/doxyoutput/

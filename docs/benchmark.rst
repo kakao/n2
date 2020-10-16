@@ -1,27 +1,37 @@
-N2 Benchmark explanation
-========================
+N2 Benchmark
+==============================================================================
+
+This page is a detailed explanation of how we performed benchmark experiments.
+
+You can also see benchmarks of ANN libraries in Python at `ann-benchmarks.com`_.
+Note that N2 version 0.1.6 is used in `ann-benchmarks.com`_ (last checked on October 8th, 2020)
+and we are continuing our efforts to improve N2 performance.
+
 
 Benchmark Focus
----------------
+------------------------------------------------------------------------------
 
-First, the new approximate nearest neighborhoods algorithm should run
-faster for large datasets. Second, online content services like news
-portal, where dataset is frequently updated(e.g. create/update/delete),
-building the index file should be done in minimum time. Therefore, these
-are our main criteria:
+These are some factors that we focus on when developing N2.
+
+1. Our ANN algorithm should run fast even when dealing with large-scale datasets.
+2. Our ANN algorithm should minimize the time required to build an index file
+   - in order to be applied to real-world scenario where dataset changes frequently
+   (e.g. create/update/delete), such as in online content services like news portal.
+
+Therefore, our main criteria for benchmark are set as below:
 
 -  How long does it take to build the index file?
 -  How long does it take to get results from the large dataset?
 -  How large memory does it take to run large dataset?
 
-Test dataset
-------------
+Test Dataset
+------------------------------------------------------------------------------
 
-Dataset description
-~~~~~~~~~~~~~~~~~~~
+Dataset Description
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To test large amounts of data, we use ``youtube`` dataset that 
-contains 14520986 samples, each sample has 40 data points.
+contains 14520986 samples, where each sample has 40 data points.
 
 +-------------------+-------------------+----+-------------------+--------------------+
 | feature1(float32) | feature2(float32) | …… | feature2(float32) | feature40(float32) |
@@ -29,16 +39,17 @@ contains 14520986 samples, each sample has 40 data points.
 |     -0.167898     |     0.160478      | …… |    0.104421       |    0.0503584       |
 +-------------------+-------------------+----+-------------------+--------------------+
 
-How to get it
-~~~~~~~~~~~~~
+How to Download the Benchmark Dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For benchmark, you can download it using our script. see `Download dataset`_.
+You can download benchmark dataset with the script we provide in `Download dataset`_.
 
 We also share ``youtube`` dataset through `google
 drive <https://drive.google.com/open?id=1B3PWRTb8xol9fEkawVbpfitOsuwXkqss>`__.
 It consists of two plain text files, ``youtube.txt`` and ``youtube.txt.vids``.
-``youtube.txt`` contains samples, ``youtube.txt.vids`` is a metadata informations of the dataset. Each
-line is the metadata corresponding to each sample of ``youtube.txt``.
+``youtube.txt`` is a file containing the information of dataset samples 
+and ``youtube.txt.vids`` is a file containing the dataset metadata information.
+Each line is the metadata corresponding to each sample in ``youtube.txt``.
 
 +------------------+-------------+-------------------------------------------+
 |       DSID       |     VID     |              Youtube link                 |
@@ -47,121 +58,102 @@ line is the metadata corresponding to each sample of ``youtube.txt``.
 +------------------+-------------+-------------------------------------------+
 
 Test Environment
-----------------
+------------------------------------------------------------------------------
 
 - CPU: Intel(R) Xeon(R) CPU E5-2620 v4
 - Memory: 64GB
-- Storage: HDD
+- Storage: SSD
 - Dataset: Youtube(5.4GB)
-- N2 version: 0.1.5
-- nmslib version: 2.0.4
-- g++(gcc) 7.3.1
+- N2 version: 0.1.7
+- NMSLIB version: 2.0.6
+- g++ (gcc): 7.3.1
 
-Index build times
------------------
+Index Build Time
+------------------------------------------------------------------------------
+
+The following is a comparison of the index build times taken when using
+different numbers of threads. N2 builds index file 10~24% faster than NMSLIB.
 
 |image0|
 
-+----------------+-------------+-------------+-------------+-------------+------------+
-| Library        | 1 thread    | 2 threads   | 4 threads   | 8 threads   | 16 threads |
-+================+=============+=============+=============+=============+============+
-| N2 (3.7GB)     | 4628.62 sec | 2625.57 sec | 1456.18 sec | 844.54 sec  | 538.68 sec |
-+----------------+-------------+-------------+-------------+-------------+------------+
-| nmslib (3.9GB) | 6368.85 sec | 3865.73 sec | 2081.81 sec | 1092.89 sec | 666.20 sec |
-+----------------+-------------+-------------+-------------+-------------+------------+
++----------------------------+-------------+-------------+-------------+-------------+--------------+
+| Library                    | 1 Thread    | 2 Threads   | 4 Threads   | 8 Threads   | 16 Threads   |
++============================+=============+=============+=============+=============+==============+
+| N2 (Index Size: 3.7GB)     | 4995.73 sec | 3018.57 sec | 1609.89 sec | 905.87 sec  | 554.81 sec   |
++----------------------------+-------------+-------------+-------------+-------------+--------------+
+| NMSLIB (Index Size: 3.9GB) | 6282.5 sec  | 3996.88 sec | 2080.36 sec | 1106.18 sec | 613.18 sec   |
++----------------------------+-------------+-------------+-------------+-------------+--------------+
 
-The above data shows a comparison of index build times with thread changes. 
-N2 is 19~27% faster than the nmslib to build index file. 
 
-Search speed
-------------
+Search Speed
+------------------------------------------------------------------------------
+
+The data below shows tradeoff between QPS(Queries Per Second) and accuracy.
+Both N2 and NMSLIB shows similar search performance.
 
 |image1|
 
-+-----------------------------------------+-----------------+----------+
-| Library                                 | search time     | accuracy |
-+=========================================+=================+==========+
-| N2 (efCon = 100, efSearch = 25)         | 0.000191692853  | 0.424057 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 50)         | 0.0002163668156 | 0.601179 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 100)        | 0.0002673476934 | 0.748796 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 250)        | 0.0005520210505 | 0.850445 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 500)        | 0.001028939319  | 0.895242 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 750)        | 0.001303373504  | 0.910901 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 1000)       | 0.001953691959  | 0.919208 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 1500)       | 0.002749215031  | 0.928018 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 2500)       | 0.003751451612  | 0.934984 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 5000)       | 0.008200209832  | 0.939109 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 10000)      | 0.01378832684   | 0.941021 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 25000)      | 0.03242799292   | 0.942262 |
-+-----------------------------------------+-----------------+----------+
-| N2 (efCon = 100, efSearch = 100000)     | 0.1272339942    | 0.943302 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 25)     | 0.0001844111204 | 0.486474 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 50)     | 0.0002713298321 | 0.637868 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 100)    | 0.0003269775152 | 0.764977 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 250)    | 0.0005977529526 | 0.857598 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 500)    | 0.001127228618  | 0.899621 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 750)    | 0.00142812109   | 0.915815 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 1000)   | 0.001758913255  | 0.923814 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 1500)   | 0.002715426302  | 0.932147 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 2500)   | 0.004713194823  | 0.938547 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 5000)   | 0.008359930491  | 0.942717 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 10000)  | 0.01632316473   | 0.944737 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 25000)  | 0.03980695992   | 0.946092 |
-+-----------------------------------------+-----------------+----------+
-| nmslib (efCon = 100, efSearch = 100000) | 0.144999783     | 0.946819 |
-+-----------------------------------------+-----------------+----------+
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| Parameter                          |   Search Time (N2) |   Accuracy (N2) |   Search Time (NMSLIB) |   Accuracy (NMSLIB) |
++====================================+====================+=================+========================+=====================+
+| M: 12, efCon: 100, efSearch: 25    |        0.000130227 |        0.52136  |            0.000155903 |            0.574523 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 50    |        0.000168451 |        0.736898 |            0.000197621 |            0.760703 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 100   |        0.000235572 |        0.908154 |            0.000247012 |            0.899827 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 250   |        0.000439563 |        0.971894 |            0.000486722 |            0.964502 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 500   |        0.000805385 |        0.988616 |            0.000871604 |            0.982023 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 750   |        0.00114534  |        0.993323 |            0.00129876  |            0.987889 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 1000  |        0.00148114  |        0.995105 |            0.00166815  |            0.99014  |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 1500  |        0.00219379  |        0.996848 |            0.00241407  |            0.991855 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 2500  |        0.00348781  |        0.997529 |            0.00385025  |            0.993514 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 5000  |        0.00669571  |        0.99839  |            0.00744833  |            0.994425 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 10000 |        0.0132182   |        0.998577 |            0.014742    |            0.995269 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
+| M: 12, efCon: 100, efSearch: 50000 |        0.0627954   |        0.998814 |            0.0706788   |            0.995788 |
++------------------------------------+--------------------+-----------------+------------------------+---------------------+
 
-The above data shows QPS(Queries Per Second) values according to accuracy change. N2 and nmslib both libraries have similar search performance.
 
-Memory usage
-------------
+Memory Usage
+------------------------------------------------------------------------------
+
+The data below shows the amount of memory used to build the index file,
+which is measured as the difference between memory usage before and after
+building the index file. N2 uses 15% less memory than NMSLIB.
 
 |image2|
 
 +-----------+----------------+
-|  Library  |  memory usage  |
+| Library   | Memory Usage   |
 +===========+================+
-| N2        | 11209.5 MB     |
+| N2        | 11222.48 MB    |
 +-----------+----------------+
-| nmslib    | 13006.2 MB     |
+| NMSLIB    | 13212.76 MB    |
 +-----------+----------------+
 
-The above data shows the difference in memory usage before and after index file build.
-N2 uses 14% less memory than nmslib.
 
 Conclusion
-----------
+------------------------------------------------------------------------------
 
-N2 builds index file faster and uses less memory than nmslib, but has similar search performance.
+N2 builds index file faster and uses less memory than NMSLIB,
+while having a similar search speed performance.
 
-The benchmark environment uses multiple threads for index builds but a single thread for searching.
-In a real production environment, you will need concurrent searches (by multiple processes or multiple threads).
-N2 allows you to search simultaneously using multiple processes. With mmap support in N2, It works much more efficiently than other libraries, including the nmslib.
+The benchmark environment uses multiple threads for index builds but a single
+thread for searching. In a real production environment, you will need to run
+concurrent searches by multiple processes or multiple threads. N2 allows you
+to search simultaneously using multiple processes. With mmap support in N2,
+it works much more efficiently than other libraries, including NMSLIB.
 
-.. _Download dataset: ../benchmarks/README.md#1-download-dataset
+.. _Download dataset: https://github.com/kakao/n2/tree/master/benchmarks#1-download-dataset
+.. _ann-benchmarks.com: http://ann-benchmarks.com/
 
 .. |image0| image:: imgs/build_time/build_time_threads.png
 .. |image1| image:: imgs/search_time/search_time.png
