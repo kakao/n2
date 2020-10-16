@@ -3,7 +3,9 @@
 ## How to run
 
 ### #1. Download dataset
-`$python download_dataset.py --dataset {name}`
+```bash
+$ python download_dataset.py --dataset {name}
+```
 
 #### List of dataset
 * fashion-mnist-784-euclidean
@@ -13,17 +15,15 @@
 * glove-100-angular
 * glove-200-angular
 * mnist-784-euclidean
-* random-xs-20-euclidean
-* random-s-100-euclidean
-* random-xs-20-angular
-* random-s-100-angular
 * sift-128-euclidean
 * nytimes-256-angular
 * youtube-40-angular
 * youtube1m-40-angular
 
 ### #2. Run benchamark
-`$python benchmark_script.py `
+```bash
+$ python benchmark_script.py
+```
 
 Result file will be created in './result' directory.
 
@@ -33,4 +33,6 @@ Result file will be created in './result' directory.
 * `--n_threads (number of threads)`: 'Number of threads'
 
 ### #3. Visualize
-`$python visualize.py {result_path}`
+```bash
+$ python visualize.py {result_path}
+```

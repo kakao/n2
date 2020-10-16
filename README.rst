@@ -142,7 +142,7 @@ Performance
 
 - Here are the results of our benchmark experiments.
 - You can also see benchmarks of various ANN libraries in Python at `ann-benchmarks.com`_.
-  Note that N2 v0.1.6 is used in `ann-benchmarks.com`_ (last checked on October 8th, 2020)
+  Note that N2 version 0.1.6 is used in `ann-benchmarks.com`_ (last checked on October 8th, 2020)
   and we are continuing our efforts to improve N2 performance.
 
 

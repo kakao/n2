@@ -8,3 +8,5 @@
 - Tackhee Lee <leeth92@naver.com>
 - Kwangsung Ha <jesse.ha@kakaocorp.com>
 - GeonHee Lee <gony.noreply@kakaocorp.com>
+- DaeYoung Koh <puyo.puyo@kakaocorp.com>
+- Mina Kim <jinny.kk@kakaocorp.com>
