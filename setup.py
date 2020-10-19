@@ -62,15 +62,14 @@ def set_binary_mac():
 
 def is_buildable():
     try:
-        cmds = ['gcc', 'g++']
-        macros = ['CC', 'CXX']
-        for cmd, macro in zip(cmds, macros):
-            cmd = os.environ.get(macro) or cmd
-            test_cmd = 'echo "main(){}" | ' + cmd + ' -fsyntax-only -std=c++14 -fopenmp -xc++ -'
-            subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
-    except subprocess.CalledProcessError as err:
+        for header, option in zip(['c++14', 'openmp'], ['-std=c++14', '-fopenmp']):
+            for cmd, macro in zip(['gcc', 'g++'], ['CC', 'CXX']):
+                cmd = os.environ.get(macro) or cmd
+                test_cmd = 'echo "main(){}" | ' + cmd + ' -fsyntax-only ' + option + ' -fopenmp -xc++ -'
+                subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
+    except subprocess.CalledProcessError:
         return False, ('Compiler is not suitable. Assign CC, CXX environ as suitable gcc.\n'
-                       'Especially, check this: \"' + err.output.decode("utf-8")[:-1] + '\"')
+                       'Especially, your compiler(\"%s\") maybe do not support \"%s\" option. Check this.') % (cmd, option)
     return True, None
 
 
