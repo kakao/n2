@@ -62,10 +62,10 @@ def set_binary_mac():
 
 def is_buildable():
     try:
-        for header, option in zip(['c++14', 'openmp'], ['-std=c++14', '-fopenmp']):
+        for option, flag in zip(['c++14', 'openmp'], ['-std=c++14', '-fopenmp']):
             for cmd, macro in zip(['gcc', 'g++'], ['CC', 'CXX']):
                 cmd = os.environ.get(macro) or cmd
-                test_cmd = 'echo "main(){}" | ' + cmd + ' -fsyntax-only ' + option + ' -fopenmp -xc++ -'
+                test_cmd = 'echo "int main(){}" | ' + cmd + ' -fsyntax-only ' + flag + ' -xc++ -'
                 subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError:
         return False, ('Compiler is not suitable. Assign CC, CXX environ as suitable gcc.\n'
