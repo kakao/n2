@@ -58,7 +58,7 @@ def set_binary_mac():
             sys.exit(msg)
 
 
-def check_buildable():
+def is_buildable():
     try:
         for option, flag in zip(['C++14', 'OpenMP'], ['-std=c++14', '-fopenmp']):
             for cmd, env in zip(['gcc', 'g++'], ['CC', 'CXX']):
@@ -68,7 +68,8 @@ def check_buildable():
     except subprocess.CalledProcessError:
         msg = ('\n  \033[1;37mYour compiler(\033[33m\"%s\"\033[37m) may not support \033[31m\"%s\"\033[0m.'
                '\n  \033[1mSet CC, CXX environ as suitable gcc.\033[0m\n') % (cmd, option)
-        sys.exit(msg)
+        return False, msg
+    return True, None
 
 
 def define_extensions(**kwargs):
@@ -76,9 +77,11 @@ def define_extensions(**kwargs):
     if 'windows' in system:  # Windows
         sys.exit('Installation on Windows is not supported yet.')
     elif 'darwin' in system:  # osx
-        set_binary_mac()
+        is_buildable()[0] or set_binary_mac()
 
-    check_buildable()
+    able, fail_msg = is_buildable()
+    if not able:
+        sys.exit(fail_msg)
 
     libraries = []
     extra_link_args = []
