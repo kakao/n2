@@ -14,6 +14,7 @@
 
 import io
 import os
+import sys
 import glob
 import platform
 import subprocess
@@ -41,48 +42,43 @@ def long_description():
 
 
 def set_binary_mac():
-    gcc_dir = subprocess.check_output("brew --prefix gcc", shell=True).decode().strip()
+    gcc_dir = subprocess.check_output('brew --prefix gcc', shell=True).decode().strip()
     gcc_dir = os.path.join(gcc_dir, 'bin')
     gpp_binaries = glob.glob(os.path.join(gcc_dir, 'g++-[0-9]*'))
     gcc_binaries = glob.glob(os.path.join(gcc_dir, 'gcc-[0-9]*'))
     binaries = [gcc_binaries, gpp_binaries]
-    targets = ["CC", "CXX"]
-    fail = False
+    targets = ['CC', 'CXX']
     for binary, target in zip(binaries, targets):
         if binary:
             binary = sorted(binary, key=lambda x: int(x.split('-')[1]))[-1]
             os.environ[target] = os.path.join(gcc_dir, binary)
         else:
-            fail = True
-            break
-
-    if fail:
-        raise AttributeError('No gcc available. Install gcc from Homebrew using `brew install gcc`.')
+            msg = ('\n  \033[1;31mNo gcc available.\033[37m Install gcc from'
+                   ' \033[32mHomebrew\033[37m using `\033[32mbrew install gcc\033[37m`.\033[0m\n')
+            sys.exit(msg)
 
 
-def is_buildable():
+def check_buildable():
     try:
-        for option, flag in zip(['c++14', 'openmp'], ['-std=c++14', '-fopenmp']):
-            for cmd, macro in zip(['gcc', 'g++'], ['CC', 'CXX']):
-                cmd = os.environ.get(macro) or cmd
+        for option, flag in zip(['C++14', 'OpenMP'], ['-std=c++14', '-fopenmp']):
+            for cmd, env in zip(['gcc', 'g++'], ['CC', 'CXX']):
+                cmd = os.environ.get(env) or cmd
                 test_cmd = 'echo "int main(){}" | ' + cmd + ' -fsyntax-only ' + flag + ' -xc++ -'
                 subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError:
-        return False, ('Compiler is not suitable. Assign CC, CXX environ as suitable gcc.\n'
-                       'Especially, your compiler(\"%s\") maybe do not support \"%s\" option. Check this.') % (cmd, option)
-    return True, None
+        msg = ('\n  \033[1mYour compiler(\033[33m\"%s\"\033[37m) may not support \033[31m\"%s\"\033[0m.'
+               '\n  \033[1mSet CC, CXX environ as suitable gcc.\033[0m\n') % (cmd, option)
+        sys.exit(msg)
 
 
 def define_extensions(**kwargs):
     system = platform.system().lower()
-    if "windows" in system:  # Windows
-        raise AttributeError("Installation on Windows is not supported yet.")
-    elif "darwin" in system:  # osx
+    if 'windows' in system:  # Windows
+        sys.exit('Installation on Windows is not supported yet.')
+    elif 'darwin' in system:  # osx
         set_binary_mac()
 
-    able, fail_msg = is_buildable()
-    if not able:
-        raise AttributeError(fail_msg)
+    check_buildable()
 
     libraries = []
     extra_link_args = []
@@ -105,7 +101,7 @@ def define_extensions(**kwargs):
                      libraries=libraries,
                      extra_link_args=extra_link_args,
                      include_dirs=include_dirs,
-                     language="c++",)
+                     language='c++',)
 
 
 setup(
@@ -117,11 +113,11 @@ setup(
     author_email='recotech.kakao@gmail.com',
     license='Apache License 2.0',
     setup_requires=[
-        "setuptools>=18",
-        "cython",
+        'setuptools>=18',
+        'cython',
     ],
     install_requires=[
-        "cython"
+        'cython'
     ],
     classifiers=[
         'Programming Language :: Python',
