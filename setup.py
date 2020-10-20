@@ -66,7 +66,7 @@ def check_buildable():
                 test_cmd = 'echo "int main(){}" | ' + cmd + ' -fsyntax-only ' + flag + ' -xc++ -'
                 subprocess.check_output(test_cmd, stderr=subprocess.STDOUT, shell=True)
     except subprocess.CalledProcessError:
-        msg = ('\n  \033[1mYour compiler(\033[33m\"%s\"\033[37m) may not support \033[31m\"%s\"\033[0m.'
+        msg = ('\n  \033[1;37mYour compiler(\033[33m\"%s\"\033[37m) may not support \033[31m\"%s\"\033[0m.'
                '\n  \033[1mSet CC, CXX environ as suitable gcc.\033[0m\n') % (cmd, option)
         sys.exit(msg)
 
