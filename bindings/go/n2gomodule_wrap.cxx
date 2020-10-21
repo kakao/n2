@@ -248,7 +248,7 @@ static void* Swig_malloc(int c) {
 extern "C" {
 #endif
 
-void _wrap_Swig_free_n2_ab9ec64a84e85a64(void *_swig_go_0) {
+void _wrap_Swig_free_n2_a488e07e7793b4ac(void *_swig_go_0) {
   void *arg1 = (void *) 0 ;
   
   arg1 = *(void **)&_swig_go_0; 
@@ -258,7 +258,7 @@ void _wrap_Swig_free_n2_ab9ec64a84e85a64(void *_swig_go_0) {
 }
 
 
-void *_wrap_Swig_malloc_n2_ab9ec64a84e85a64(intgo _swig_go_0) {
+void *_wrap_Swig_malloc_n2_a488e07e7793b4ac(intgo _swig_go_0) {
   int arg1 ;
   void *result = 0 ;
   void *_swig_go_result;
@@ -271,7 +271,7 @@ void *_wrap_Swig_malloc_n2_ab9ec64a84e85a64(intgo _swig_go_0) {
 }
 
 
-n2::HnswIndex *_wrap_new_HnswIndex__SWIG_0_n2_ab9ec64a84e85a64(intgo _swig_go_0) {
+n2::HnswIndex *_wrap_new_HnswIndex__SWIG_0_n2_a488e07e7793b4ac(intgo _swig_go_0) {
   int arg1 ;
   n2::HnswIndex *result = 0 ;
   n2::HnswIndex *_swig_go_result;
@@ -284,7 +284,7 @@ n2::HnswIndex *_wrap_new_HnswIndex__SWIG_0_n2_ab9ec64a84e85a64(intgo _swig_go_0)
 }
 
 
-n2::HnswIndex *_wrap_new_HnswIndex__SWIG_1_n2_ab9ec64a84e85a64(intgo _swig_go_0, _gostring_ _swig_go_1) {
+n2::HnswIndex *_wrap_new_HnswIndex__SWIG_1_n2_a488e07e7793b4ac(intgo _swig_go_0, _gostring_ _swig_go_1) {
   int arg1 ;
   char *arg2 = (char *) 0 ;
   n2::HnswIndex *result = 0 ;
@@ -305,7 +305,7 @@ n2::HnswIndex *_wrap_new_HnswIndex__SWIG_1_n2_ab9ec64a84e85a64(intgo _swig_go_0,
 }
 
 
-void _wrap_delete_HnswIndex_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0) {
+void _wrap_delete_HnswIndex_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   
   arg1 = *(n2::HnswIndex **)&_swig_go_0; 
@@ -315,7 +315,7 @@ void _wrap_delete_HnswIndex_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0) {
 }
 
 
-void _wrap_HnswIndex_Build_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, intgo _swig_go_4, float _swig_go_5, _gostring_ _swig_go_6, _gostring_ _swig_go_7) {
+void _wrap_HnswIndex_Build_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, intgo _swig_go_4, float _swig_go_5, _gostring_ _swig_go_6, _gostring_ _swig_go_7) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   int arg2 ;
   int arg3 ;
@@ -351,7 +351,7 @@ void _wrap_HnswIndex_Build_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, intgo 
 }
 
 
-bool _wrap_HnswIndex_SaveModel_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _gostring_ _swig_go_1) {
+bool _wrap_HnswIndex_SaveModel_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, _gostring_ _swig_go_1) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   char *arg2 = (char *) 0 ;
   bool result;
@@ -372,7 +372,7 @@ bool _wrap_HnswIndex_SaveModel_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _g
 }
 
 
-bool _wrap_HnswIndex_LoadModel__SWIG_0_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _gostring_ _swig_go_1) {
+bool _wrap_HnswIndex_LoadModel__SWIG_0_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, _gostring_ _swig_go_1) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   char *arg2 = (char *) 0 ;
   bool result;
@@ -393,7 +393,7 @@ bool _wrap_HnswIndex_LoadModel__SWIG_0_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_
 }
 
 
-bool _wrap_HnswIndex_LoadModel__SWIG_1_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _gostring_ _swig_go_1, bool _swig_go_2) {
+bool _wrap_HnswIndex_LoadModel__SWIG_1_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, _gostring_ _swig_go_1, bool _swig_go_2) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   char *arg2 = (char *) 0 ;
   bool arg3 ;
@@ -416,7 +416,7 @@ bool _wrap_HnswIndex_LoadModel__SWIG_1_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_
 }
 
 
-void _wrap_HnswIndex_UnloadModel_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0) {
+void _wrap_HnswIndex_UnloadModel_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   
   arg1 = *(n2::HnswIndex **)&_swig_go_0; 
@@ -426,7 +426,7 @@ void _wrap_HnswIndex_UnloadModel_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0) 
 }
 
 
-void _wrap_HnswIndex_AddData_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _goslice_ _swig_go_1) {
+void _wrap_HnswIndex_AddData_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, _goslice_ _swig_go_1) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   std::vector< float > arg2 ;
   
@@ -446,7 +446,7 @@ void _wrap_HnswIndex_AddData_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _gos
 }
 
 
-void _wrap_HnswIndex_SearchByVector__SWIG_0_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _goslice_ _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4) {
+void _wrap_HnswIndex_SearchByVector__SWIG_0_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, _goslice_ _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   std::vector< float > arg2 ;
   int arg3 ;
@@ -487,7 +487,7 @@ void _wrap_HnswIndex_SearchByVector__SWIG_0_n2_ab9ec64a84e85a64(n2::HnswIndex *_
 }
 
 
-void _wrap_HnswIndex_SearchByVector__SWIG_1_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, _goslice_ _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4, _goslice_* _swig_go_5) {
+void _wrap_HnswIndex_SearchByVector__SWIG_1_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, _goslice_ _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4, _goslice_* _swig_go_5) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   std::vector< float > arg2 ;
   int arg3 ;
@@ -545,7 +545,7 @@ void _wrap_HnswIndex_SearchByVector__SWIG_1_n2_ab9ec64a84e85a64(n2::HnswIndex *_
 }
 
 
-void _wrap_HnswIndex_SearchById__SWIG_0_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4) {
+void _wrap_HnswIndex_SearchById__SWIG_0_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   int arg2 ;
   int arg3 ;
@@ -578,7 +578,7 @@ void _wrap_HnswIndex_SearchById__SWIG_0_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig
 }
 
 
-void _wrap_HnswIndex_SearchById__SWIG_1_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4, _goslice_* _swig_go_5) {
+void _wrap_HnswIndex_SearchById__SWIG_1_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0, intgo _swig_go_1, intgo _swig_go_2, intgo _swig_go_3, _goslice_* _swig_go_4, _goslice_* _swig_go_5) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   int arg2 ;
   int arg3 ;
@@ -628,7 +628,7 @@ void _wrap_HnswIndex_SearchById__SWIG_1_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig
 }
 
 
-void _wrap_HnswIndex_PrintDegreeDist_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0) {
+void _wrap_HnswIndex_PrintDegreeDist_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   
   arg1 = *(n2::HnswIndex **)&_swig_go_0; 
@@ -638,7 +638,7 @@ void _wrap_HnswIndex_PrintDegreeDist_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go
 }
 
 
-void _wrap_HnswIndex_PrintConfigs_n2_ab9ec64a84e85a64(n2::HnswIndex *_swig_go_0) {
+void _wrap_HnswIndex_PrintConfigs_n2_a488e07e7793b4ac(n2::HnswIndex *_swig_go_0) {
   n2::HnswIndex *arg1 = (n2::HnswIndex *) 0 ;
   
   arg1 = *(n2::HnswIndex **)&_swig_go_0; 
