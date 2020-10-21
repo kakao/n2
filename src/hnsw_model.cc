@@ -192,9 +192,9 @@ void HnswModel::LoadConfigFromModel() {
     auto data_dim_bak = data_dim_;
     ptr = GetValueAndIncPtr<size_t>(ptr, data_dim_);
     if (data_dim_bak > 0 && data_dim_ != data_dim_bak) {
+        data_dim_ = data_dim_bak;
         throw runtime_error("[Error] index dimension(" + to_string(data_dim_bak)
                             + ") != model dimension(" + to_string(data_dim_) + ")");
-        data_dim_ = data_dim_bak;
     }
     ptr = GetValueAndIncPtr<uint64_t>(ptr, memory_per_data_);
     ptr = GetValueAndIncPtr<uint64_t>(ptr, memory_per_link_level0_);

@@ -36,6 +36,7 @@ namespace n2 {
 using std::defer_lock;
 using std::make_unique;
 using std::min;
+using std::move;
 using std::mt19937;
 using std::mutex;
 using std::numeric_limits;
@@ -159,7 +160,7 @@ shared_ptr<const HnswModel> HnswBuild::Build() {
     nodes_.clear();
     data_list_.clear();
 
-    return model;
+    return move(model);
 }
 
 void HnswBuild::BuildGraph(bool reverse) {
