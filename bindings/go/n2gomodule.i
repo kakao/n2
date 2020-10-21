@@ -23,6 +23,13 @@
 // vector<int> *
 %typemap(gotype) (std::vector<int> *)  "*[]int"
 
+%typemap(goin) (std::vector<int> *)
+%{
+	//Wrap variables to avoid cgocheck
+	var v []int
+	$result = &v
+%}
+
 %typemap(in) (std::vector<int> *)
 %{
   $1 = new std::vector<int>();
@@ -45,9 +52,23 @@
   }
 %}
 
+%typemap(goargout) (std::vector<int> *)
+%{
+	{
+		r := swigCopyIntSlice($input)
+		*$1 = r
+	}
+%}
 
 // vector<float> *
 %typemap(gotype) (std::vector<float> *)  "*[]float32"
+
+%typemap(goin) (std::vector<float> *)
+%{
+	//Wrap variables to avoid cgocheck
+	var vv []float32
+	$result = &vv
+%}
 
 %typemap(in) (std::vector<float> *)
 %{
@@ -71,6 +92,14 @@
   }
 %}
 
+%typemap(goargout) (std::vector<float> *)
+%{
+	{
+		r := swigCopyFloatSlice($input)
+		*$1 = r
+	}
+%}
+
 
 %typemap(gotype) (const char *) "string"
 
@@ -83,6 +112,26 @@
 %typemap(freearg) (const char *)
 %{
   free($1);
+%}
+
+%insert("go_runtime") %{
+type swig_goslice struct { array uintptr; len int; cap int }
+func swigCopyIntSlice(s *[]int) []int {
+	p := *(*swig_goslice)(unsafe.Pointer(s))
+	r := make([]int, p.len)
+	copy(r, *s)
+	Swig_free(p.array)
+	return r
+}
+
+
+func swigCopyFloatSlice(s *[]float32) []float32 {
+	p := *(*swig_goslice)(unsafe.Pointer(s))
+	r := make([]float32, p.len)
+	copy(r, *s)
+	Swig_free(p.array)
+	return r
+}
 %}
 
 %include "n2gomodule.h"
