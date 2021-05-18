@@ -4,13 +4,13 @@ MAJOR := 0
 MINOR := 1
 MICRO := 7
 VERSION := $(MAJOR).$(MINOR).$(MICRO)
-PREFIX ?= /usr/local/
-PREFIX_INCLUDE := $(PREFIX)/include
-PREFIX := $(PREFIX)/lib64
 CXX ?= g++
+PREFIX ?= /usr/local
+LIB_INSTALL_DIR := $(PREFIX)/lib64
+INCLUDE_INSTALL_DIR := $(PREFIX)/include
 
 all: static_lib shared_lib test_cpp
-### Bindings ### 
+### Bindings ###
 
 go:
 	@mkdir -p ${GOPATH}/src/n2
@@ -37,12 +37,17 @@ static_lib:
 ### Installation ###
 
 install:
-	if [ -a build/lib/libn2.so.$(VERSION) ] ; \
+	if [ ! -d $(LIB_INSTALL_DIR) ] ; \
 	then \
-		install build/lib/libn2.so.$(VERSION) $(PREFIX) && \
-		ln -s `which $(PREFIX)/libn2.so.$(VERSION)` $(PREFIX)/libn2.so.tmp && \
-		mv $(PREFIX)/libn2.so.tmp $(PREFIX)/libn2.so ; \
-		cp -r include/n2 $(PREFIX_INCLUDE) ; \
+		ln -s $(PREFIX)/lib $(LIB_INSTALL_DIR); \
+	fi;
+
+	if [ -e build/lib/libn2.so.$(VERSION) ] ; \
+	then \
+		install build/lib/libn2.so.$(VERSION) $(LIB_INSTALL_DIR) && \
+		ln -s `which $(LIB_INSTALL_DIR)/libn2.so.$(VERSION)` $(LIB_INSTALL_DIR)/libn2.so.tmp && \
+		mv $(LIB_INSTALL_DIR)/libn2.so.tmp $(LIB_INSTALL_DIR)/libn2.so ; \
+		cp -r include/n2 $(INCLUDE_INSTALL_DIR) ; \
 	fi;
 	echo "Finished"
 

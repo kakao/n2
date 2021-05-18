@@ -1,5 +1,15 @@
 CXX ?= g++
-CXXFLAGS += -O3 -march=native -std=c++14 -pthread -fPIC -fopenmp -DNDEBUG -DBOOST_DISABLE_ASSERTS
+FLAGS := $(shell cat /proc/cpuinfo | grep flags | head -n 1)
+AVX2 := $(findstring avx2, $(FLAGS))
+SSE42 := $(findstring sse4_2, $(FLAGS))
+
+ifneq ($(and $(AVX2),$(SSE42)),)
+	CXXFLAGS += -msse4.2 -mavx2
+else
+	CXXFLAGS += -march=native
+endif
+
+CXXFLAGS += -O3 -std=c++14 -pthread -fPIC -fopenmp -DNDEBUG -DBOOST_DISABLE_ASSERTS
 CXXFLAGS += -I../third_party/spdlog/include/ -I../include/ -I../third_party/eigen \
 			-I../third_party/boost/assert/include/ -I../third_party/boost/bind/include/ \
 			-I../third_party/boost/concept_check/include/ -I../third_party/boost/config/include/ \
