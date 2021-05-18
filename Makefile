@@ -6,8 +6,8 @@ MICRO := 7
 VERSION := $(MAJOR).$(MINOR).$(MICRO)
 CXX ?= g++
 PREFIX ?= /usr/local
-LIB_INSTALL_DIR := $(PREFIX)/lib64
-INCLUDE_INSTALL_DIR := $(PREFIX)/include
+LIB_INSTALL_DIR ?= $(PREFIX)/lib64
+INCLUDE_INSTALL_DIR ?= $(PREFIX)/include
 
 all: static_lib shared_lib test_cpp
 ### Bindings ###
@@ -37,11 +37,6 @@ static_lib:
 ### Installation ###
 
 install:
-	if [ ! -d $(LIB_INSTALL_DIR) ] ; \
-	then \
-		ln -s $(PREFIX)/lib $(LIB_INSTALL_DIR); \
-	fi;
-
 	if [ -e build/lib/libn2.so.$(VERSION) ] ; \
 	then \
 		install build/lib/libn2.so.$(VERSION) $(LIB_INSTALL_DIR) && \

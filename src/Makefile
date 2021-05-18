@@ -1,10 +1,10 @@
 CXX ?= g++
-FLAGS := $(shell cat /proc/cpuinfo | grep flags | head -n 1)
-AVX2 := $(findstring avx2, $(FLAGS))
-SSE42 := $(findstring sse4_2, $(FLAGS))
 
-ifneq ($(and $(AVX2),$(SSE42)),)
-	CXXFLAGS += -msse4.2 -mavx2
+CXXFLAGS := $(filter-out $(N2_BUILD_ARCH), $(CXXFLAGS))
+N2_BUILD_ARCH := $(filter-out -march=native, $(N2_BUILD_ARCH))
+
+ifneq ($(N2_BUILD_ARCH),)
+	CXXFLAGS += $(N2_BUILD_ARCH)
 else
 	CXXFLAGS += -march=native
 endif
