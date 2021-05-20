@@ -3,12 +3,12 @@ CXX ?= g++
 N2_BUILD_PORTABLE ?= 0
 
 ifeq ($(N2_BUILD_PORTABLE), 0)
-CXXFLAGS := $(filter-out $(N2_BUILD_ARCH), $(CXXFLAGS))
-ifneq ($(N2_BUILD_ARCH),)
-	CXXFLAGS += $(N2_BUILD_ARCH)
-else
-	CXXFLAGS += -march=native
-endif
+	CXXFLAGS := $(filter-out $(N2_BUILD_ARCH), $(CXXFLAGS))
+	ifneq ($(N2_BUILD_ARCH),)
+		CXXFLAGS += $(N2_BUILD_ARCH)
+	else
+		CXXFLAGS += -march=native
+	endif
 endif
 
 CXXFLAGS += -O3 -std=c++14 -pthread -fPIC -fopenmp -DNDEBUG -DBOOST_DISABLE_ASSERTS
