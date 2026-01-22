@@ -43,6 +43,8 @@ cdef extern from "n2/hnsw.h" namespace "n2":
                               vector[vector[int]]&) nogil except +
         void BatchSearchByIds(const vector[int]&, size_t, size_t, size_t,
                               vector[vector[pair[int, float]]]&) nogil except +
+        vector[float] GetVector(int) nogil except +
+        vector[vector[float]] GetVectors(const vector[int]&) nogil except +
         void PrintDegreeDist() nogil except +
         void PrintConfigs() nogil except +
 
@@ -158,6 +160,20 @@ cdef class _HnswIndex:
         with nogil:
             self.obj.BatchSearchByIds(item_ids, k, ef_search, num_threads, rets)
         return rets
+
+    def get_vector(self, _id):
+        cdef int item_id = _id
+        cdef vector[float] ret
+        with nogil:
+            ret = self.obj.GetVector(item_id)
+        return ret
+
+    def get_vectors(self, _ids):
+        cdef vector[int] ids = _ids
+        cdef vector[vector[float]] ret
+        with nogil:
+            ret = self.obj.GetVectors(ids)
+        return ret
 
     def print_degree_dist(self):
         with nogil:
@@ -369,6 +385,36 @@ class HnswIndex(object):
             return self.model.batch_search_by_ids_incl_dist(item_ids, k, ef_search, num_threads)
         else:
             return self.model.batch_search_by_ids(item_ids, k, ef_search, num_threads)
+
+    def get_vector(self, item_id):
+        """Returns the vector for the given id.
+
+        Args:
+            item_id (int): The id of the vector to retrieve.
+
+        Returns:
+            list(float): The vector as a list of floats.
+
+        Raises:
+            RuntimeError: If model is not loaded or id is out of range.
+
+        """
+        return self.model.get_vector(item_id)
+
+    def get_vectors(self, item_ids):
+        """Returns vectors for the given ids (batch).
+
+        Args:
+            item_ids (list(int)): The ids of the vectors to retrieve.
+
+        Returns:
+            list(list(float)): The vectors as a list of lists of floats.
+
+        Raises:
+            RuntimeError: If model is not loaded or any id is out of range.
+
+        """
+        return self.model.get_vectors(item_ids)
 
     def print_degree_dist(self):
         """Prints degree distributions.

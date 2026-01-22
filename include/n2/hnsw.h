@@ -186,6 +186,49 @@ public:
     }
 
     ////////////////////////////////////////////
+    // Vector Retrieval
+
+    /**
+     * @brief Retrieves the vector for the given id.
+     * @param id: The id of the vector to retrieve.
+     * @return The vector as a std::vector<float>.
+     * @throws std::runtime_error if model is not loaded or id is out of range.
+     */
+    inline std::vector<float> GetVector(int id) const {
+        if (!model_) {
+            throw std::runtime_error("Model is not loaded");
+        }
+        if (id < 0 || id >= model_->GetNumNodes()) {
+            throw std::runtime_error("ID out of range: " + std::to_string(id));
+        }
+        const float* data = model_->GetData(id);
+        return std::vector<float>(data, data + data_dim_);
+    }
+
+    /**
+     * @brief Retrieves vectors for the given ids (batch).
+     * @param ids: The ids of the vectors to retrieve.
+     * @return The vectors as a vector of std::vector<float>.
+     * @throws std::runtime_error if model is not loaded or any id is out of range.
+     */
+    inline std::vector<std::vector<float>> GetVectors(const std::vector<int>& ids) const {
+        if (!model_) {
+            throw std::runtime_error("Model is not loaded");
+        }
+        int num_nodes = model_->GetNumNodes();
+        std::vector<std::vector<float>> results;
+        results.reserve(ids.size());
+        for (int id : ids) {
+            if (id < 0 || id >= num_nodes) {
+                throw std::runtime_error("ID out of range: " + std::to_string(id));
+            }
+            const float* data = model_->GetData(id);
+            results.emplace_back(data, data + data_dim_);
+        }
+        return results;
+    }
+
+    ////////////////////////////////////////////
     // Build(Misc)
     /**
      * @brief Prints degree distributions.
