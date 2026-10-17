@@ -238,3 +238,25 @@ class BasicTest(TestCase):
         batch_res = index.batch_search_by_ids(T, 10, num_threads=12, include_distances=True)
         normal_res = [index.search_by_id(t, 10, include_distances=True) for t in T]
         self.assertEqual(batch_res, normal_res)
+
+    def test05_save_and_load_return_bool(self):
+        # Regression for https://github.com/kakao/n2/issues/53:
+        # Cython bindings must propagate SaveModel/LoadModel bool results.
+        index = HnswIndex(self.dim)
+        for i in xrange(32):
+            index.add_data([random.gauss(0, 1) for z in xrange(self.dim)])
+        index.build(n_threads=2)
+
+        save_path = self.model_fname + '.retcheck'
+        try:
+            self.assertIs(index.save(save_path), True)
+
+            loaded = HnswIndex(self.dim)
+            self.assertIs(loaded.load(save_path), True)
+            self.assertEqual(len(loaded.search_by_id(0, 5)), 5)
+
+            missing = HnswIndex(self.dim)
+            self.assertIs(missing.load(save_path + '.does-not-exist'), False)
+        finally:
+            if os.path.exists(save_path):
+                os.remove(save_path)
