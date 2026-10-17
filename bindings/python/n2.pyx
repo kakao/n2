@@ -64,14 +64,18 @@ cdef class _HnswIndex:
 
     def save(self, _fname):
         cdef string fname = _fname.encode('ascii')
+        cdef bool_t ret
         with nogil:
-            self.obj.SaveModel(fname)
+            ret = self.obj.SaveModel(fname)
+        return ret
 
     def load(self, _fname, _use_mmap):
         cdef string fname = _fname.encode('ascii')
         cdef bool_t use_mmap = _use_mmap
+        cdef bool_t ret
         with nogil:
-            self.obj.LoadModel(fname, use_mmap)
+            ret = self.obj.LoadModel(fname, use_mmap)
+        return ret
 
     def unload(self):
         with nogil:
